@@ -1,0 +1,19 @@
+shortbow
+longbow
+bow
+throwing knife
+kunai
+rope dart
+grappling hook
+ball
+blowdart
+dart
+shuriken
+compound bow
+crossbow
+baseball bat
+nail
+boomerang
+spear
+javelin
+harpoon

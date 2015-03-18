@@ -1,0 +1,41 @@
+shiv
+long staff
+pike
+tachi
+butterfly knife
+naginata
+shortsword
+broadsword
+longsword
+sword
+katana
+greatsword
+rapier
+scimitar
+dagger
+cutlass
+knife
+mace
+flail
+battleaxe
+warhammer
+sai
+kama
+halberd
+sickle
+club
+wakizashi
+nunchaku
+tanto
+morning star
+bokken
+short staff
+battle fan
+claw
+knuckles
+spiked knuckles
+cane
+scythe
+spade
+studded whip
+chain

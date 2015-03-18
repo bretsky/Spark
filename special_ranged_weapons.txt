@@ -1,0 +1,10 @@
+beehive
+bomb
+slingshot
+molotov
+egg
+rock
+musket
+firework
+holy water
+dynamite
