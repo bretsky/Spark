@@ -1,0 +1,22 @@
+w/3/baseball bat
+w/5/long staff
+m/2/studded whip
+m/9/chain
+m/6/mace
+m/5/flail
+m/4/warhammer
+w/9/club
+w/1/nunchaku
+m/3/morning star
+w/1/bokken
+w/8/short staff
+m/4/knuckles
+m/3/spiked knuckles
+m/5/spade
+s/4/whip
+s/9/stick
+s/9/bone
+s/9/glass bottle
+s/4/boxing gloves
+s/1/soul whip
+s/3/monkey's fist

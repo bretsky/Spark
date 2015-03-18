@@ -1,0 +1,19 @@
+m/9/shiv
+m/1/butterfly knife
+m/7/short sword
+m/9/knife
+m/4/sai
+m/5/kama
+m/7/sickle
+m/5/tanto
+m/1/battle fan
+m/3/claw
+w/5/cane
+m/3/rope dart
+w/5/blowdart
+s/2/pepperspray
+m/1/shuriken
+s/1/sacrificial knife
+s/1/switchblade
+s/9/glass shard
+s/7/prison shank

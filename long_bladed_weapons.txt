@@ -1,0 +1,16 @@
+m/1/tachi
+m/1/naginata
+m/5/broadsword
+m/5/longsword
+m/9/sword
+m/4/katana
+m/4/greatsword
+m/5/rapier
+m/4/scimitar
+m/4/cutlass
+m/7/battleaxe
+m/1/halberd
+m/4/wakizashi
+m/5/scythe
+s/3/black widow
+s/2/scorpion tail

@@ -1,0 +1,10 @@
+s/6/tome
+s/8/scroll
+s/9/spellbook
+s/9/clay tablet
+s/7/stone tablet
+s/6/encyclopaedia
+s/1/necronomicon
+s/1/compendium
+s/3/generic religious text
+s/9/handy spell handbook

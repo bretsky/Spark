@@ -1,0 +1,11 @@
+m/4/grappling hook
+s/1/beehive
+s/8/bomb
+s/6/molotov
+s/1/musket
+s/4/firework
+s/9/dynamite
+s/1/flintlock
+s/3/flashbang
+s/9/torch
+s/6/branding iron

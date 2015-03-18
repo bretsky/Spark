@@ -1,0 +1,15 @@
+m/8/throwing knife
+m/8/kunai
+m/9/ball
+m/6/dart
+m/9/nail
+w/1/boomerang
+m/4/spear
+m/3/javelin
+m/2/harpoon
+m/1/tomahawk
+s/7/egg
+s/9/rock
+s/5/holy water
+s/2/throwing card
+s/3/paper airplane

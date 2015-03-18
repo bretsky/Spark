@@ -1,0 +1,6 @@
+m/1/aegis
+m/9/buckler
+m/7/kiteshield
+m/8/square shield
+s/6/door
+s/7/piece of wall
