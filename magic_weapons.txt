@@ -1,6 +1,0 @@
-wand
-staff
-sceptre
-flute
-rod
-ocarina
