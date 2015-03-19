@@ -4,95 +4,200 @@ from decimal import *
 
 getcontext().prec = 64
 
-def random_weapon(weapon_type='rand', maxlevel=100):
+def isnumeric(n):
+        try:
+                i = float(n)
+        except (ValueError, TypeError):
+            return False
+        return True
+
+def random_legendary_weapon(weapon_type='rand'):
 
 	def weapon_chooser(weapon_class):		
 		if weapon_class == 'ranged':
-			ranged_weapons_file = open('ranged_weapons.txt')
-			ranged_weapons_data = ranged_weapons_file.read().splitlines()
-			ranged_weapons_split = []
-			ranged_weapons = []
-			for x in ranged_weapons_data:
-				x = x.split('/')
-				weapon_data = x
-				for x in weapon_data:
-					ranged_weapons_split.append(x)
-			ranged_material = []
-			ranged_rarity_linear = []
-			for x in ranged_weapons_split:
-				if (ranged_weapons_split.index(x) + 1) % 3 == 1:
-					ranged_material.append(x)
-				elif (ranged_weapons_split.index(x) + 1) % 3 == 2:
-					ranged_rarity_linear.append(x)
-				else:
-					ranged_weapons.append(x)
-			ranged_rarity = []
-			for x in ranged_rarity_linear:
-				x = int(x)
-				ranged_rarity.append(Decimal(x**(1/1.5)))
-			ranged_rarity = rationalize(ranged_rarity)
-			random_weapon = choice(ranged_weapons, p=ranged_rarity)
-			if ranged_material[ranged_weapons.index(random_weapon)] == 's':
-				weapon_attributes = {}
-				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'special ranged' 
-				weapon_attributes['material'] = 'special'
-				weapon_attributes['material_stat'] = 1
-				weapon_attributes['class'] = 'ranged'
-				weapon_attributes['skill'] = 'ranged weapon'
-				weapon_index = ranged_weapons.index(random_weapon)
-				weapon_rarity = int(ranged_rarity_linear[weapon_index])
-				weapon_level = round((10-int(ranged_rarity_linear[ranged_weapons.index(random_weapon)]))**2.09590327429)
-				if weapon_level > maxlevel:
-					return weapon_chooser(weapon_class)
-				weapon_attributes['level'] = weapon_level
-				material = weapon_attributes['material']
-				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
-				weapon = weapon_attributes['weapon']
-				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
-				weapon_type = weapon_attributes['type']
-				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_skill = weapon_attributes['skill']
-				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
-				weapon_attributes['name'] = weapon_name
-				return weapon_attributes
-			else:
-				if ranged_material[ranged_weapons.index(random_weapon)] == 'm':
-					material = random_material('metal')
-				else:
-					material = random_material('wood')
-				weapon_attributes = {}
-				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'ranged' 
-				weapon_attributes['material'] = material[0]
-				weapon_attributes['material_stat'] = material[1]
-				weapon_attributes['class'] = 'ranged'
-				weapon_attributes['skill'] = 'ranged weapon'
-				weapon_index = ranged_weapons.index(random_weapon)
-				weapon_rarity = int(ranged_rarity_linear[weapon_index])
-				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
-				if weapon_level > maxlevel:
-					return weapon_chooser(weapon_class)
-				weapon_attributes['level'] = weapon_level
-				material = weapon_attributes['material']
-				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
-				weapon = weapon_attributes['weapon']
-				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
-				weapon_type = weapon_attributes['type']
-				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_skill = weapon_attributes['skill']
-				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
-				weapon_attributes['name'] = weapon_name
-				return weapon_attributes
-		
+			ranged_weapons_file = open('legendary_ranged.txt')
+			ranged_weapons = ranged_weapons_file.read().splitlines()			
+			random_weapon = random.choice(ranged_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary ranged' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'ranged'
+			weapon_attributes['skill'] = 'ranged weapon'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'long bladed':
+			long_bladed_weapons_file = open('legendary_long_bladed.txt')
+			long_bladed_weapons = long_bladed_weapons_file.read().splitlines()			
+			random_weapon = random.choice(long_bladed_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary long bladed' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'long bladed'
+			weapon_attributes['skill'] = 'long bladed weapon'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'shield':
+			shield_weapons_file = open('legendary_shields.txt')
+			shield_weapons = shield_weapons_file.read().splitlines()			
+			random_weapon = random.choice(shield_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary shield' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'shield'
+			weapon_attributes['skill'] = 'shield'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'magic':
+			magic_weapons_file = open('legendary_magic.txt')
+			magic_weapons = magic_weapons_file.read().splitlines()			
+			random_weapon = random.choice(magic_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary magic' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'magic'
+			weapon_attributes['skill'] = 'magic weapon'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'blunt':
+			blunt_weapons_file = open('legendary_blunt.txt')
+			blunt_weapons = blunt_weapons_file.read().splitlines()			
+			random_weapon = random.choice(blunt_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary blunt' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'blunt'
+			weapon_attributes['skill'] = 'blunt weapon'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'concealed':
+			concealed_weapons_file = open('legendary_concealed.txt')
+			concealed_weapons = concealed_weapons_file.read().splitlines()			
+			random_weapon = random.choice(concealed_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary concealed' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'concealed'
+			weapon_attributes['skill'] = 'concealed weapon'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'gadget':
+			gadget_weapons_file = open('legendary_gadgets.txt')
+			gadget_weapons = gadget_weapons_file.read().splitlines()			
+			random_weapon = random.choice(gadget_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary gadget' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'gadget'
+			weapon_attributes['skill'] = 'gadget'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+		if weapon_class == 'book':
+			book_weapons_file = open('legendary_books.txt')
+			book_weapons = book_weapons_file.read().splitlines()			
+			random_weapon = random.choice(book_weapons)
+			weapon_attributes = {}
+			weapon_attributes['weapon'] = random_weapon
+			weapon_attributes['type'] = 'legendary book' 
+			weapon_attributes['material'] = 'special'
+			weapon_attributes['material_stat'] = 1
+			weapon_attributes['class'] = 'book'
+			weapon_attributes['skill'] = 'book'
+			weapon_attributes['level'] = 120
+			weapon = weapon_attributes['weapon']
+			weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+			weapon_type = weapon_attributes['type']
+			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+			weapon_skill = weapon_attributes['skill']
+			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_attributes['name'] = weapon_name
+			return weapon_attributes
+
+	def weapon_class_chooser():
+		classes = ['ranged','long bladed','shield','magic', 'blunt', 'concealed', 'gadget', 'book']
+		weapon_class = random.choice(classes)
+		return weapon_class
+
+	if weapon_type == 'rand':
+		return weapon_chooser(weapon_class_chooser())
+	else:	
+		return weapon_chooser(weapon_type)
 
 def weapon_generator(weapons_limit):
 	counter = 0
 	weapon_list = []
 	while counter <= weapons_limit - 1:
-		random_weapon_attributes = random_weapon('rand')
+		random_weapon_attributes = random_legendary_weapon('rand')
 		weapon_list.append(random_weapon_attributes['name'])
 		counter += 1
 	return weapon_list
@@ -113,23 +218,6 @@ def user_process(user_input):
 
 		else:
 			return user_process(input('How many more weapons to generate? (Must be a number.) '))
-
-def material_lister():
-	metallic_material_file = open('metallic_materials.txt')
-	metallic_materials = metallic_material_file.read().splitlines()
-	metallic_material_stats = {}
-	wooden_material_file = open('wooden_materials.txt')
-	wooden_materials = wooden_material_file.read().splitlines()
-	wooden_material_stats = {}
-	for x in range(len(metallic_materials)):
-		metallic_material_stats[metallic_materials[x]] = round((x+1)**1.7)
-	for x in range(len(wooden_materials)):
-		wooden_material_stats[wooden_materials[x]] = round((x+1)**1.7)
-	material_dict = {'metal' : metallic_material_stats, 'wood' : wooden_material_stats}
-	dict_list = {'metal' : metallic_materials, 'wood' : wooden_materials, 'dict' : material_dict}
-	return dict_list	
-
-materials = material_lister()
 
 print(user_process(input('How many weapons to generate? (Type "end" to close program.) '))
 )
