@@ -13,7 +13,7 @@ m/3/rope dart
 w/5/blowdart
 s/2/pepperspray
 m/1/shuriken
-s/1/sacrificial knife
-s/1/switchblade
+s/2/sacrificial knife
+s/2/switchblade
 s/9/glass shard
 s/7/prison shank

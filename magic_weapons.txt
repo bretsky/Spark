@@ -6,6 +6,6 @@ w/1/ocarina
 w/4/rod
 s/5/orb
 s/4/crystal ball
-s/1/dragon claw
-s/1/phoenix feather
-s/1/magic harp
+s/2/dragon claw
+s/2/phoenix feather
+s/2/magic harp

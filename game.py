@@ -41,13 +41,40 @@ def intro():
 		print('On this difficulty level, your stats have a multiplier of %(multiplier)s, enemies generate at %(enemyrate)s times the normal rate and your final score will have a difficulty multiplier of %(score)s.' % {'multiplier' : str(round(multiplier,3)), 'enemyrate' : str(round(enemyrate, 3)), 'score' : str(round(score, 3))})
 	return "Let's begin!"
 
+def is_class(string):
+	if string in ['mage', 'warrior', 'rogue', 'tank', 'engineer', 'ranger']:
+		return True
+	else:
+		return False
+
 def get_first_weapon(player_class):
-	class_list = {'mage' : 'magic', 'warrior' : 'melee', 'ranger' : 'ranged'}
-	if player_class in list(class_list.keys()):
-		first_weapon = random_weapon(class_list[player_class], 3)
-		return 'You received a ' + first_weapon['name'] + '.'
-	elif player_class not in list(class_list.keys()):
-		print(get_first_weapon(input('Please enter a valid class. Mage, Warrior or Ranger. ').lower()))
+	beginning_weapons = []
+	if player_class == 'mage':
+		beginning_weapons.append(random_weapon('magic', 3))
+		beginning_weapons.append(random_weapon('book', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	if player_class == 'warrior':
+		beginning_weapons.append(random_weapon('long bladed', 3))
+		beginning_weapons.append(random_weapon('shield', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	if player_class == 'rogue':
+		beginning_weapons.append(random_weapon('concealed', 3))
+		beginning_weapons.append(random_weapon('concealed', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	if player_class == 'tank':
+		beginning_weapons.append(random_weapon('blunt', 3))
+		beginning_weapons.append(random_weapon('shield', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	if player_class == 'engineer':
+		beginning_weapons.append(random_weapon('gadget', 3))
+		beginning_weapons.append(random_weapon('gadget', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	if player_class == 'ranger':
+		beginning_weapons.append(random_weapon('ranged', 3))
+		beginning_weapons.append(random_weapon('concealed', 3))
+		return beginning_weapons[0]['name'] + '\n' + beginning_weapons[1]['name']
+	elif is_class(player_class) != True:
+		return get_first_weapon(input('Please enter a valid class. Mage, Warrior, Rogue, Tank, Engineer or Ranger. ').lower())
 
 def random_weapon(weapon_type='rand', maxlevel=100):
 
@@ -62,45 +89,44 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 		return weight_ratio_list
 
 	def weapon_chooser(weapon_class):
-		if weapon_class == 'melee':
-			wooden_melee_weapons = ['long staff', 'club', 'nunchaku', 'bokken', 'short staff', 'cane']
-			melee_weapons_file = open('melee_weapons.txt')
-			melee_weapons = melee_weapons_file.read().splitlines()
-			special_melee_weapons_file = open('special_melee_weapons.txt')
-			special_melee_weapons = special_melee_weapons_file.read().splitlines()
-			melee_rarity_file = open('melee_weapon_rarity.txt')
-			melee_rarity_inverse = melee_rarity_file.read().splitlines()
-			melee_rarity = []
-			for x in melee_rarity_inverse:
-				x = int(x)
-				melee_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))
-			melee_rarity = rationalize(melee_rarity)
-			special_melee_rarity_file = open('special_melee_weapon_rarity.txt')
-			special_melee_rarity_inverse = special_melee_rarity_file.read().splitlines()
-			special_melee_rarity = []
-			for x in special_melee_rarity_inverse:
-				x = int(x)
-				special_melee_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))
-			special_melee_rarity = rationalize(special_melee_rarity)
-			length = len(melee_weapons) + len(special_melee_weapons)
-			random_pick = random.randrange(0, length)
-			if random_pick < len(melee_weapons):
-				random_weapon = choice(melee_weapons, p=melee_rarity)
-				if random_weapon in wooden_melee_weapons:
-					material = random_material('wood')
+		if weapon_class == 'ranged':
+			ranged_weapons_file = open('ranged_weapons.txt')
+			ranged_weapons_data = ranged_weapons_file.read().splitlines()
+			ranged_weapons_split = []
+			ranged_weapons = []
+			for x in ranged_weapons_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					ranged_weapons_split.append(x)
+			ranged_material = []
+			ranged_rarity_linear = []
+			for x in ranged_weapons_split:
+				if (ranged_weapons_split.index(x) + 1) % 3 == 1:
+					ranged_material.append(x)
+				elif (ranged_weapons_split.index(x) + 1) % 3 == 2:
+					ranged_rarity_linear.append(x)
 				else:
-					material = random_material('metal')
+					ranged_weapons.append(x)
+			ranged_rarity = []
+			for x in ranged_rarity_linear:
+				x = int(x)
+				ranged_rarity.append(Decimal(x**(1/1.5)))
+			ranged_rarity = rationalize(ranged_rarity)
+			random_weapon = choice(ranged_weapons, p=ranged_rarity)
+			if ranged_material[ranged_weapons.index(random_weapon)] == 's':
 				weapon_attributes = {}
 				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'melee' 
-				weapon_attributes['material'] = material[0]
-				weapon_attributes['material_stat'] = material[1]
-				weapon_attributes['class'] = 'melee'
-				weapon_index = melee_weapons.index(random_weapon)
-				weapon_rarity = int(melee_rarity_inverse[weapon_index])
-				weapon_level = round((int(weapon_rarity*material[1]))**(0.562151993))
+				weapon_attributes['type'] = 'special ranged' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'ranged'
+				weapon_attributes['skill'] = 'ranged weapon'
+				weapon_index = ranged_weapons.index(random_weapon)
+				weapon_rarity = int(ranged_rarity_linear[weapon_index])
+				weapon_level = round((10-int(ranged_rarity_linear[ranged_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
+					return weapon_chooser(weapon_class)
 				weapon_attributes['level'] = weapon_level
 				material = weapon_attributes['material']
 				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
@@ -108,69 +134,28 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
 				weapon_type = weapon_attributes['type']
 				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
 				weapon_attributes['name'] = weapon_name
 				return weapon_attributes
 			else:
-				weapon_attributes = {}
-				random_weapon = choice(special_melee_weapons, p=special_melee_rarity)
-				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'special melee' 
-				weapon_attributes['material'] = 'special'
-				weapon_attributes['material_stat'] = 1
-				weapon_attributes['class'] = 'melee'
-				weapon_level = round(int(special_melee_rarity_inverse[special_melee_weapons.index(random_weapon)])**2.09590327429)
-				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
-				weapon_attributes['level'] = weapon_level
-				material = weapon_attributes['material']
-				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
-				weapon = weapon_attributes['weapon']
-				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
-				weapon_type = weapon_attributes['type']
-				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
-				weapon_attributes['name'] = weapon_name
-				return weapon_attributes
-		if weapon_class == 'ranged':
-			wooden_ranged_weapons = ['shortbow', 'longbow', 'bow', 'blowdart', 'compound bow', 'crossbow', 'baseball bat', 'boomerang']
-			ranged_weapons_file = open('ranged_weapons.txt')
-			ranged_weapons = ranged_weapons_file.read().splitlines()
-			special_ranged_weapons_file = open('special_ranged_weapons.txt')
-			special_ranged_weapons = special_ranged_weapons_file.read().splitlines()
-			ranged_rarity_file = open('ranged_weapon_rarity.txt')
-			ranged_rarity_inverse = ranged_rarity_file.read().splitlines()
-			ranged_rarity = []
-			for x in ranged_rarity_inverse:
-				x = int(x)
-				ranged_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))
-			ranged_rarity = rationalize(ranged_rarity)
-			special_ranged_rarity_file = open('special_ranged_weapon_rarity.txt')
-			special_ranged_rarity_inverse = special_ranged_rarity_file.read().splitlines()
-			special_ranged_rarity = []
-			for x in special_ranged_rarity_inverse:
-				x = int(x)
-				special_ranged_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))
-			special_ranged_rarity = rationalize(special_ranged_rarity)
-			length = len(ranged_weapons) + len(special_ranged_weapons)
-			random_pick = random.randrange(0, length)
-			if random_pick < len(ranged_weapons):
-				random_weapon = choice(ranged_weapons, p=ranged_rarity)
-				if random_weapon in wooden_ranged_weapons:
-					material = random_material('wood')
-				else:
+				if ranged_material[ranged_weapons.index(random_weapon)] == 'm':
 					material = random_material('metal')
+				else:
+					material = random_material('wood')
 				weapon_attributes = {}
 				weapon_attributes['weapon'] = random_weapon
 				weapon_attributes['type'] = 'ranged' 
 				weapon_attributes['material'] = material[0]
 				weapon_attributes['material_stat'] = material[1]
 				weapon_attributes['class'] = 'ranged'
+				weapon_attributes['skill'] = 'ranged weapon'
 				weapon_index = ranged_weapons.index(random_weapon)
-				weapon_rarity = int(ranged_rarity_inverse[weapon_index])
-				weapon_level = round((int(weapon_rarity*material[1]))**(0.562151993))
+				weapon_rarity = int(ranged_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
 				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
+					return weapon_chooser(weapon_class)
 				weapon_attributes['level'] = weapon_level
 				material = weapon_attributes['material']
 				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
@@ -178,20 +163,78 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
 				weapon_type = weapon_attributes['type']
 				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+		if weapon_class == 'long bladed':
+			long_bladed_weapons_file = open('long_bladed_weapons.txt')
+			long_bladed_weapons_data = long_bladed_weapons_file.read().splitlines()
+			long_bladed_weapons_split = []
+			long_bladed_weapons = []
+			for x in long_bladed_weapons_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					long_bladed_weapons_split.append(x)
+			long_bladed_material = []
+			long_bladed_rarity_linear = []
+			for x in long_bladed_weapons_split:
+				if (long_bladed_weapons_split.index(x) + 1) % 3 == 1:
+					long_bladed_material.append(x)
+				elif (long_bladed_weapons_split.index(x) + 1) % 3 == 2:
+					long_bladed_rarity_linear.append(x)
+				else:
+					long_bladed_weapons.append(x)
+			long_bladed_rarity = []
+			for x in long_bladed_rarity_linear:
+				x = int(x)
+				long_bladed_rarity.append(Decimal(x**(1/1.5)))
+			long_bladed_rarity = rationalize(long_bladed_rarity)
+			random_weapon = choice(long_bladed_weapons, p=long_bladed_rarity)
+			if long_bladed_material[long_bladed_weapons.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special long bladed' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'long bladed'
+				weapon_attributes['skill'] = 'long bladed weapon'
+				weapon_index = long_bladed_weapons.index(random_weapon)
+				weapon_rarity = int(long_bladed_rarity_linear[weapon_index])
+				weapon_level = round((10-int(long_bladed_rarity_linear[long_bladed_weapons.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
 				weapon_attributes['name'] = weapon_name
 				return weapon_attributes
 			else:
+				if long_bladed_material[long_bladed_weapons.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
 				weapon_attributes = {}
-				random_weapon = choice(special_ranged_weapons, p=special_ranged_rarity)
 				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'special ranged' 
-				weapon_attributes['material'] = 'special'
-				weapon_attributes['material_stat'] = 1
-				weapon_attributes['class'] = 'ranged'
-				weapon_level = round(int(special_ranged_rarity_inverse[special_ranged_weapons.index(random_weapon)])**2.09590327429)
+				weapon_attributes['type'] = 'long bladed' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'long bladed'
+				weapon_attributes['skill'] = 'long bladed weapon'
+				weapon_index = long_bladed_weapons.index(random_weapon)
+				weapon_rarity = int(long_bladed_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
 				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
+					return weapon_chooser(weapon_class)
 				weapon_attributes['level'] = weapon_level
 				material = weapon_attributes['material']
 				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
@@ -199,44 +242,157 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
 				weapon_type = weapon_attributes['type']
 				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
 				weapon_attributes['name'] = weapon_name
 				return weapon_attributes
-		if weapon_class == 'magic':	
+		if weapon_class == 'shield':
+			shields_file = open('shields.txt')
+			shields_data = shields_file.read().splitlines()
+			shields_split = []
+			shields = []
+			for x in shields_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					shields_split.append(x)
+			shield_material = []
+			shield_rarity_linear = []
+			for x in shields_split:
+				if (shields_split.index(x) + 1) % 3 == 1:
+					shield_material.append(x)
+				elif (shields_split.index(x) + 1) % 3 == 2:
+					shield_rarity_linear.append(x)
+				else:
+					shields.append(x)
+			shield_rarity = []
+			for x in shield_rarity_linear:
+				x = int(x)
+				shield_rarity.append(Decimal(x**(1/1.5)))
+			shield_rarity = rationalize(shield_rarity)
+			random_weapon = choice(shields, p=shield_rarity)
+			if shield_material[shields.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special shield' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'shield'
+				weapon_attributes['skill'] = 'shield'
+				weapon_index = shields.index(random_weapon)
+				weapon_rarity = int(shield_rarity_linear[weapon_index])
+				weapon_level = round((10-int(shield_rarity_linear[shields.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if shield_material[shields.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'shield' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'shield'
+				weapon_attributes['skill'] = 'shield'
+				weapon_index = shields.index(random_weapon)
+				weapon_rarity = int(shield_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+		if weapon_class == 'magic':
 			magic_weapons_file = open('magic_weapons.txt')
-			magic_weapons = magic_weapons_file.read().splitlines()
-			special_magic_weapons_file = open('special_magic_weapons.txt')
-			special_magic_weapons = special_magic_weapons_file.read().splitlines()
-			magic_rarity_file = open('magic_weapon_rarity.txt')
-			magic_rarity_inverse = magic_rarity_file.read().splitlines()
+			magic_weapons_data = magic_weapons_file.read().splitlines()
+			magic_weapons_split = []
+			magic_weapons = []
+			for x in magic_weapons_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					magic_weapons_split.append(x)
+			magic_material = []
+			magic_rarity_linear = []
+			for x in magic_weapons_split:
+				if (magic_weapons_split.index(x) + 1) % 3 == 1:
+					magic_material.append(x)
+				elif (magic_weapons_split.index(x) + 1) % 3 == 2:
+					magic_rarity_linear.append(x)
+				else:
+					magic_weapons.append(x)
 			magic_rarity = []
-			for x in magic_rarity_inverse:
+			for x in magic_rarity_linear:
 				x = int(x)
-				magic_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))		
+				magic_rarity.append(Decimal(x**(1/1.5)))
 			magic_rarity = rationalize(magic_rarity)
-			special_magic_rarity_file = open('special_magic_weapon_rarity.txt')
-			special_magic_rarity_inverse = special_magic_rarity_file.read().splitlines()
-			special_magic_rarity = []
-			for x in special_magic_rarity_inverse:
-				x = int(x)
-				special_magic_rarity.append(Decimal(10**(1/2)) - Decimal(x**(1/2)))
-			special_magic_rarity = rationalize(special_magic_rarity)
-			length = len(magic_weapons) + len(special_magic_weapons)
-			random_pick = random.randrange(0, length)
-			if random_pick < len(magic_weapons):			
-				random_weapon = choice(magic_weapons, p=magic_rarity)
-				material = random_material('wood')
+			random_weapon = choice(magic_weapons, p=magic_rarity)
+			if magic_material[magic_weapons.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special magic' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'magic'
+				weapon_attributes['skill'] = 'magic weapon'
+				weapon_index = magic_weapons.index(random_weapon)
+				weapon_rarity = int(magic_rarity_linear[weapon_index])
+				weapon_level = round((10-int(magic_rarity_linear[magic_weapons.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if magic_material[magic_weapons.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
 				weapon_attributes = {}
 				weapon_attributes['weapon'] = random_weapon
 				weapon_attributes['type'] = 'magic' 
 				weapon_attributes['material'] = material[0]
 				weapon_attributes['material_stat'] = material[1]
 				weapon_attributes['class'] = 'magic'
+				weapon_attributes['skill'] = 'magic weapon'
 				weapon_index = magic_weapons.index(random_weapon)
-				weapon_rarity = int(magic_rarity_inverse[weapon_index])
-				weapon_level = round((int(weapon_rarity*material[1]))**(0.562151993))
+				weapon_rarity = int(magic_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
 				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
+					return weapon_chooser(weapon_class)
 				weapon_attributes['level'] = weapon_level
 				material = weapon_attributes['material']
 				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
@@ -244,20 +400,49 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
 				weapon_type = weapon_attributes['type']
 				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
 				weapon_attributes['name'] = weapon_name
-				return weapon_attributes				
-			else:		
+				return weapon_attributes
+		if weapon_class == 'blunt':
+			blunt_weapons_file = open('blunt_weapons.txt')
+			blunt_weapons_data = blunt_weapons_file.read().splitlines()
+			blunt_weapons_split = []
+			blunt_weapons = []
+			for x in blunt_weapons_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					blunt_weapons_split.append(x)
+			blunt_material = []
+			blunt_rarity_linear = []
+			for x in blunt_weapons_split:
+				if (blunt_weapons_split.index(x) + 1) % 3 == 1:
+					blunt_material.append(x)
+				elif (blunt_weapons_split.index(x) + 1) % 3 == 2:
+					blunt_rarity_linear.append(x)
+				else:
+					blunt_weapons.append(x)
+			blunt_rarity = []
+			for x in blunt_rarity_linear:
+				x = int(x)
+				blunt_rarity.append(Decimal(x**(1/1.5)))
+			blunt_rarity = rationalize(blunt_rarity)
+			random_weapon = choice(blunt_weapons, p=blunt_rarity)
+			if blunt_material[blunt_weapons.index(random_weapon)] == 's':
 				weapon_attributes = {}
-				random_weapon = choice(special_magic_weapons, p=special_magic_rarity)
 				weapon_attributes['weapon'] = random_weapon
-				weapon_attributes['type'] = 'special magic' 
+				weapon_attributes['type'] = 'special blunt' 
 				weapon_attributes['material'] = 'special'
 				weapon_attributes['material_stat'] = 1
-				weapon_attributes['class'] = 'magic'
-				weapon_level = round(int(special_magic_rarity_inverse[special_magic_weapons.index(random_weapon)])**2.09590327429)
+				weapon_attributes['class'] = 'blunt'
+				weapon_attributes['skill'] = 'blunt weapon'
+				weapon_index = blunt_weapons.index(random_weapon)
+				weapon_rarity = int(blunt_rarity_linear[weapon_index])
+				weapon_level = round((10-int(blunt_rarity_linear[blunt_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
-					weapon_attributes = weapon_chooser(weapon_class)
+					return weapon_chooser(weapon_class)
 				weapon_attributes['level'] = weapon_level
 				material = weapon_attributes['material']
 				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
@@ -265,14 +450,282 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
 				weapon_type = weapon_attributes['type']
 				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
-				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' Undetermined Skill' + ')')
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if blunt_material[blunt_weapons.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'blunt' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'blunt'
+				weapon_attributes['skill'] = 'blunt weapon'
+				weapon_index = blunt_weapons.index(random_weapon)
+				weapon_rarity = int(blunt_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+		if weapon_class == 'concealed':
+			concealed_weapons_file = open('concealed_weapons.txt')
+			concealed_weapons_data = concealed_weapons_file.read().splitlines()
+			concealed_weapons_split = []
+			concealed_weapons = []
+			for x in concealed_weapons_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					concealed_weapons_split.append(x)
+			concealed_material = []
+			concealed_rarity_linear = []
+			for x in concealed_weapons_split:
+				if (concealed_weapons_split.index(x) + 1) % 3 == 1:
+					concealed_material.append(x)
+				elif (concealed_weapons_split.index(x) + 1) % 3 == 2:
+					concealed_rarity_linear.append(x)
+				else:
+					concealed_weapons.append(x)
+			concealed_rarity = []
+			for x in concealed_rarity_linear:
+				x = int(x)
+				concealed_rarity.append(Decimal(x**(1/1.5)))
+			concealed_rarity = rationalize(concealed_rarity)
+			random_weapon = choice(concealed_weapons, p=concealed_rarity)
+			if concealed_material[concealed_weapons.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special concealed' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'concealed'
+				weapon_attributes['skill'] = 'concealed weapon'
+				weapon_index = concealed_weapons.index(random_weapon)
+				weapon_rarity = int(concealed_rarity_linear[weapon_index])
+				weapon_level = round((10-int(concealed_rarity_linear[concealed_weapons.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if concealed_material[concealed_weapons.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'concealed' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'concealed'
+				weapon_attributes['skill'] = 'concealed weapon'
+				weapon_index = concealed_weapons.index(random_weapon)
+				weapon_rarity = int(concealed_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+		if weapon_class == 'gadget':
+			gadgets_file = open('gadgets.txt')
+			gadgets_data = gadgets_file.read().splitlines()
+			gadgets_split = []
+			gadgets = []
+			for x in gadgets_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					gadgets_split.append(x)
+			gadget_material = []
+			gadget_rarity_linear = []
+			for x in gadgets_split:
+				if (gadgets_split.index(x) + 1) % 3 == 1:
+					gadget_material.append(x)
+				elif (gadgets_split.index(x) + 1) % 3 == 2:
+					gadget_rarity_linear.append(x)
+				else:
+					gadgets.append(x)
+			gadget_rarity = []
+			for x in gadget_rarity_linear:
+				x = int(x)
+				gadget_rarity.append(Decimal(x**(1/1.5)))
+			gadget_rarity = rationalize(gadget_rarity)
+			random_weapon = choice(gadgets, p=gadget_rarity)
+			if gadget_material[gadgets.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special gadget' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'gadget'
+				weapon_attributes['skill'] = 'gadget'
+				weapon_index = gadgets.index(random_weapon)
+				weapon_rarity = int(gadget_rarity_linear[weapon_index])
+				weapon_level = round((10-int(gadget_rarity_linear[gadgets.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if gadget_material[gadgets.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'gadget' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'gadget'
+				weapon_attributes['skill'] = 'gadget'
+				weapon_index = gadgets.index(random_weapon)
+				weapon_rarity = int(gadget_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+		if weapon_class == 'book':
+			books_file = open('books.txt')
+			books_data = books_file.read().splitlines()
+			books_split = []
+			books = []
+			for x in books_data:
+				x = x.split('/')
+				weapon_data = x
+				for x in weapon_data:
+					books_split.append(x)
+			book_material = []
+			book_rarity_linear = []
+			for x in books_split:
+				if (books_split.index(x) + 1) % 3 == 1:
+					book_material.append(x)
+				elif (books_split.index(x) + 1) % 3 == 2:
+					book_rarity_linear.append(x)
+				else:
+					books.append(x)
+			book_rarity = []
+			for x in book_rarity_linear:
+				x = int(x)
+				book_rarity.append(Decimal(x**(1/1.5)))
+			book_rarity = rationalize(book_rarity)
+			random_weapon = choice(books, p=book_rarity)
+			if book_material[books.index(random_weapon)] == 's':
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'special book' 
+				weapon_attributes['material'] = 'special'
+				weapon_attributes['material_stat'] = 1
+				weapon_attributes['class'] = 'book'
+				weapon_attributes['skill'] = 'book'
+				weapon_index = books.index(random_weapon)
+				weapon_rarity = int(book_rarity_linear[weapon_index])
+				weapon_level = round((10-int(book_rarity_linear[books.index(random_weapon)]))**2.09590327429)
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
+				weapon_attributes['name'] = weapon_name
+				return weapon_attributes
+			else:
+				if book_material[books.index(random_weapon)] == 'm':
+					material = random_material('metal')
+				else:
+					material = random_material('wood')
+				weapon_attributes = {}
+				weapon_attributes['weapon'] = random_weapon
+				weapon_attributes['type'] = 'book' 
+				weapon_attributes['material'] = material[0]
+				weapon_attributes['material_stat'] = material[1]
+				weapon_attributes['class'] = 'book'
+				weapon_attributes['skill'] = 'book'
+				weapon_index = books.index(random_weapon)
+				weapon_rarity = int(book_rarity_linear[weapon_index])
+				weapon_level = round((int((10-weapon_rarity)*material[1]))**(0.562151993))
+				if weapon_level > maxlevel:
+					return weapon_chooser(weapon_class)
+				weapon_attributes['level'] = weapon_level
+				material = weapon_attributes['material']
+				material = ' '.join(word[0].upper() + word[1:] for word in material.split())
+				weapon = weapon_attributes['weapon']
+				weapon = ' '.join(word[0].upper() + word[1:] for word in weapon.split())
+				weapon_type = weapon_attributes['type']
+				weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
+				weapon_skill = weapon_attributes['skill']
+				weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
+				weapon_name = (material + ' ' + weapon + ' (' + weapon_type + ' - Material Bonus x' + str(weapon_attributes['material_stat']) + ' - Requires Level ' + str(weapon_level) + ' ' + weapon_skill + ' Skill' + ')')
 				weapon_attributes['name'] = weapon_name
 				return weapon_attributes
 
 	def random_material(material_type):
 		material_rarity = []
 		for x in range(34):
-			material_rarity.append(Decimal(34**(1/2)) - Decimal(x**(1/2)))
+			material_rarity.append(Decimal(34**(1/1.5)) - Decimal(x**(1/1.5)))
 		material_rarity = rationalize(material_rarity)
 		material_dict = materials['dict']
 		possible_material_dict = material_dict[material_type]
@@ -283,7 +736,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 		return material_attributes
 
 	def weapon_class_chooser():
-		classes = ['magic', 'melee', 'ranged']
+		classes = ['ranged','long bladed','shield','magic', 'blunt', 'concealed', 'gadget', 'book']
 		weapon_class = random.choice(classes)
 		return weapon_class
 
@@ -292,6 +745,28 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 	else:	
 		return weapon_chooser(weapon_type)
 
+	def random_material(material_type):
+		material_rarity = []
+		for x in range(34):
+			material_rarity.append(Decimal(34**(1/1.5)) - Decimal(x**(1/1.5)))
+		material_rarity = rationalize(material_rarity)
+		material_dict = materials['dict']
+		possible_material_dict = material_dict[material_type]
+		possible_material_list = materials[material_type]
+		material = choice(possible_material_list, p=material_rarity)	
+		material_stat = possible_material_dict[material]
+		material_attributes = [material, material_stat]
+		return material_attributes
+
+	def weapon_class_chooser():
+		classes = ['throwing','ranged','long bladed','shield','magic', 'blunt', 'concealed', 'gadget', 'book']
+		weapon_class = random.choice(classes)
+		return weapon_class
+
+	if weapon_type == 'rand':
+		return weapon_chooser(weapon_class_chooser())
+	else:	
+		return weapon_chooser(weapon_type)
 
 def material_lister():
 	metallic_material_file = open('metallic_materials.txt')
@@ -311,4 +786,5 @@ def material_lister():
 materials = material_lister()
 
 print(intro())
-print(get_first_weapon(input('Please choose your class. Mage, Warrior or Ranger. ').lower()))
+print(get_first_weapon(input('Please enter your class. Mage, Warrior, Rogue, Tank, Engineer or Ranger. ').lower()))
+

@@ -18,5 +18,5 @@ s/9/stick
 s/9/bone
 s/9/glass bottle
 s/4/boxing gloves
-s/1/soul whip
+s/2/soul whip
 s/3/monkey's fist
