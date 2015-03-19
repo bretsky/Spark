@@ -4,3 +4,4 @@ w/8/bow
 w/1/compound bow
 w/1/crossbow
 s/8/slingshot
+s/8/sling

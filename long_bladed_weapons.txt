@@ -14,3 +14,4 @@ m/4/wakizashi
 m/5/scythe
 s/3/black widow
 s/2/scorpion tail
+m/5/claymore
