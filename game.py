@@ -958,9 +958,9 @@ def material_lister():
 	wooden_materials = wooden_material_file.read().splitlines()
 	wooden_material_stats = {}
 	for x in range(len(metallic_materials)):
-		metallic_material_stats[metallic_materials[x]] = round((x+1)**1.7)
+		metallic_material_stats[metallic_materials[x]] = round((x+1)**1.6)
 	for x in range(len(wooden_materials)):
-		wooden_material_stats[wooden_materials[x]] = round((x+1)**1.7)
+		wooden_material_stats[wooden_materials[x]] = round((x+1)**1.6)
 	material_dict = {'metal' : metallic_material_stats, 'wood' : wooden_material_stats}
 	dict_list = {'metal' : metallic_materials, 'wood' : wooden_materials, 'dict' : material_dict}
 	return dict_list	
@@ -968,5 +968,8 @@ def material_lister():
 materials = material_lister()
 
 print(intro())
-print(get_first_weapon(input('Please enter your class. Mage, Warrior, Rogue, Tank, Engineer or Ranger. ').lower()))
+x = 0
+while x != 1:
+	print(get_first_weapon(input('Please enter your class. Mage, Warrior, Rogue, Tank, Engineer or Ranger. ').lower()))
+
 
