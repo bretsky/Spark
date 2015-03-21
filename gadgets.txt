@@ -1,5 +1,5 @@
-m/4/grappling hook
-s/2/beehive
+m/5/grappling hook
+s/3/beehive
 s/8/bomb
 s/6/molotov
 s/2/musket
@@ -9,6 +9,6 @@ s/2/flintlock
 s/3/flashbang
 s/9/torch
 s/6/branding iron
-m/7/trap
+m/8/trap
 s/2/flamethrower
-m/7/wrench
+m/9/wrench

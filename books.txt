@@ -8,3 +8,5 @@ s/2/necronomicon
 s/2/compendium
 s/3/generic religious text
 s/9/handy spell handbook
+m/5/rune
+m/6/glyph
