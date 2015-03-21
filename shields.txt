@@ -1,0 +1,10 @@
+m/1/aegis
+m/8/buckler
+m/7/kiteshield
+m/7/square shield
+s/5/door
+s/6/piece of wall
+m/6/tower shield
+m/3/targe
+m/9/shield
+m/1/spike shield

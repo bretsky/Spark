@@ -1,0 +1,11 @@
+w/9/wand
+w/8/staff
+w/3/sceptre
+w/6/flute
+w/1/ocarina
+w/4/rod
+s/5/orb
+s/4/crystal ball
+s/2/dragon claw
+s/2/phoenix feather
+s/2/magic harp
