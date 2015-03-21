@@ -1,22 +1,22 @@
-w/3/baseball bat
-w/5/long staff
-m/2/studded whip
-m/9/chain
-m/6/mace
-m/5/flail
-m/4/warhammer
-w/9/club
-w/1/nunchaku
-m/3/morning star
-w/1/bokken
-w/8/short staff
-m/4/knuckles
-m/3/spiked knuckles
-m/5/spade
-s/4/whip
-s/9/stick
-s/9/bone
-s/9/glass bottle
-s/4/boxing gloves
-s/2/soul whip
-s/3/monkey's fist
+w/3/baseball bat/A baseball bat made of %m. Can be used to hit baseballs at your enemies.
+w/5/long staff/A staff of %m. It's quite long.
+m/2/studded whip/This leather whip is studded with pieces of %m for additional damage.
+m/9/chain/A long chain made of %m.
+m/6/mace/A heavy weapon with an intimidating %m head.
+m/5/flail/A spiked ball of %m is attached by chain to the handle. 
+m/4/warhammer/This massive %m hammer was not made for hammering nails.
+w/9/club/A crude barbaric weapon, made of %m.
+w/1/nunchaku/These %m nunchuks are attached by a chain in the middle, and are deadly in the hands of a master.
+m/3/morning star/The spiked %m ball on the end of the wooden shaft is sure to wake up your enemies. 
+w/1/bokken/A training sword made of %m.
+w/8/short staff/Though not as long as it's big brother, the long staff, this %m staff is still a threat.
+m/4/knuckles/These %m rings, shaped to fit around the knuckles, will certainly pack a punch.
+m/3/spiked knuckles/The %m spikes protruding from the knuckles look quite dangerous.
+m/5/spade/This %m spade can conveniently dig graves for your dead enemies.
+s/4/whip/This leather whip's loud crack can stun your enemy.
+s/9/stick/A somewhat sturdy stick.
+s/9/bone/A long bone from a dead animal.
+s/9/glass bottle/This glass bottle wouldn't look out of place in a bar fight.
+s/4/boxing gloves/These red boxing glovees ensure you'll win by knockout.
+s/2/soul whip/A whip made with mysterious fiber and shaman beads. It drains the souls of your enemies.
+s/3/monkey's fist/A length of rope with a group of knots at the end.

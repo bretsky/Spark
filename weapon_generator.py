@@ -44,13 +44,16 @@ if True:
 			ranged_weapons_split.append(x)
 	ranged_material = []
 	ranged_rarity_linear = []
+	ranged_weapons_info = []
 	for x in ranged_weapons_split:
-		if (ranged_weapons_split.index(x) + 1) % 3 == 1:
+		if (ranged_weapons_split.index(x) + 1) % 4 == 1:
 			ranged_material.append(x)
-		elif (ranged_weapons_split.index(x) + 1) % 3 == 2:
+		elif (ranged_weapons_split.index(x) + 1) % 4 == 2:
 			ranged_rarity_linear.append(x)
-		else:
+		elif (ranged_weapons_split.index(x) + 1) % 4 == 3:
 			ranged_weapons.append(x)
+		else:
+			ranged_weapons_info.append(x)
 	ranged_rarity = []
 	for x in ranged_rarity_linear:
 		x = int(x)
@@ -67,18 +70,21 @@ if True:
 			long_bladed_weapons_split.append(x)
 	long_bladed_material = []
 	long_bladed_rarity_linear = []
+	long_bladed_weapons_info = []
 	for x in long_bladed_weapons_split:
-		if (long_bladed_weapons_split.index(x) + 1) % 3 == 1:
+		if (long_bladed_weapons_split.index(x) + 1) % 4 == 1:
 			long_bladed_material.append(x)
-		elif (long_bladed_weapons_split.index(x) + 1) % 3 == 2:
+		elif (long_bladed_weapons_split.index(x) + 1) % 4 == 2:
 			long_bladed_rarity_linear.append(x)
-		else:
+		elif (long_bladed_weapons_split.index(x) + 1) % 4 == 3:
 			long_bladed_weapons.append(x)
+		else:
+			long_bladed_weapons_info.append(x)
 	long_bladed_rarity = []
 	for x in long_bladed_rarity_linear:
 		x = int(x)
 		long_bladed_rarity.append(Decimal(x**(1/1.5)))
-	long_bladed_rarity = rationalize(long_bladed_rarity)
+	long_bladed_rarity = rationalize(long_bladed_rarity)	
 	shields_file = open('shields.txt')
 	shields_data = shields_file.read().splitlines()
 	shields_split = []
@@ -90,18 +96,21 @@ if True:
 			shields_split.append(x)
 	shield_material = []
 	shield_rarity_linear = []
+	shields_info = []
 	for x in shields_split:
-		if (shields_split.index(x) + 1) % 3 == 1:
+		if (shields_split.index(x) + 1) % 4 == 1:
 			shield_material.append(x)
-		elif (shields_split.index(x) + 1) % 3 == 2:
+		elif (shields_split.index(x) + 1) % 4 == 2:
 			shield_rarity_linear.append(x)
-		else:
+		elif (shields_split.index(x) + 1) % 4 == 3:
 			shields.append(x)
+		else:
+			shields_info.append(x)
 	shield_rarity = []
 	for x in shield_rarity_linear:
 		x = int(x)
 		shield_rarity.append(Decimal(x**(1/1.5)))
-	shield_rarity = rationalize(shield_rarity)
+	shield_rarity = rationalize(shield_rarity)	
 	magic_weapons_file = open('magic_weapons.txt')
 	magic_weapons_data = magic_weapons_file.read().splitlines()
 	magic_weapons_split = []
@@ -113,18 +122,21 @@ if True:
 			magic_weapons_split.append(x)
 	magic_material = []
 	magic_rarity_linear = []
+	magic_weapons_info = []
 	for x in magic_weapons_split:
-		if (magic_weapons_split.index(x) + 1) % 3 == 1:
+		if (magic_weapons_split.index(x) + 1) % 4 == 1:
 			magic_material.append(x)
-		elif (magic_weapons_split.index(x) + 1) % 3 == 2:
+		elif (magic_weapons_split.index(x) + 1) % 4 == 2:
 			magic_rarity_linear.append(x)
-		else:
+		elif (magic_weapons_split.index(x) + 1) % 4 == 3:
 			magic_weapons.append(x)
+		else:
+			magic_weapons_info.append(x)
 	magic_rarity = []
 	for x in magic_rarity_linear:
 		x = int(x)
 		magic_rarity.append(Decimal(x**(1/1.5)))
-	magic_rarity = rationalize(magic_rarity)
+	magic_rarity = rationalize(magic_rarity)	
 	blunt_weapons_file = open('blunt_weapons.txt')
 	blunt_weapons_data = blunt_weapons_file.read().splitlines()
 	blunt_weapons_split = []
@@ -136,18 +148,21 @@ if True:
 			blunt_weapons_split.append(x)
 	blunt_material = []
 	blunt_rarity_linear = []
+	blunt_weapons_info = []
 	for x in blunt_weapons_split:
-		if (blunt_weapons_split.index(x) + 1) % 3 == 1:
+		if (blunt_weapons_split.index(x) + 1) % 4 == 1:
 			blunt_material.append(x)
-		elif (blunt_weapons_split.index(x) + 1) % 3 == 2:
+		elif (blunt_weapons_split.index(x) + 1) % 4 == 2:
 			blunt_rarity_linear.append(x)
-		else:
+		elif (blunt_weapons_split.index(x) + 1) % 4 == 3:
 			blunt_weapons.append(x)
+		else:
+			blunt_weapons_info.append(x)
 	blunt_rarity = []
 	for x in blunt_rarity_linear:
 		x = int(x)
 		blunt_rarity.append(Decimal(x**(1/1.5)))
-	blunt_rarity = rationalize(blunt_rarity)
+	blunt_rarity = rationalize(blunt_rarity)	
 	concealed_weapons_file = open('concealed_weapons.txt')
 	concealed_weapons_data = concealed_weapons_file.read().splitlines()
 	concealed_weapons_split = []
@@ -159,18 +174,21 @@ if True:
 			concealed_weapons_split.append(x)
 	concealed_material = []
 	concealed_rarity_linear = []
+	concealed_weapons_info = []
 	for x in concealed_weapons_split:
-		if (concealed_weapons_split.index(x) + 1) % 3 == 1:
+		if (concealed_weapons_split.index(x) + 1) % 4 == 1:
 			concealed_material.append(x)
-		elif (concealed_weapons_split.index(x) + 1) % 3 == 2:
+		elif (concealed_weapons_split.index(x) + 1) % 4 == 2:
 			concealed_rarity_linear.append(x)
-		else:
+		elif (concealed_weapons_split.index(x) + 1) % 4 == 3:
 			concealed_weapons.append(x)
+		else:
+			concealed_weapons_info.append(x)
 	concealed_rarity = []
 	for x in concealed_rarity_linear:
 		x = int(x)
 		concealed_rarity.append(Decimal(x**(1/1.5)))
-	concealed_rarity = rationalize(concealed_rarity)
+	concealed_rarity = rationalize(concealed_rarity)	
 	gadgets_file = open('gadgets.txt')
 	gadgets_data = gadgets_file.read().splitlines()
 	gadgets_split = []
@@ -182,18 +200,21 @@ if True:
 			gadgets_split.append(x)
 	gadget_material = []
 	gadget_rarity_linear = []
+	gadgets_info = []
 	for x in gadgets_split:
-		if (gadgets_split.index(x) + 1) % 3 == 1:
+		if (gadgets_split.index(x) + 1) % 4 == 1:
 			gadget_material.append(x)
-		elif (gadgets_split.index(x) + 1) % 3 == 2:
+		elif (gadgets_split.index(x) + 1) % 4 == 2:
 			gadget_rarity_linear.append(x)
-		else:
+		elif (gadgets_split.index(x) + 1) % 4 == 3:
 			gadgets.append(x)
+		else:
+			gadgets_info.append(x)
 	gadget_rarity = []
 	for x in gadget_rarity_linear:
 		x = int(x)
 		gadget_rarity.append(Decimal(x**(1/1.5)))
-	gadget_rarity = rationalize(gadget_rarity)
+	gadget_rarity = rationalize(gadget_rarity)	
 	books_file = open('books.txt')
 	books_data = books_file.read().splitlines()
 	books_split = []
@@ -205,18 +226,21 @@ if True:
 			books_split.append(x)
 	book_material = []
 	book_rarity_linear = []
+	books_info = []
 	for x in books_split:
-		if (books_split.index(x) + 1) % 3 == 1:
+		if (books_split.index(x) + 1) % 4 == 1:
 			book_material.append(x)
-		elif (books_split.index(x) + 1) % 3 == 2:
+		elif (books_split.index(x) + 1) % 4 == 2:
 			book_rarity_linear.append(x)
-		else:
+		elif (books_split.index(x) + 1) % 4 == 3:
 			books.append(x)
+		else:
+			books_info.append(x)
 	book_rarity = []
 	for x in book_rarity_linear:
 		x = int(x)
 		book_rarity.append(Decimal(x**(1/1.5)))
-	book_rarity = rationalize(book_rarity)
+	book_rarity = rationalize(book_rarity)	
 
 def isnumeric(n):
         try:
