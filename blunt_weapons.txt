@@ -17,6 +17,6 @@ s/4/whip/This leather whip's loud crack can stun your enemy.
 s/9/stick/A somewhat sturdy stick.
 s/9/bone/A long bone from a dead animal.
 s/9/glass bottle/This glass bottle wouldn't look out of place in a bar fight.
-s/4/boxing gloves/These red boxing glovees ensure you'll win by knockout.
+s/4/boxing gloves/These red boxing gloves ensure you'll win by knockout.
 s/2/soul whip/A whip made with mysterious fiber and shaman beads. It drains the souls of your enemies.
 s/3/monkey's fist/A length of rope with a group of knots at the end.

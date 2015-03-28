@@ -99,7 +99,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'blunt':
-			blunt_weapons_file = open('legendary_blunt.txt')
+			blunt_weapons_file = open('legendary_blunts.txt')
 			blunt_weapons = blunt_weapons_file.read().splitlines()			
 			random_weapon = random.choice(blunt_weapons)
 			weapon_attributes = {}

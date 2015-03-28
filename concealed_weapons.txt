@@ -1,19 +1,19 @@
-m/9/shiv
-m/1/butterfly knife
-m/7/short sword
-m/9/knife
-m/4/sai
-m/5/kama
-m/7/sickle
-m/5/tanto
-m/1/battle fan
-m/3/claw
-w/5/cane
-m/3/rope dart
-w/5/blowdart
-s/2/pepperspray
-m/1/shuriken
-s/2/sacrificial knife
-s/2/switchblade
-s/9/glass shard
-s/7/prison shank
+m/9/shiv/A piece of %m, crudely sharpened and easily concealed.
+m/1/butterfly knife/A flashy weapon, with a blade made of %m, that requires some skill to use.
+m/7/short sword/A sword made of %m that is small enough to be concealed.
+m/9/knife/A generic %m bladed knife.
+m/4/sai/An oriental dagger with three sharp prongs. It's made of %m.
+m/5/kama/A dangerous tool, used for farming, with a curved %m blade. 
+m/7/sickle/The small curved blade on this %m sickle resembles a miniature scythe.
+m/5/tanto/A small Japanese dagger, with a blade forged of %m.
+m/1/battle fan/It appears to be a normal fan, but it's spokes are made of pointed %m, rendering it quite dangerous.
+m/3/claw/This %m claw is worn on the hand for slashing at enemies.
+w/5/cane/This sturdy %m will teach your opponent to mind his manners.
+m/3/rope dart/A long rope with a %m dart on the end. It can be thrown surprisingly fast.
+w/5/blowgun/This long pipe, made of %m, is used to fire small darts.
+s/2/pepperspray/This can of pepperspray can incapacitate enemies at close range.
+m/1/shuriken/This Japanese throwing star, crafted out of %m, can be thrown at enemies as a painful distraction.
+s/2/sacrificial knife/This obsidian ceremonial knife is perfectly suited for cutting out the hearts of your enemies.
+s/2/switchblade/A spring loaded pocket knife, with a thin stiletto blade. Popular with 50's gangs and greasers.
+s/9/glass shard/A piece of a broken glass bottle.
+s/7/prison shank/A primitive knife, cobbled together out of various items found in a prison.

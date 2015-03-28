@@ -1,4 +1,4 @@
-m/5/grappling hook
+m/5/grappling hook/A length of rope with 3 %m hooks fastened to the end.
 s/3/beehive
 s/8/bomb
 s/6/molotov
