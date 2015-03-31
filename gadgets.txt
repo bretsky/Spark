@@ -1,14 +1,14 @@
 m/5/grappling hook/A length of rope with 3 %m hooks fastened to the end.
-s/3/beehive
-s/8/bomb
-s/6/molotov
-s/2/musket
-s/4/firework
-s/9/dynamite
-s/2/flintlock
-s/3/flashbang
-s/9/torch
-s/6/branding iron
-m/8/trap
-s/2/flamethrower
-m/9/wrench
+s/3/beehive/A beehivee full of buzzing bees. Should I be carrying this around?
+s/8/bomb/A standard issue explosive, light the fuse and blow your enemies to bits.
+s/6/molotov/A bottle-based improvised incendiary weapon. A favorite of guerillas and protesters everywhere!  
+s/2/musket/A flintlock musket. It fires heavy lead balls which can penetrate armour. 
+s/4/firework/This firework will set off a loud, flashy, but nonetheless dangerous, explosion. 
+s/9/dynamite/It's a stick of explosive dynamite.
+s/2/flintlock pistol/A short range pistol, small enough to be carried in a holster. 
+s/3/gas canister/This canister contains disorienting poison gas that confuses and hurts your eneemy.
+s/6/branding iron/An electric branding iron that can be used to sriously burn your enemy.
+m/8/trap/A trap with spring-loaded %m claws. 
+s/2/flamethrower/This device sprays a stream of flaming liquid.
+m/9/wrench/A large %m wrench, made more for hitting than building.
+s/2/arquebus/A muzzle-loaded firearm that's lighter than a musket.
