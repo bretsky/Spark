@@ -2,6 +2,6 @@ tesla coil/This high voltage alternating-current circuit. It generates long spar
 light disk/A glowing disk containing all of your information since obtaining it. They can slice through enemies and ricochet off walls.
 portal gun/This Aperture Science Handheld Portal Device is used to place portals. Place portals strategically to teleport your enemies to their deaths.
 smuggler's end/A customized version of the AEP7 laser pistol. It can inflict heavy damage on opponents.
-arc whip
-lightsaber
-holographic de-materialization device
+arc whip/An whip made of eleectrically charged wires. It can cut through almost anything with relative ease.
+lightsaber/Also known as a laser sword, this is the standard wepon of the Jedi. It consists of a blade of pure plasma emitted from the hilt.
+holographic de-materialization device/A device that dematerializes enemies, converting all matter in the target area to pure energy.   

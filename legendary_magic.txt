@@ -1,8 +1,7 @@
-elder wand
-staff of merlin
-moses's staff
-horcrux
-zeus's thunderbolt
-the ark of the covenant
-hermes's caduceus
-magic orb of disco
+elder wand/One of the three Deathly Hallows. Legend tells that the wielder of this wand can't be defeated in battle.
+staff of merlin/The staff of the mighty wizard Merlin, advisor to King Arthur. It is a powerful magic weapon.
+moses's staff/Given to Moses by God, this staff was used to part the Red Sea, and can be transformed into a snake.
+horcrux/This item contains a piece of a Dark Wizard's soul. It is protected by various enchantments and imbued with dark magic.
+zeus's thunderbolt/The thunderbolt wielded by the Greek god Zeus, ruler of the Olympians. It can summon mighty thunder and lightning.
+hermes's caduceus/The rod wielded by Hermes, messenger of the gods. It is surmounted by wings. It grants its holder great negotiation skills.
+magic orb of disco/An ancient magic weapon, forged by the god Disco. It is said he crafted it from stars themselves, and it glows with magical power still today.

@@ -1,7 +1,7 @@
-laser bow
-robin hood's bow
-rain-bow
-apollo's bow
-artemis's bow
-cupid's bow
-david's sling
+laser bow/This deadly bow converts human force into electricity, which is used to power the high energy laser beam amplifier.
+robin hood's bow/Crafted from the finest wood in the land, this bow was used by Robin Hood, renowned for his archery skill. 
+rain-bow/This arc shaped bow refracts light into spectrum beams, also known as rainbows, at a high energy level in order to burn through flesh. 
+apollo's bow/This golden bow, possessed by the Greek god of archery, Apollo, is much stronger than a standard bow, and is designed to inflict maximum pain on the enmey.
+artemis's bow/This silver bow kills peacefully, but is powerful nonetheless. It was the bow of Artemis, goddes of the hunt. 
+cupid's bow/Cupid, the god of desire, wielded this bow. It has the power to fill its victim with uncontrollable love.
+david's sling/The sling used by David to slay Goliath. It is blessed by God to grant its wielder additional strength.
