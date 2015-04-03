@@ -1,5 +1,5 @@
-m/1/tachi
-m/1/naginata
+m/1/tachi/A large Japanese longsword with a curved blade. It is very effective on horseback.
+m/1/naginata/A japanese polearm consisting of a long sword bladed mounted on the end of a spearpole.
 m/5/broadsword
 m/5/longsword
 m/9/sword
