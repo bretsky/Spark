@@ -1,15 +1,14 @@
-m/8/throwing knife
-m/8/kunai
-m/9/ball
-m/6/dart
-m/9/nail
-w/1/boomerang
-m/4/spear
-m/3/javelin
-m/2/harpoon
-m/1/tomahawk
-s/7/egg
-s/9/rock
-s/5/holy water
-s/2/throwing card
-s/3/paper airplane
+m/8/throwing knife/A standard %m throwing knife. Chance of loss on throw.
+m/8/kunai/Get right to the point with the sharp tip of this %m kunai. Chance of loss on throw.
+m/9/ball/This %m ball can be thrown or used in a sling or slingshot. Chance of loss on throw.
+m/6/dart/Bar games aren't as much fun when you're the target of this %m dart. Chance of loss on throw.
+m/9/nail/A nail made of %m. Hammer not included. Chance of loss on throw.
+w/1/boomerang/This trusty %m boomerang was made authentically in Australia. It always comes back when thrown.
+m/3/javelin/This %m javelin is a spear designed for throwing.
+m/2/harpoon/Also used for recreational spearfishing, this %m harpoon will land you a big one.
+m/1/tomahawk/A native american throwing axe with a %m head.
+s/7/egg/While not that dangerous, it reduces the morale of enemies. Watch out for salmonella.
+s/9/rock/Let's play a game of dodge the rock!
+s/5/holy water/Water blessed by a priest, it only burns the unholy.
+s/2/throwing card/Leaves no witnesses, because a magician never reveals his tricks.
+s/3/paper airplane/A deadly F-16 fighter jet, made out of paper.

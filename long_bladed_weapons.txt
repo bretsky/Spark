@@ -14,3 +14,4 @@ m/4/wakizashi/A Japanese sword with a curved blade made of %m. It is shorter tha
 m/5/scythe/Generally used to reap crops, the scythe's long %m blade can cut off a head of corn or a head of man.
 s/2/scorpion tail/The tail of an oversized scorpion. It can poison enemise with relative ease.
 m/5/claymore/A Scottish claymore, also known as a claidheamh-mòr, used by the Highlanders. It has a broad %m blade.
+m/4/spear/A long weapon with sharpened %m tip.
