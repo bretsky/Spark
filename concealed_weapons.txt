@@ -8,7 +8,7 @@ m/7/sickle/The small curved blade on this %m sickle resembles a miniature scythe
 m/5/tanto/A small Japanese dagger, with a blade forged of %m.
 m/1/battle fan/It appears to be a normal fan, but it's spokes are made of pointed %m, rendering it quite dangerous.
 m/3/claw/This %m claw is worn on the hand for slashing at enemies.
-w/5/cane/This sturdy %m will teach your opponent to mind his manners.
+w/5/cane/This sturdy %m cane will teach your opponent to mind his manners.
 m/3/rope dart/A long rope with a %m dart on the end. It can be thrown surprisingly fast.
 w/5/blowgun/This long pipe, made of %m, is used to fire small darts.
 s/2/pepperspray/This can of pepperspray can incapacitate enemies at close range.
