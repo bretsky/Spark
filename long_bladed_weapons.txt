@@ -1,17 +1,16 @@
-m/1/tachi/A large Japanese longsword with a curved blade. It is very effective on horseback.
-m/1/naginata/A japanese polearm consisting of a long sword bladed mounted on the end of a spearpole.
-m/5/broadsword
-m/5/longsword
-m/9/sword
-m/4/katana
-m/4/greatsword
-m/5/rapier
-m/4/scimitar
-m/4/cutlass
-m/7/battleaxe
-m/1/halberd
-m/4/wakizashi
-m/5/scythe
-s/3/black widow
-s/2/scorpion tail
-m/5/claymore
+m/1/tachi/A large Japanese longsword with a curved %m blade. It is very effective on horseback.
+m/1/naginata/A Japanese polearm consisting of a long %m sword bladed mounted on the end of a spearpole.
+m/5/broadsword/This heavy military sword has a broad %m blade.
+m/5/longsword/A sword with a blade of nearly one meter in length. It is heavy, made of %m, and intended for two-handed use. 
+m/9/sword/A standard %m sword, complete with blade, hilt, and even a handle.
+m/4/katana/A traditional Japanese sword, shorter than the tachi. Its curved blade is made of %m.
+m/4/greatsword/A long-bladed %m sword that can be wielded with one or two hands.
+m/5/rapier/This sword has a long, slender %m blade, mainly used for stabbing.
+m/4/scimitar/This Middle Eastern sword is made of %m. It has a large curved blade.
+m/4/cutlass/The cutlass has a slightly curved %m blade. It was used by pirates for its effectiveness in close-quarters.
+m/7/battleaxe/This %m axe is designd for battle. It chops through both bone and wood.
+m/1/halberd/A long polearm with a spike, axe blade, and hook made of %m.
+m/4/wakizashi/A Japanese sword with a curved blade made of %m. It is shorter than the katana and was often used for beheadings.
+m/5/scythe/Generally used to reap crops, the scythe's long %m blade can cut off a head of corn or a head of man.
+s/2/scorpion tail/The tail of an oversized scorpion. It can poison enemise with relative ease.
+m/5/claymore/A Scottish claymore, also known as a claidheamh-mòr, used by the Highlanders. It has a broad %m blade.

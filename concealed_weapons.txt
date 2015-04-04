@@ -17,3 +17,4 @@ s/2/sacrificial knife/This obsidian ceremonial knife is perfectly suited for cut
 s/2/switchblade/A spring loaded pocket knife, with a thin stiletto blade. Popular with 50's gangs and greasers.
 s/9/glass shard/A piece of a broken glass bottle.
 s/7/prison shank/A primitive knife, cobbled together out of various items found in a prison.
+m/9/dagger/A short %m blade with a very sharp, and very dangerous point.
