@@ -263,7 +263,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'ranged'
 				weapon_attributes['skill'] = 'ranged weapon'
 				weapon_index = ranged_weapons.index(random_weapon)
-				weapon_attributes['info'] = ranged_weapons_info[weapon_index].capitalize()
+				weapon_attributes['info'] = ranged_weapons_info[weapon_index]
 				weapon_rarity = int(ranged_rarity_linear[weapon_index])
 				weapon_level = round((10-int(ranged_rarity_linear[ranged_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -321,7 +321,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'long bladed'
 				weapon_attributes['skill'] = 'long bladed weapon'
 				weapon_index = long_bladed_weapons.index(random_weapon)
-				weapon_attributes['info'] = long_bladed_weapons_info[weapon_index].capitalize()
+				weapon_attributes['info'] = long_bladed_weapons_info[weapon_index]
 				weapon_rarity = int(long_bladed_rarity_linear[weapon_index])
 				weapon_level = round((10-int(long_bladed_rarity_linear[long_bladed_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -379,7 +379,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'shield'
 				weapon_attributes['skill'] = 'shield'
 				weapon_index = shields.index(random_weapon)
-				weapon_attributes['info'] = shields_info[weapon_index].capitalize()
+				weapon_attributes['info'] = shields_info[weapon_index]
 				weapon_rarity = int(shield_rarity_linear[weapon_index])
 				weapon_level = round((10-int(shield_rarity_linear[shields.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -437,7 +437,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'magic'
 				weapon_attributes['skill'] = 'magic weapon'
 				weapon_index = magic_weapons.index(random_weapon)
-				weapon_attributes['info'] = magic_weapons_info[weapon_index].capitalize()
+				weapon_attributes['info'] = magic_weapons_info[weapon_index]
 				weapon_rarity = int(magic_rarity_linear[weapon_index])
 				weapon_level = round((10-int(magic_rarity_linear[magic_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -495,7 +495,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'blunt'
 				weapon_attributes['skill'] = 'blunt weapon'
 				weapon_index = blunt_weapons.index(random_weapon)
-				weapon_attributes['info'] = blunt_weapons_info[weapon_index].capitalize()
+				weapon_attributes['info'] = blunt_weapons_info[weapon_index]
 				weapon_rarity = int(blunt_rarity_linear[weapon_index])
 				weapon_level = round((10-int(blunt_rarity_linear[blunt_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -553,7 +553,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'concealed'
 				weapon_attributes['skill'] = 'concealed weapon'
 				weapon_index = concealed_weapons.index(random_weapon)
-				weapon_attributes['info'] = concealed_weapons_info[weapon_index].capitalize()
+				weapon_attributes['info'] = concealed_weapons_info[weapon_index]
 				weapon_rarity = int(concealed_rarity_linear[weapon_index])
 				weapon_level = round((10-int(concealed_rarity_linear[concealed_weapons.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -611,7 +611,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'gadget'
 				weapon_attributes['skill'] = 'gadget'
 				weapon_index = gadgets.index(random_weapon)
-				weapon_attributes['info'] = gadgets_info[weapon_index].capitalize()
+				weapon_attributes['info'] = gadgets_info[weapon_index]
 				weapon_rarity = int(gadget_rarity_linear[weapon_index])
 				weapon_level = round((10-int(gadget_rarity_linear[gadgets.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:
@@ -669,7 +669,7 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 				weapon_attributes['class'] = 'book'
 				weapon_attributes['skill'] = 'book'
 				weapon_index = books.index(random_weapon)
-				weapon_attributes['info'] = books_info[weapon_index].capitalize()
+				weapon_attributes['info'] = books_info[weapon_index]
 				weapon_rarity = int(book_rarity_linear[weapon_index])
 				weapon_level = round((10-int(book_rarity_linear[books.index(random_weapon)]))**2.09590327429)
 				if weapon_level > maxlevel:

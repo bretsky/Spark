@@ -22,7 +22,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary ranged' 
 			weapon_attributes['material'] = 'special'
@@ -36,7 +36,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'long bladed':
@@ -47,7 +47,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary long bladed' 
 			weapon_attributes['material'] = 'special'
@@ -61,7 +61,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'shield':
@@ -72,7 +72,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary shield' 
 			weapon_attributes['material'] = 'special'
@@ -86,7 +86,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')' + ' Info: '  + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'magic':
@@ -97,7 +97,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary magic' 
 			weapon_attributes['material'] = 'special'
@@ -111,7 +111,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'blunt':
@@ -122,7 +122,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary blunt' 
 			weapon_attributes['material'] = 'special'
@@ -136,7 +136,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'concealed':
@@ -147,7 +147,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary concealed' 
 			weapon_attributes['material'] = 'special'
@@ -161,7 +161,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'gadget':
@@ -172,7 +172,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary gadget' 
 			weapon_attributes['material'] = 'special'
@@ -186,7 +186,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')'+ ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 		if weapon_class == 'book':
@@ -197,7 +197,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_attributes = {}
 			random_weapon = random_weapon_split[0]
 			random_weapon_info = random_weapon_split[1]
-			weapon_attributes['info'] = random_weapon_info.capitalize()
+			weapon_attributes['info'] = random_weapon_info
 			weapon_attributes['weapon'] = random_weapon
 			weapon_attributes['type'] = 'legendary book' 
 			weapon_attributes['material'] = 'special'
@@ -211,7 +211,7 @@ def random_legendary_weapon(weapon_type='rand'):
 			weapon_type = ' '.join(word[0].upper() + word[1:] for word in weapon_type.split())
 			weapon_skill = weapon_attributes['skill']
 			weapon_skill = ' '.join(word[0].upper() + word[1:] for word in weapon_skill.split())
-			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')')
+			weapon_name = (weapon + ' (' + weapon_type + ' - No Material Bonus' + ' - Requires Level ' + str(weapon_attributes['level']) + ' ' + weapon_skill + ' Skill' + ')' + ' Info: ' + weapon_attributes['info'])
 			weapon_attributes['name'] = weapon_name
 			return weapon_attributes
 

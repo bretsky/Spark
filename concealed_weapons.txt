@@ -16,5 +16,5 @@ m/1/shuriken/This Japanese throwing star, crafted out of %m, can be thrown at en
 s/2/sacrificial knife/This obsidian ceremonial knife is perfectly suited for cutting out the hearts of your enemies.
 s/2/switchblade/A spring loaded pocket knife, with a thin stiletto blade. Popular with 50's gangs and greasers.
 s/9/glass shard/A piece of a broken glass bottle.
-s/7/prison shank/A primitive knife, cobbled together out of various items found in a prison.
+s/7/prison shank/A primitive knife, made out of a sharpened toothbrush.
 m/9/dagger/A short %m blade with a very sharp, and very dangerous point.

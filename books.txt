@@ -7,7 +7,7 @@ s/6/encyclopaedia/An extensive encyclopaedia, containing articles on all things 
 s/2/necronomicon/A grimoire of occult knowledge, written by Abdul Alhazred. This copy appears to belong to H.P. Lovecraft.
 s/2/compendium/A detailed book of mysterious magical practices.
 s/3/generic religious text/This book was written by one of many mystical ancient religions.
-s/9/handy spell handbook/Spell Casting for Dummies® contains useful tips for casting spells!
+s/9/handy spell handbook/Spell Casting for Dummies contains useful tips for casting spells!
 m/5/rune/A piece of %m bearing a prehistoric magical symbol.
 m/6/glyph/A strange hieroglyphic symbol is carved into this archaic %m glyph.
 s/5/volume/This book is part of a bound collection detailing the origins of magic.
