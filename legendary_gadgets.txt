@@ -1,4 +1,4 @@
-tesla coil/This high voltage alternating-current circuit. It generates long sparks, which can electrocute multiple enemies simultaneously.
+tesla coil/This high voltage alternating-current circuit generates long sparks, which can electrocute multiple enemies simultaneously.
 light disk/A glowing disk containing all of your information since obtaining it. They can slice through enemies and ricochet off walls.
 portal gun/This Aperture Science Handheld Portal Device is used to place portals. Place portals strategically to teleport your enemies to their deaths.
 smuggler's end/A customized version of the AEP7 laser pistol. It can inflict heavy damage on opponents.
