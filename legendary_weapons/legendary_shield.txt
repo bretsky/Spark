@@ -2,5 +2,5 @@ aegis/A mighty bronze shield, crafted by a god. It has Medusa's head on its fron
 energy shield/A field of energy that vaporizes any attack that intrudes within the radius of the plasma field.
 riot shield/A transparent shield made of high-impact polycarbonate that can deflect most projectiles while still granting vision to the holder.
 vault door/Somebody tore the door off a heavily armored vault, and fashioned it into a shield. While quite heavy, it is impenetrable.
-mirror/Works best on enemies to stupid to recognize their own reflection.
+mirror/Works best on enemies to stupid too recognize their own reflection.
 captain america's shield/Made of a near indestructible vibranium-steel alloy, this shield is as good at bludgeoning as it is at defending.
