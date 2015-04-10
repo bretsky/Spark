@@ -4,4 +4,5 @@ portal gun/This Aperture Science Handheld Portal Device is used to place portals
 smuggler's end/A customized version of the AEP7 laser pistol. It can inflict heavy damage on opponents.
 arc whip/An whip made of electrically charged wires. It can cut through almost anything with relative ease.
 lightsaber/Also known as a laser sword, this is the standard weapon of the Jedi. It consists of a blade of pure plasma emitted from the hilt.
-holographic de-materialization device/A device that dematerializes enemies, converting all matter in the target area to pure energy.   
+holographic de-materialization device/A device that dematerializes enemies, converting all matter in the target area to pure energy.
+banana gun/A BG-238 fully automatic submachine banana. It fires potassium point rounds for extra penetration.
