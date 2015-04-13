@@ -6,7 +6,7 @@ s/7/stone tablet/This hefty stone tablet has engravings from many centuries ago.
 s/6/encyclopaedia/An extensive encyclopaedia, containing articles on all things magical.
 s/2/necronomicon/A grimoire of occult knowledge, written by Abdul Alhazred. This copy appears to belong to H.P. Lovecraft.
 s/2/compendium/A detailed book of mysterious magical practices.
-s/3/generic religious text/This book was written by one of many mystical ancient religions.
+s/3/generic religious text/This book was written by one of many mystical ancient religions. It allows you to call upon the powers of gods.
 s/9/handy spell handbook/Spell Casting for Dummies contains useful tips for casting spells!
 m/5/rune/A piece of %m bearing a prehistoric magical symbol.
 m/6/glyph/A strange hieroglyphic symbol is carved into this archaic %m glyph.
