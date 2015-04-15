@@ -8,7 +8,7 @@ def legendary_setup():
 	legendary_data_dict = {}
 	for s in classes:
 		weapon_dict = {}
-		weapons_file = open(r'legendary_weapons\legendary_%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
+		weapons_file = open(r'items\legendary_weapons\legendary_%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
 		weapons_data_list = weapons_file.read().splitlines()
 		weapons_split = []
 		weapons = []
@@ -26,7 +26,7 @@ def legendary_setup():
 		weapon_dict['weapons'] = weapons
 		weapon_dict['weapons_info'] = weapons_info
 		legendary_data_dict[s] = weapon_dict
-	title_file = open('newspaper_titles.txt')
+	title_file = open(r'items\legendary_weapons\newspaper_titles.txt')
 	title_list = title_file.read().splitlines()
 	legendary_data_dict['titles'] = title_list
 	return legendary_data_dict
@@ -63,7 +63,7 @@ def setup():
 	data_dict = {}
 	for s in classes:
 		weapon_dict = {}
-		weapons_file = open(r'weapons\%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
+		weapons_file = open(r'items\weapons\%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
 		weapons_data_list = weapons_file.read().splitlines()
 		weapons_split = []
 		weapons = []
@@ -271,10 +271,10 @@ def get_first_weapon(player_class):
 		return get_first_weapon(input('Please enter a valid class. Mage, Warrior, Rogue, Tank, Engineer or Ranger. ').lower())
 
 def material_lister():
-	metallic_material_file = open('metallic_materials.txt')
+	metallic_material_file = open(r'items\weapons\metallic_materials.txt')
 	metallic_materials = metallic_material_file.read().splitlines()
 	metallic_material_stats = {}
-	wooden_material_file = open('wooden_materials.txt')
+	wooden_material_file = open(r'items\weapons\wooden_materials.txt')
 	wooden_materials = wooden_material_file.read().splitlines()
 	wooden_material_stats = {}
 	for x in range(len(metallic_materials)):

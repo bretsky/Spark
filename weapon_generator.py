@@ -36,7 +36,7 @@ def setup():
 	data_dict = {}
 	for s in classes:
 		weapon_dict = {}
-		weapons_file = open(r'weapons\%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
+		weapons_file = open(r'items\weapons\%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
 		weapons_data_list = weapons_file.read().splitlines()
 		weapons_split = []
 		weapons = []
@@ -167,12 +167,12 @@ def user_process(user_input):
 			break
 		else:
 			return user_process(input('How many more weapons to generate? (Must be a number.) '))
-
+			
 def material_lister():
-	metallic_material_file = open('metallic_materials.txt')
+	metallic_material_file = open(r'items\weapons\metallic_materials.txt')
 	metallic_materials = metallic_material_file.read().splitlines()
 	metallic_material_stats = {}
-	wooden_material_file = open('wooden_materials.txt')
+	wooden_material_file = open(r'items\weapons\wooden_materials.txt')
 	wooden_materials = wooden_material_file.read().splitlines()
 	wooden_material_stats = {}
 	for x in range(len(metallic_materials)):

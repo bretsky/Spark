@@ -8,7 +8,7 @@ def legendary_setup():
 	legendary_data_dict = {}
 	for s in classes:
 		weapon_dict = {}
-		weapons_file = open(r'legendary_weapons\legendary_%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
+		weapons_file = open(r'items\legendary_weapons\legendary_%(weapon)s.txt' % {'weapon' : s.replace(' ','_')})
 		weapons_data_list = weapons_file.read().splitlines()
 		weapons_split = []
 		weapons = []
@@ -26,7 +26,7 @@ def legendary_setup():
 		weapon_dict['weapons'] = weapons
 		weapon_dict['weapons_info'] = weapons_info
 		legendary_data_dict[s] = weapon_dict
-	title_file = open('newspaper_titles.txt')
+	title_file = open(r'items\legendary_weapons\newspaper_titles.txt')
 	title_list = title_file.read().splitlines()
 	legendary_data_dict['titles'] = title_list
 	return legendary_data_dict
