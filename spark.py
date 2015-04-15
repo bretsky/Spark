@@ -2,7 +2,10 @@ import pygame
 from pygame.locals import *
 import sys
 pygame.init()
-
+lazy_frog_animation = []
+for i in range(32):
+	lazy_frog = pygame.image.load('images/intro/lazy_frog/lazy_frog (%(number)i).gif' % {'number' : i+1})
+	lazy_frog_animation.append(lazy_frog)
 spark_animation = []
 for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
@@ -22,6 +25,17 @@ background = background.convert()
 background.fill((0, 0, 0))
 framerate = pygame.time.Clock()
 index = 0
+
+def splash():
+	splash_go = True
+	for x in range (32):
+		if splash_go == True:
+			framerate.tick(12)
+			screen.blit(background, (0,0))
+			screen.blit(lazy_frog_animation[x], (center(lazy_frog_animation[x].get_width(),'x'), center (lazy_frog_animation[x].get_height(), 'y')))
+			events = pygame.event.get()		
+			pygame.display.update()
+			splash_go = escape_check(events)
 
 def intro():
 	intro_go = True
@@ -117,6 +131,6 @@ def escape_check(events):
 	else:
 		return True
 
-
+splash()
 intro()
 menu()
