@@ -10,11 +10,11 @@ spark_animation = []
 for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
 	spark_animation.append(spark)
-screen_x = 1920
-screen_y = 1080
+screen_x = 1280
+screen_y = 720
 icon = pygame.image.load('images/spark_icon.gif')
 pygame.display.set_icon(icon)
-screen = pygame.display.set_mode((screen_x, screen_y), FULLSCREEN)
+screen = pygame.display.set_mode((screen_x, screen_y))
 pygame.display.set_caption("Spark")
 SONG_END = pygame.USEREVENT + 1
 
@@ -29,6 +29,8 @@ index = 0
 
 def splash():
 	splash_go = True
+	pygame.mixer.music.load('sounds/frog.mp3')
+	pygame.mixer.music.play()
 	for x in range(32):
 		if splash_go == True:
 			framerate.tick(6)
@@ -115,6 +117,18 @@ def menu():
 				screen.blit(options_button_pressed, (button_center_width, button_center_height+143))
 			if exit_button_rect.collidepoint(position):
 				screen.blit(exit_button_pressed, (button_center_width, button_center_height+207))
+		for event in events:
+			if event.type == MOUSEBUTTONUP and event.button == 1:
+				position = pygame.mouse.get_pos()
+				if newgame_button_rect.collidepoint(position):
+					pass
+				if continue_button_rect.collidepoint(position):
+					pass
+				if options_button_rect.collidepoint(position):
+					pass
+				if exit_button_rect.collidepoint(position):
+					screen.blit(exit_button, (button_center_width, button_center_height+207))
+					sys.exit(0)
 
 		pygame.display.update()
 		menu_go = escape_check(events)
@@ -145,6 +159,6 @@ def escape_check(events):
 	else:
 		return True
 
-splash()
-intro()
+# splash()
+# intro()
 menu()
