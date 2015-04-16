@@ -10,11 +10,11 @@ spark_animation = []
 for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
 	spark_animation.append(spark)
-screen_x = 1280
-screen_y = 720
+screen_x = 1920
+screen_y = 1080
 icon = pygame.image.load('images/spark_icon.gif')
 pygame.display.set_icon(icon)
-screen = pygame.display.set_mode((screen_x, screen_y))
+screen = pygame.display.set_mode((screen_x, screen_y), FULLSCREEN)
 pygame.display.set_caption("Spark")
 SONG_END = pygame.USEREVENT + 1
 
@@ -25,17 +25,31 @@ background = background.convert()
 background.fill((0, 0, 0))
 framerate = pygame.time.Clock()
 index = 0
+ 
 
 def splash():
 	splash_go = True
-	for x in range (32):
+	for x in range(32):
 		if splash_go == True:
-			framerate.tick(12)
+			framerate.tick(6)
 			screen.blit(background, (0,0))
 			screen.blit(lazy_frog_animation[x], (center(lazy_frog_animation[x].get_width(),'x'), center (lazy_frog_animation[x].get_height(), 'y')))
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)
+	VeraMono = pygame.font.Font('fonts/VeraMono.ttf', 32)
+	presents = pygame.font.Font.render(VeraMono, 'Presents',  False, (255, 255, 255))
+	for x in range(32):
+		if splash_go == True:
+			framerate.tick(16)
+			screen.blit(background, (0,0))
+			presents = pygame.font.Font.render(VeraMono, 'Presents...',  False, (x*8, x*8, x*8))
+			screen.blit(presents, (center(presents.get_width(), 'x'), center(presents.get_height(), 'y')))
+			events = pygame.event.get()		
+			pygame.display.update()
+			splash_go = escape_check(events)
+
+
 
 def intro():
 	intro_go = True
