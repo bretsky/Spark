@@ -159,6 +159,6 @@ def escape_check(events):
 	else:
 		return True
 
-# splash()
-# intro()
+splash()
+intro()
 menu()
