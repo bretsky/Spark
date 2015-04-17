@@ -134,6 +134,10 @@ def menu():
 		menu_go = escape_check(events)
 	pygame.mixer.music.stop()
 
+def options():
+	options_go = True
+	
+	
 def center(x, dimension):
 	center_x = 0
 	if dimension == 'x':
@@ -159,6 +163,6 @@ def escape_check(events):
 	else:
 		return True
 
-# splash()
-# intro()
+splash()
+intro()
 menu()
