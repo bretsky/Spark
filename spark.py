@@ -93,18 +93,22 @@ def menu():
 	exit_button_pressed = exit_button_pressed.convert()
 	button_center_width = 271
 	button_center_height = 235
+	newgame_button_rect = pygame.Rect(button_center_width, button_center_height, 738, 58)
+	continue_button_rect = pygame.Rect(button_center_width, newgame_button_rect.bottom+6, 738, 58)
+	options_button_rect = pygame.Rect(button_center_width, continue_button_rect.bottom+6, 738, 58)
+	exit_button_rect = pygame.Rect(button_center_width, options_button_rect.bottom+6, 738, 58)
 	while menu_go == True:
 		framerate.tick(60)
 		screen.blit(background, (0,0))
 		screen.blit(menu_background, (center_screen(menu_background.get_width(), 'x'), center_screen(menu_background.get_height(), 'y')))
 		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height() - 280)/4 - menu_title.get_height()/2))
-		newgame_button_rect = pygame.Rect(button_center_width, button_center_height, 738, 58)
+		
 		screen.blit(newgame_button,(button_center_width, button_center_height))
-		continue_button_rect = pygame.Rect(button_center_width, newgame_button_rect.bottom+6, 738, 58)
+		
 		screen.blit(continue_button,(button_center_width, newgame_button_rect.bottom+6) )
-		options_button_rect = pygame.Rect(button_center_width, continue_button_rect.bottom+6, 738, 58)
+		
 		screen.blit(options_button,(button_center_width, continue_button_rect.bottom+6) )
-		exit_button_rect = pygame.Rect(button_center_width, options_button_rect.bottom+6, 738, 58)
+		
 		screen.blit(exit_button,(button_center_width, options_button_rect.bottom+6) )
 		events = pygame.event.get()		
 		if pygame.mouse.get_pressed()[0]:
@@ -135,12 +139,15 @@ def menu():
 
 def options():
 	options_go = True
+	button_center_width = 271
+	button_center_height = 235
 	dropdown = pygame.image.load('images/dropdown.gif')
 	dropdown = dropdown.convert()
 	resolution_button = pygame.image.load('images/resolution_button.gif')
 	resolution_button = resolution_button.convert()
 	resolution_button_pressed = pygame.image.load('images/resolution_button_pressed.gif')
 	resolution_button_pressed = resolution_button_pressed.convert()
+	resolution_button_rect = pygame.Rect(button_center_width, button_center_height, 738, 58)
 	# fullscreen_button = pygame.image.load('images/fullscreen_button.gif')
 	# fullscreen_button = fullscreen_button.convert()
 	# fullscreen_button_pressed = pygame.image.load('images/fullscreen_button_pressed.gif')
@@ -152,11 +159,16 @@ def options():
 		screen.blit(background, (0,0))
 		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height() - 280)/4 - menu_title.get_height()/2))
 		screen.blit(resolution_button, (center_screen(resolution_button.get_width(), 'x'), 235))
+		if pygame.mouse.get_pressed()[0]:
+			position = pygame.mouse.get_pos()
+			if resolution_button_rect.collidepoint(position):
+				screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
+
+
 		pygame.display.update()
 		events = pygame.event.get()
 		options_go = quit_check(events)
-
-
+		
 	
 	
 def center_screen(x, dimension):
