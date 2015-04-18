@@ -35,7 +35,7 @@ def splash():
 		if splash_go == True:
 			framerate.tick(6)
 			screen.blit(background, (0,0))
-			screen.blit(lazy_frog_animation[x], (center(lazy_frog_animation[x].get_width(),'x'), center (lazy_frog_animation[x].get_height(), 'y')))
+			screen.blit(lazy_frog_animation[x], (center_screen(lazy_frog_animation[x].get_width(),'x'), center_screen (lazy_frog_animation[x].get_height(), 'y')))
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)
@@ -46,7 +46,7 @@ def splash():
 			framerate.tick(16)
 			screen.blit(background, (0,0))
 			presents = pygame.font.Font.render(VeraMono, 'Presents...',  False, (x*8, x*8, x*8))
-			screen.blit(presents, (center(presents.get_width(), 'x'), center(presents.get_height(), 'y')))
+			screen.blit(presents, (center_screen(presents.get_width(), 'x'), center_screen(presents.get_height(), 'y')))
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)
@@ -61,7 +61,7 @@ def intro():
 		if intro_go == True:
 			framerate.tick(24)
 			screen.blit(background, (0,0))
-			screen.blit(spark_animation[x], (center(512,'x'), center (96, 'y')))
+			screen.blit(spark_animation[x], (center_screen(512,'x'), center_screen (96, 'y')))
 			events = pygame.event.get()		
 			pygame.display.update()
 			intro_go = escape_check(events)
@@ -91,32 +91,32 @@ def menu():
 	exit_button = exit_button.convert()
 	exit_button_pressed = pygame.image.load('images/exit_button_pressed.gif')
 	exit_button_pressed = exit_button_pressed.convert()
+	button_center_width = 271
+	button_center_height = 235
 	while menu_go == True:
 		framerate.tick(60)
 		screen.blit(background, (0,0))
-		button_center_width = center(newgame_button.get_width(), 'x')
-		button_center_height = center(menu_background.get_height(), 'y')
-		screen.blit(menu_background, (center(menu_background.get_width(), 'x'), center(menu_background.get_height(), 'y')))
-		screen.blit(menu_title, (center(menu_title.get_width(), 'x'), (screen.get_height() - 280)/4 - menu_title.get_height()/2))
-		newgame_button_rect = pygame.Rect(button_center_width, button_center_height+15, 738, 58)
-		screen.blit(newgame_button,(button_center_width, button_center_height+15) )
-		continue_button_rect = pygame.Rect(button_center_width, button_center_height+79, 738, 58)
-		screen.blit(continue_button,(button_center_width, button_center_height+79) )
-		options_button_rect = pygame.Rect(button_center_width, button_center_height+143, 738, 58)
-		screen.blit(options_button,(button_center_width, button_center_height+143) )
-		exit_button_rect = pygame.Rect(button_center_width, button_center_height+207, 738, 58)
-		screen.blit(exit_button,(button_center_width, button_center_height+207) )
+		screen.blit(menu_background, (center_screen(menu_background.get_width(), 'x'), center_screen(menu_background.get_height(), 'y')))
+		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height() - 280)/4 - menu_title.get_height()/2))
+		newgame_button_rect = pygame.Rect(button_center_width, button_center_height, 738, 58)
+		screen.blit(newgame_button,(button_center_width, button_center_height))
+		continue_button_rect = pygame.Rect(button_center_width, newgame_button_rect.bottom+6, 738, 58)
+		screen.blit(continue_button,(button_center_width, newgame_button_rect.bottom+6) )
+		options_button_rect = pygame.Rect(button_center_width, continue_button_rect.bottom+6, 738, 58)
+		screen.blit(options_button,(button_center_width, continue_button_rect.bottom+6) )
+		exit_button_rect = pygame.Rect(button_center_width, options_button_rect.bottom+6, 738, 58)
+		screen.blit(exit_button,(button_center_width, options_button_rect.bottom+6) )
 		events = pygame.event.get()		
 		if pygame.mouse.get_pressed()[0]:
 			position = pygame.mouse.get_pos()
 			if newgame_button_rect.collidepoint(position):
-				screen.blit(newgame_button_pressed, (button_center_width, button_center_height+15))
+				screen.blit(newgame_button_pressed, (newgame_button_rect.x, newgame_button_rect.y))
 			if continue_button_rect.collidepoint(position):
-				screen.blit(continue_button_pressed, (button_center_width, button_center_height+79))
+				screen.blit(continue_button_pressed, (continue_button_rect.x, continue_button_rect.y))
 			if options_button_rect.collidepoint(position):
-				screen.blit(options_button_pressed, (button_center_width, button_center_height+143))
+				screen.blit(options_button_pressed, (options_button_rect.x, options_button_rect.y))
 			if exit_button_rect.collidepoint(position):
-				screen.blit(exit_button_pressed, (button_center_width, button_center_height+207))
+				screen.blit(exit_button_pressed, (exit_button_rect.x, exit_button_rect.y))
 		for event in events:
 			if event.type == MOUSEBUTTONUP and event.button == 1:
 				position = pygame.mouse.get_pos()
@@ -125,9 +125,8 @@ def menu():
 				if continue_button_rect.collidepoint(position):
 					pass
 				if options_button_rect.collidepoint(position):
-					pass
+					options()
 				if exit_button_rect.collidepoint(position):
-					screen.blit(exit_button, (button_center_width, button_center_height+207))
 					sys.exit(0)
 
 		pygame.display.update()
@@ -136,15 +135,40 @@ def menu():
 
 def options():
 	options_go = True
+	dropdown = pygame.image.load('images/dropdown.gif')
+	dropdown = dropdown.convert()
+	resolution_button = pygame.image.load('images/resolution_button.gif')
+	resolution_button = resolution_button.convert()
+	resolution_button_pressed = pygame.image.load('images/resolution_button_pressed.gif')
+	resolution_button_pressed = resolution_button_pressed.convert()
+	# fullscreen_button = pygame.image.load('images/fullscreen_button.gif')
+	# fullscreen_button = fullscreen_button.convert()
+	# fullscreen_button_pressed = pygame.image.load('images/fullscreen_button_pressed.gif')
+	# fullscreen_button_pressed = fullscreen_button_pressed.convert()
+	menu_title = pygame.image.load('images/spark_text.gif')
+	menu_title = menu_title.convert()
+	while options_go == True:
+		framerate.tick(60)
+		screen.blit(background, (0,0))
+		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height() - 280)/4 - menu_title.get_height()/2))
+		screen.blit(resolution_button, (center_screen(resolution_button.get_width(), 'x'), 235))
+		pygame.display.update()
+		events = pygame.event.get()
+		options_go = quit_check(events)
+
+
 	
 	
-def center(x, dimension):
-	center_x = 0
+def center_screen(x, dimension):
+	center = 0
 	if dimension == 'x':
-		center_x = (screen.get_width() - x)/2
+		center = (screen.get_width() - x)/2
 	if dimension == 'y':
-		center_x = (screen.get_height() - x)/2
-	return center_x
+		center = (screen.get_height() - x)/2
+	return center
+
+def center(small_dimension, large_dimension):
+	return (large_dimension - small_dimension)/2
 
 
 def quit_check(events):
@@ -163,6 +187,6 @@ def escape_check(events):
 	else:
 		return True
 
-splash()
-intro()
+# splash()
+# intro()
 menu()
