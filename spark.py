@@ -10,16 +10,16 @@ spark_animation = []
 for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
 	spark_animation.append(spark)
-screen_x = 640
-screen_y = 480
+screen_x = 1920
+screen_y = 1080
 icon = pygame.image.load('images/spark_icon.gif')
 pygame.display.set_icon(icon)
+pygame.mixer.music.set_volume(1)
 screen = pygame.display.set_mode((screen_x, screen_y))
 pygame.display.set_caption("Spark")
 SONG_END = pygame.USEREVENT + 1
-
 pygame.mixer.music.set_endevent(SONG_END)
-
+VeraMono = pygame.font.Font('fonts/VeraMono.ttf', 32)
 background = pygame.Surface(screen.get_size())
 background = background.convert()
 background.fill((0, 0, 0))
@@ -39,8 +39,6 @@ def splash():
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)
-	VeraMono = pygame.font.Font('fonts/VeraMono.ttf', 32)
-	presents = pygame.font.Font.render(VeraMono, 'Presents',  False, (255, 255, 255))
 	for x in range(32):
 		if splash_go == True:
 			framerate.tick(16)
@@ -211,12 +209,48 @@ def options():
 					pass
 				if fullscreen_button_rect.collidepoint(position):
 					pygame.display.set_mode((screen_x,screen_y),flags^FULLSCREEN)
+				if volume_button_rect.collidepoint(position):
 
+					volume_options()
 
 		pygame.display.update()
 		options_go = quit_check(events)
 		
-	
+def volume_options():
+	volume_options_go = True
+	menu_title = pygame.image.load('images/spark_text.gif')
+	menu_title = menu_title.convert()
+	button_center_width = (screen.get_width()-738)/2
+	button_center_height = (screen.get_height()-280)/2+15
+
+	music_text = pygame.font.Font.render(VeraMono, 'Music:', False, (255, 255, 255))
+	music_rect = pygame.Rect(center_screen(738, 'x'), button_center_height, music_text.get_width(), music_text.get_height())
+	volume_bar = pygame.image.load('images/volume_bar.gif')
+	music_bar_rect = pygame.Rect(music_rect.left, music_rect.bottom + 6, volume_bar.get_width(), volume_bar.get_height())
+	volume_bar = volume_bar.convert()
+	slider_button = pygame.image.load('images/slider_button.gif')
+	slider_button = slider_button.convert()
+	print(pygame.mixer.music.get_volume())
+	slider_button_rect = pygame.Rect(music_bar_rect.left + round(pygame.mixer.music.get_volume()*715), music_rect.bottom + 6, 24, 40)
+	slider_button_pressed = pygame.image.load('images/slider_button_pressed.gif')
+	slider_button_pressed = slider_button_pressed.convert()
+
+
+	sound_text = pygame.font.Font.render(VeraMono, 'Music:', False, (255, 255, 255))
+	while volume_options_go == True:
+		framerate.tick(60)
+		screen.blit(background, (0,0))		
+		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height())/4 - menu_title.get_height()/2-60))
+
+		screen.blit(music_text, (center_screen(volume_bar.get_width(), 'x' ), button_center_height))
+		screen.blit(volume_bar, (music_bar_rect.x, music_bar_rect.y))
+		screen.blit(slider_button, (slider_button_rect.x, slider_button_rect.y))
+
+		events = pygame.event.get()		
+		pygame.display.update()
+		menu_go = escape_check(events)
+
+
 	
 def center_screen(x, dimension):
 	center = 0

@@ -5,4 +5,4 @@ w/1/compound bow/This bow uses a pulley system to make it easieer to bend its %m
 w/3/recurve bow/The tips of this bow curve away from the holder. It stores more nergy than a standard bow.
 w/1/crossbow/A %m bow mounted on a stock. It is shot with the pull of a trigger.
 s/8/slingshot/A Y-shaped wooden frame, with rubber strung in between.
-s/8/sling/A pouch, strung beetween two lengths of rope, is used to throw projectiles.
+s/8/sling/A pouch, strung between two lengths of rope, is used to throw projectiles.
