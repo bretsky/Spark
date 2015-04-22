@@ -1,9 +1,9 @@
-w/9/wand/A thin %m stick that channels magic energy out its tip.
-w/8/staff/A long %m staff, used for magical spells. Can also be slammed against the ground for dramatic effect.
-m/3/sceptre/This %m sceptre has a stylized hilt and a decorative engraved head.
-w/6/flute/A flute, made of %m, that allows the user to cast magical spells through melodies.
-w/1/ocarina/This wind instrument, made of %m, has several finger holes. It produces magical music. 
-m/4/rod/A %m rod, used for the amplification of mystical spells.  
+w/18/wand/A thin %m stick that channels magic energy out its tip.
+w/16/staff/A long %m staff, used for magical spells. Can also be slammed against the ground for dramatic effect.
+m/6/sceptre/This %m sceptre has a stylized hilt and a decorative engraved head.
+w/12/flute/A flute, made of %m, that allows the user to cast magical spells through melodies.
+w/2/ocarina/This wind instrument, made of %m, has several finger holes. It produces magical music. 
+m/8/rod/A %m rod, used for the amplification of mystical spells.  
 s/5/orb/An orb made of strange magical material. It can change colour based on the magical energy of its wielder.
 s/4/crystal ball/This crystal ball is quite heavy, although it appears hollow. The smoke inside of it somtimes reveals secrets from the future. 
 s/2/dragon claw/Dragons are going extinct due to the usage of their claws for magic.
