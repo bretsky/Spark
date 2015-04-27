@@ -1,8 +1,8 @@
-w/6/shortbow/A shorter bow, made of %m. Although not as deadly, it has a much faster fire rate than the longbow.
-w/4/longbow/An exceptionally long bow. Its %m limbs require some force to pull.
-w/8/bow/This bow is made of %m. It is a standard bow, and is common among hunters and soldiers alike.
-w/1/compound bow/This bow uses a pulley system to make it easieer to bend its %m limbs.
-w/3/recurve bow/The tips of this bow curve away from the holder. It stores more nergy than a standard bow.
-w/1/crossbow/A %m bow mounted on a stock. It is shot with the pull of a trigger.
+w/12/shortbow/A shorter bow, made of %m. Although not as deadly, it has a much faster fire rate than the longbow.
+w/8/longbow/An exceptionally long bow. Its %m limbs require some force to pull.
+w/16/bow/This bow is made of %m. It is a standard bow, and is common among hunters and soldiers alike.
+w/2/compound bow/This bow uses a pulley system to make it easier to bend its %m limbs.
+w/6/recurve bow/The tips of this bow curve away from the holder. It stores more nergy than a standard bow.
+w/2/crossbow/A %m bow mounted on a stock. It is shot with the pull of a trigger.
 s/8/slingshot/A Y-shaped wooden frame, with rubber strung in between.
 s/8/sling/A pouch, strung between two lengths of rope, is used to throw projectiles.

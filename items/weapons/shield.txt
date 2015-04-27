@@ -1,10 +1,10 @@
-m/8/buckler/A round %m shield. Its small size means it can not protect the whole body.
-m/7/kiteshield/Despite being kite shaped, this %m kiteshield has very little in common with one.
-m/7/square shield/This %m shield is surprisingly square.
+m/16/buckler/A round %m shield. Its small size means it can not protect the whole body.
+m/14/kiteshield/Despite being kite shaped, this %m kiteshield has very little in common with one.
+m/14/square shield/This %m shield is surprisingly square.
 s/5/door/For when your defense hinges on a strong shield.
-s/6/piece of wall/You'd have to be desperate to usee this as a shield.
-m/6/tower shield/This %m shield offers full body protection.
-m/3/targe/A round shield used by the Highlanders. It consists of %m covered in cowhide.
-m/9/shield/A standard %m shield. It has a triangular shape. 
-m/1/spike shield/Dare your enemies to come close with this intimidating %m spiked shield.
-m/8/round shield/A large, round %m shield that covers a good deal of the body.
+s/6/piece of wall/You'd have to be desperate to use this as a shield.
+m/12/tower shield/This %m shield offers full body protection.
+m/6/targe/A round shield used by the Highlanders. It consists of %m covered in cowhide.
+m/18/shield/A standard %m shield. It has a triangular shape. 
+m/2/spike shield/Dare your enemies to come close with this intimidating %m spiked shield.
+m/16/round shield/A large, round %m shield that covers a good deal of the body.

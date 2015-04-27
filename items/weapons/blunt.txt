@@ -1,18 +1,18 @@
-w/3/baseball bat/A baseball bat made of %m. Can be used to hit baseballs at your enemies.
-w/5/long staff/A staff of %m. It's quite long.
-m/2/studded whip/This leather whip is studded with pieces of %m for additional damage.
-m/9/chain/A long chain made of %m.
-m/6/mace/A heavy weapon with an intimidating %m head.
-m/5/flail/A spiked ball of %m is attached by chain to the handle. 
-m/4/warhammer/This massive %m hammer was not made for hammering nails.
-w/9/club/A crude barbaric weapon, made of %m.
-w/1/nunchaku/These %m nunchuks are attached by a chain in the middle, and are deadly in the hands of a master.
-m/3/morning star/The spiked %m ball on the end of the wooden shaft is sure to wake up your enemies. 
-w/1/bokken/A training sword made of %m.
-w/8/short staff/Though not as long as it's big brother, the long staff, this %m staff is still a threat.
-m/4/knuckles/These %m rings, shaped to fit around the knuckles, will certainly pack a punch.
-m/3/spiked knuckles/The %m spikes protruding from the knuckles look quite dangerous.
-m/5/spade/This %m spade can conveniently dig graves for your dead enemies.
+w/6/baseball bat/A baseball bat made of %m. Can be used to hit baseballs at your enemies.
+w/10/long staff/A staff of %m. It's quite long.
+m/4/studded whip/This leather whip is studded with pieces of %m for additional damage.
+m/18/chain/A long chain made of %m.
+m/12/mace/A heavy weapon with an intimidating %m head.
+m/10/flail/A spiked ball of %m is attached by chain to the handle. 
+m/8/warhammer/This massive %m hammer was not made for hammering nails.
+w/18/club/A crude barbaric weapon, made of %m.
+w/2/nunchaku/These %m nunchuks are attached by a chain in the middle, and are deadly in the hands of a master.
+m/6/morning star/The spiked %m ball on the end of the wooden shaft is sure to wake up your enemies. 
+w/2/bokken/A training sword made of %m.
+w/16/short staff/Though not as long as its big brother, the long staff, this %m staff is still a threat.
+m/8/knuckles/These %m rings, shaped to fit around the knuckles, will certainly pack a punch.
+m/6/spiked knuckles/The %m spikes protruding from the knuckles look quite dangerous.
+m/10/spade/This %m spade can conveniently dig graves for your dead enemies.
 s/4/whip/This leather whip's loud crack can stun your enemy.
 s/9/stick/A somewhat sturdy stick.
 s/9/bone/A long bone from a dead animal.
