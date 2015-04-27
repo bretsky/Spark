@@ -50,7 +50,6 @@ def splash():
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)
-
 	for x in range(32):
 		if splash_go == True:
 			framerate.tick(16)
@@ -60,8 +59,6 @@ def splash():
 			events = pygame.event.get()		
 			pygame.display.update()
 			splash_go = escape_check(events)	
-
-
 
 def intro():
 	intro_go = True
@@ -83,8 +80,6 @@ def menu():
 	pygame.mixer.music.load('sounds/intro.mp3')
 	pygame.mixer.music.play(-1)
 	pygame.mixer.music.set_volume(volume)
-	menu_background = pygame.image.load('images/menu_background.gif')
-	menu_background = menu_background.convert()
 	menu_title = pygame.image.load('images/spark_text.gif')
 	menu_title = menu_title.convert()
 	newgame_button = pygame.image.load('images/newgame_button.gif')
@@ -112,16 +107,10 @@ def menu():
 	while menu_go == True:
 		framerate.tick(60)
 		screen.blit(background, (0,0))
-		screen.blit(menu_background, (center_screen(menu_background.get_width(), 'x'), center_screen(menu_background.get_height(), 'y')))
-
-		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height())/4 - menu_title.get_height()/2-60))
-		
-		screen.blit(newgame_button,(button_center_width, button_center_height))
-		
-		screen.blit(continue_button,(button_center_width, newgame_button_rect.bottom+6) )
-		
+		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height())/4 - menu_title.get_height()/2-60))		
+		screen.blit(newgame_button,(button_center_width, button_center_height))	
+		screen.blit(continue_button,(button_center_width, newgame_button_rect.bottom+6) )		
 		screen.blit(options_button,(button_center_width, continue_button_rect.bottom+6) )
-		
 		screen.blit(exit_button,(button_center_width, options_button_rect.bottom+6) )
 		events = pygame.event.get()		
 		if pygame.mouse.get_pressed()[0]:
@@ -145,7 +134,6 @@ def menu():
 					options()
 				if exit_button_rect.collidepoint(position):
 					sys.exit(0)
-
 		pygame.display.update()
 		menu_go = escape_check(events)
 	pygame.mixer.music.stop()
@@ -166,7 +154,6 @@ def options():
 	fullscreen_button_pressed = pygame.image.load('images/fullscreen_button_pressed.gif')
 	fullscreen_button_pressed = fullscreen_button_pressed.convert()
 	fullscreen_button_rect = pygame.Rect(button_center_width, resolution_button_rect.bottom + 6, 738, 58)
-
 	windowed_button = pygame.image.load('images/windowed_button.gif')
 	windowed_button = windowed_button.convert()
 	windowed_button_pressed = pygame.image.load('images/windowed_button_pressed.gif')
@@ -177,6 +164,11 @@ def options():
 	volume_button_pressed = pygame.image.load('images/volume_button_pressed.gif')
 	volume_button_pressed = volume_button_pressed.convert()
 	volume_button_rect = pygame.Rect(button_center_width, windowed_button_rect.bottom + 6, 738, 58)
+	back_button = pygame.image.load('images/back_button.gif')
+	back_button = back_button.convert()
+	back_button_pressed = pygame.image.load('images/back_button_pressed.gif')
+	back_button_pressed = back_button_pressed.convert()
+	back_button_rect = pygame.Rect(button_center_width, volume_button_rect.bottom + 6, 738, 58)
 	menu_title = pygame.image.load('images/spark_text.gif')
 	menu_title = menu_title.convert()
 	while options_go == True:
@@ -186,12 +178,13 @@ def options():
 		framerate.tick(60)
 		screen.blit(background, (0,0))
 		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height())/4 - menu_title.get_height()/2-60))
-		screen.blit(resolution_button, (center_screen(resolution_button.get_width(), 'x'), button_center_height))
+		screen.blit(resolution_button, (resolution_button_rect.x, resolution_button_rect.y))
 		if FULLSCREEN in flag_list:
-			screen.blit(windowed_button, (center_screen(windowed_button.get_width(), 'x'), resolution_button_rect.bottom + 6))
+			screen.blit(windowed_button, (windowed_button_rect.x, windowed_button_rect.y))
 		else: 
-			screen.blit(fullscreen_button, (center_screen(fullscreen_button.get_width(), 'x'), resolution_button_rect.bottom + 6))
-		screen.blit(volume_button, (center_screen(volume_button.get_width(), 'x'), fullscreen_button_rect.bottom + 6))
+			screen.blit(fullscreen_button, (fullscreen_button_rect.x, fullscreen_button_rect.y))
+		screen.blit(volume_button, (volume_button_rect.x, volume_button_rect.y))
+		screen.blit(back_button, (back_button_rect.x, back_button_rect.y))
 		events = pygame.event.get()		
 		if pygame.mouse.get_pressed()[0]:
 			position = pygame.mouse.get_pos()
@@ -204,9 +197,9 @@ def options():
 					screen.blit(fullscreen_button_pressed, (fullscreen_button_rect.x, fullscreen_button_rect.y))	
 			if volume_button_rect.collidepoint(position):
 				screen.blit(volume_button_pressed, (volume_button_rect.x, volume_button_rect.y))
-
+			if back_button_rect.collidepoint(position):
+				screen.blit(back_button_pressed, (back_button_rect.x, back_button_rect.y))
 		for event in events:
-
 			if event.type == MOUSEBUTTONUP and event.button == 1:
 				position = pygame.mouse.get_pos()
 				if resolution_button_rect.collidepoint(position):
@@ -214,9 +207,9 @@ def options():
 				if fullscreen_button_rect.collidepoint(position):
 					pygame.display.set_mode((screen_x,screen_y),flags^FULLSCREEN)
 				if volume_button_rect.collidepoint(position):
-
 					volume_options()
-
+				if back_button_rect.collidepoint(position):
+					menu()
 		pygame.display.update()
 		options_go = quit_check(events)
 		
@@ -230,10 +223,8 @@ def volume_options():
 	menu_title = menu_title.convert()
 	button_center_width = (screen.get_width()-738)/2
 	button_center_height = (screen.get_height()-280)/2+15
-
 	music_text = pygame.font.Font.render(VeraMono, 'Music:', False, (255, 255, 255))
 	music_rect = pygame.Rect(center_screen(738, 'x'), button_center_height, music_text.get_width(), music_text.get_height())
-
 	music_bar = pygame.image.load('images/volume_bar.gif')
 	music_bar_rect = pygame.Rect(music_rect.left, music_rect.bottom + 6, music_bar.get_width(), music_bar.get_height())
 	sound_text = pygame.font.Font.render(VeraMono, 'Sound:', False, (255, 255, 255))
@@ -243,24 +234,27 @@ def volume_options():
 	slider_button = slider_button.convert()
 	slider_button_rect = pygame.Rect(music_bar_rect.left + round(pygame.mixer.music.get_volume()*715), music_rect.bottom + 6, 24, 40)
 	slider_button_rect2 = pygame.Rect(music_bar_rect.left + round(sound_volume*715), sound_rect.bottom + 6, 24, 40)
-
 	slider_button_pressed = pygame.image.load('images/slider_button_pressed.gif')
 	slider_button_pressed = slider_button_pressed.convert()
 	sound_bar = pygame.image.load('images/volume_bar.gif')
 	sound_bar = sound_bar.convert()
 	sound_bar_rect = pygame.Rect(sound_rect.left, sound_rect.bottom + 6, sound_bar.get_width(), sound_bar.get_height())
-
+	back_button = pygame.image.load('images/back_button.gif')
+	back_button = back_button.convert()
+	back_button_rect = pygame.Rect(center_screen(738, 'x'), sound_bar_rect.bottom + 12, back_button.get_width(), back_button.get_height())
+	back_button_pressed = pygame.image.load('images/back_button_pressed.gif')
+	back_button_pressed = back_button_pressed.convert()
 	while volume_options_go == True:
 		framerate.tick(60)
 		screen.blit(background, (0,0))		
 		screen.blit(menu_title, (center_screen(menu_title.get_width(), 'x'), (screen.get_height())/4 - menu_title.get_height()/2-60))
-
 		screen.blit(music_text, (center_screen(music_bar.get_width(), 'x' ), button_center_height))
 		screen.blit(music_bar, (music_bar_rect.x, music_bar_rect.y))
 		screen.blit(sound_text, (sound_rect.x, sound_rect.y))
 		screen.blit(sound_bar, (sound_bar_rect.x, sound_bar_rect.y))
+		screen.blit(back_button, (back_button_rect.x, back_button_rect.y))
 		if pygame.mouse.get_pressed()[0]:
-			position = pygame.mouse.get_pos()[0]
+			position = pygame.mouse.get_pos()[0]-12
 			if click_music == True:
 				if position < 0 + music_bar_rect.x:
 					position = 0
@@ -275,7 +269,7 @@ def volume_options():
 		else:
 			screen.blit(slider_button, (music_bar_rect.x + volume*715, slider_button_rect.y))
 		if pygame.mouse.get_pressed()[0]:
-			position = pygame.mouse.get_pos()[0]
+			position = pygame.mouse.get_pos()[0]-12
 			if click_sound == True:
 				if position < 0 + sound_bar_rect.x:
 					position = 0
@@ -287,6 +281,8 @@ def volume_options():
 				screen.blit(slider_button_pressed, (position+sound_bar_rect.x, slider_button_rect2.y))
 			else:
 				screen.blit(slider_button, (sound_bar_rect.x + sound_volume*715, slider_button_rect2.y))
+			if back_button_rect.collidepoint(pygame.mouse.get_pos()):
+				screen.blit(back_button_pressed, (back_button_rect.x, back_button_rect.y))
 		else:
 			screen.blit(slider_button, (sound_bar_rect.x + sound_volume*715, slider_button_rect2.y))
 		events = pygame.event.get()		
@@ -303,10 +299,10 @@ def volume_options():
 					click_music = False
 				if click_sound:
 					click_sound = False
+				if back_button_rect.collidepoint(pygame.mouse.get_pos()):
+					options()
 		pygame.display.update()
 		menu_go = quit_check(events)
-
-
 	
 def center_screen(x, dimension):
 	center = 0
@@ -318,7 +314,6 @@ def center_screen(x, dimension):
 
 def center(small_dimension, large_dimension):
 	return (large_dimension - small_dimension)/2
-
 
 def quit_check(events):
 	for event in events:
