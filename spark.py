@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import sys
+import random
 pygame.init()
 lazy_frog_animation = []
 for i in range(32):
@@ -10,8 +11,11 @@ spark_animation = []
 for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
 	spark_animation.append(spark)
-screen_x = 1920
-screen_y = 1080
+
+resolution_list = [(1280, 720), (1366, 768), (1600, 900), (1920, 1080)]
+resolution = random.choice(resolution_list)
+screen_x = resolution[0]
+screen_y = resolution[1]
 icon = pygame.image.load('images/spark_icon.gif')
 pygame.display.set_icon(icon)
 pygame.mixer.music.set_volume(1)
@@ -77,9 +81,10 @@ def intro():
 		
 def menu():
 	menu_go = True
-	pygame.mixer.music.load('sounds/intro.mp3')
-	pygame.mixer.music.play(-1)
-	pygame.mixer.music.set_volume(volume)
+	if not pygame.mixer.music.get_busy():
+		pygame.mixer.music.load('sounds/intro.mp3')
+		pygame.mixer.music.play(-1)
+		pygame.mixer.music.set_volume(volume)
 	menu_title = pygame.image.load('images/spark_text.gif')
 	menu_title = menu_title.convert()
 	newgame_button = pygame.image.load('images/newgame_button.gif')
@@ -140,6 +145,7 @@ def menu():
 
 def options():
 	options_go = True
+	dropdown_menu_open = False
 	button_center_width = (screen.get_width()-738)/2
 	button_center_height = (screen.get_height()-280)/2+15
 	dropdown = pygame.image.load('images/dropdown.gif')
@@ -172,6 +178,7 @@ def options():
 	menu_title = pygame.image.load('images/spark_text.gif')
 	menu_title = menu_title.convert()
 	while options_go == True:
+		button_number = 0
 		flag_list = []
 		flag_list.append(screen.get_flags())
 		flags = screen.get_flags()
@@ -185,31 +192,42 @@ def options():
 			screen.blit(fullscreen_button, (fullscreen_button_rect.x, fullscreen_button_rect.y))
 		screen.blit(volume_button, (volume_button_rect.x, volume_button_rect.y))
 		screen.blit(back_button, (back_button_rect.x, back_button_rect.y))
+		if dropdown_menu_open:	
+			screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
+			for x in resolution_list:
+				screen.blit(dropdown, (center_screen(dropdown.get_width(), 'x'), resolution_button_rect.bottom + button_number*dropdown.get_height()))
+				button_number += 1
+		else:
+			if pygame.mouse.get_pressed()[0]:
+				position = pygame.mouse.get_pos()
+				if resolution_button_rect.collidepoint(position):
+					screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
+				if fullscreen_button_rect.collidepoint(position):
+					if FULLSCREEN in flag_list:
+						screen.blit(windowed_button_pressed, (fullscreen_button_rect.x, fullscreen_button_rect.y))
+					else: 
+						screen.blit(fullscreen_button_pressed, (fullscreen_button_rect.x, fullscreen_button_rect.y))	
+				if volume_button_rect.collidepoint(position):
+					screen.blit(volume_button_pressed, (volume_button_rect.x, volume_button_rect.y))
+				if back_button_rect.collidepoint(position):
+					screen.blit(back_button_pressed, (back_button_rect.x, back_button_rect.y))
 		events = pygame.event.get()		
-		if pygame.mouse.get_pressed()[0]:
-			position = pygame.mouse.get_pos()
-			if resolution_button_rect.collidepoint(position):
-				screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
-			if fullscreen_button_rect.collidepoint(position):
-				if FULLSCREEN in flag_list:
-					screen.blit(windowed_button_pressed, (fullscreen_button_rect.x, fullscreen_button_rect.y))
-				else: 
-					screen.blit(fullscreen_button_pressed, (fullscreen_button_rect.x, fullscreen_button_rect.y))	
-			if volume_button_rect.collidepoint(position):
-				screen.blit(volume_button_pressed, (volume_button_rect.x, volume_button_rect.y))
-			if back_button_rect.collidepoint(position):
-				screen.blit(back_button_pressed, (back_button_rect.x, back_button_rect.y))
 		for event in events:
 			if event.type == MOUSEBUTTONUP and event.button == 1:
 				position = pygame.mouse.get_pos()
 				if resolution_button_rect.collidepoint(position):
-					pass
-				if fullscreen_button_rect.collidepoint(position):
-					pygame.display.set_mode((screen_x,screen_y),flags^FULLSCREEN)
-				if volume_button_rect.collidepoint(position):
-					volume_options()
-				if back_button_rect.collidepoint(position):
-					menu()
+					if not dropdown_menu_open:
+						dropdown_menu_open = True
+						button_number = 0
+					elif dropdown_menu_open:
+						dropdown_menu_open = False
+				if not dropdown_menu_open:
+					if fullscreen_button_rect.collidepoint(position):
+						pygame.display.set_mode((screen_x,screen_y),flags^FULLSCREEN)
+					if volume_button_rect.collidepoint(position):
+						volume_options()
+					if back_button_rect.collidepoint(position):
+						menu()
 		pygame.display.update()
 		options_go = quit_check(events)
 		
