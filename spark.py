@@ -196,6 +196,8 @@ def options():
 			screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
 			for x in resolution_list:
 				screen.blit(dropdown, (center_screen(dropdown.get_width(), 'x'), resolution_button_rect.bottom + button_number*dropdown.get_height()))
+				text = pygame.font.Font.render(VeraMono, 'x'.join(map(str, resolution_list[button_number])), False, (255, 255, 255))
+				print('x'.join(map(str, resolution_list[button_number])))
 				button_number += 1
 		else:
 			if pygame.mouse.get_pressed()[0]:
