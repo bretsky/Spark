@@ -66,8 +66,8 @@ def splash():
 def intro():
 	intro_go = True
 	pygame.mixer.music.load('sounds/sweep.mp3')
-	pygame.mixer.music.play(-1)
-	pygame.music.mixer.set_volume(volume)
+	pygame.mixer.music.play()
+	pygame.mixer.music.set_volume(volume)
 	for x in range (96):
 		if intro_go == True:
 			framerate.tick(24)
@@ -304,7 +304,7 @@ def volume_options():
 				if click_sound:
 					click_sound = False
 		pygame.display.update()
-		menu_go = quit_check(events)
+		volume_options_go = quit_check(events)
 
 
 	
@@ -337,8 +337,8 @@ def escape_check(events):
 		return True
 
 def game():
-	# splash()
-	# intro()
+	splash()
+	intro()
 	menu()
 
 game()
