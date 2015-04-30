@@ -146,6 +146,8 @@ def menu():
 def options():
 	options_go = True
 	dropdown_menu_open = False
+	global screen_x
+	global screen_y
 	button_center_width = (screen.get_width()-738)/2
 	button_center_height = (screen.get_height()-280)/2+15
 	dropdown = pygame.image.load('images/dropdown.gif')
@@ -192,12 +194,15 @@ def options():
 			screen.blit(fullscreen_button, (fullscreen_button_rect.x, fullscreen_button_rect.y))
 		screen.blit(volume_button, (volume_button_rect.x, volume_button_rect.y))
 		screen.blit(back_button, (back_button_rect.x, back_button_rect.y))
+		resolution_button_dict = {}
 		if dropdown_menu_open:	
 			screen.blit(resolution_button_pressed, (resolution_button_rect.x, resolution_button_rect.y))
 			for x in resolution_list:
 				screen.blit(dropdown, (center_screen(dropdown.get_width(), 'x'), resolution_button_rect.bottom + button_number*dropdown.get_height()))
+				dropdown_rect = pygame.Rect(center_screen(dropdown.get_width(), 'x'), resolution_button_rect.bottom + button_number*dropdown.get_height(), dropdown.get_width(), dropdown.get_height())
+				resolution_button_dict[resolution_list[button_number]] = (dropdown_rect.x, dropdown_rect.y, dropdown_rect.width, dropdown_rect.height)
 				text = pygame.font.Font.render(VeraMono, 'x'.join(map(str, resolution_list[button_number])), False, (255, 255, 255))
-				print('x'.join(map(str, resolution_list[button_number])))
+				screen.blit(text, (center_screen(text.get_width(), 'x'), resolution_button_rect.bottom + button_number*dropdown.get_height() + center(text.get_height(), dropdown.get_height())))
 				button_number += 1
 		else:
 			if pygame.mouse.get_pressed()[0]:
@@ -230,6 +235,14 @@ def options():
 						volume_options()
 					if back_button_rect.collidepoint(position):
 						menu()
+				if dropdown_menu_open:
+					for x in resolution_button_dict.keys():
+						click_check_rect = pygame.Rect(resolution_button_dict[x][0], resolution_button_dict[x][1], resolution_button_dict[x][2], resolution_button_dict[x][3])
+						if click_check_rect.collidepoint(position):
+							screen_x = x[0]
+							screen_y = x[1]
+							pygame.display.set_mode((screen_x, screen_y), flags)
+							options()
 		pygame.display.update()
 		options_go = quit_check(events)
 		
@@ -352,8 +365,8 @@ def escape_check(events):
 		return True
 
 def game():
-	splash()
-	intro()
+	# splash()
+	# intro()
 	menu()
 
 game()
