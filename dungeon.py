@@ -2,7 +2,7 @@ import random
 import pygame
 from pygame.locals import *
 import sys
-sys.setrecursionlimit(10000)
+sys.setrecursionlimit(5000)
 class Tile:
 	def __init__(self, tile_type, water):
 		self.type = tile_type
@@ -22,6 +22,47 @@ water_tile.fill((16, 16, 160))
 hall_tile = pygame.Surface((4, 4)).convert()
 hall_tile.fill((128, 128, 128))
 rooms = []
+framerate = pygame.time.Clock()
+
+def print_map():
+	print_go = True
+	while print_go == True:
+		
+		framerate.tick(30)
+		counter = 0
+		# map_string = ''
+		for y in map_list:
+			x_counter = 0
+			for x in y:
+
+				if x.type == 0:
+					screen.blit(bg_tile, (x_counter*4, counter*4))
+					# map_string += '╦'
+				if x.type == 1 and x.water == False:
+					screen.blit(floor_tile, (x_counter*4, counter*4))
+					# map_string += '.'
+				if x.type == 2:
+					screen.blit(wall_tile, (x_counter*4, counter*4))
+					# map_string += 'I'
+				if x.type == 3 and x.water  == False:
+					screen.blit(hall_tile, (x_counter*4, counter*4))
+					# map_string += ','
+				if x.water == True:
+					screen.blit(water_tile, (x_counter*4, counter*4))
+					# map_string += '*'
+				x_counter+=1
+			
+			# map_string += '\n'
+			counter += 1
+		pygame.display.update()
+		# map_string += '\n\n\n\n\n\n\n\n'
+		# print(map_string)
+		events = pygame.event.get()
+		for x in events:
+			if x.type == pygame.QUIT:
+				return
+	return
+
 class Room:
 	def __init__(self, x1, x2, y1, y2):
 		
@@ -102,49 +143,53 @@ def unfill():
 			map_list[x][y].water = False
 
 def make_corridors():
-	unfill()
 	# tile_rooms()
 	# print_map()
-	start_room = random.choice(rooms)
+	unfill()
+	fill_start = random.choice(rooms)
+	fill(fill_start.x1, fill_start.y1)
+	start_room = fill_start
 	destination = random.choice(rooms)
-	if not destination.intercepts(start_room):
-		seed = random.randrange(2)
-		if seed == 1:
-			y_choices = [start_room.wall_top, start_room.wall_bottom]
-			x = random.randrange(start_room.x1, start_room.x2+1)
-			y = random.randrange(start_room.y1, start_room.y2+1)
-			destination_y = random.randrange(destination.height) + destination.y1
-			while y < destination_y:
-				carve_map(x, y, map_list)
-				y += 1
-			while y > destination_y:
-				carve_map(x, y, map_list)
-				y += -1
-			while x < destination.x1:
-				carve_map(x, y, map_list)
-				x += 1
-			while x > destination.x2:
-				carve_map(x, y, map_list)
-				x += -1
-		if seed == 0:
-			x_choices = [start_room.wall_left, start_room.wall_right]
-			x = random.randrange(start_room.x1, start_room.x2+1)
-			y = random.randrange(start_room.y1, start_room.y2+1)
-			destination_x = random.randrange(destination.width) + destination.x1
-			while x < destination_x:
-				carve_map(x, y, map_list)
-				x += 1
-			while x > destination_x:
-				carve_map(x, y, map_list)
-				x += -1
-			while y < destination.y1:
-				carve_map(x, y, map_list)
-				y += 1
-			while y > destination.y2:
-				carve_map(x, y, map_list)
-				y += -1
+	if not map_list[destination.x1][destination.y1].water:
+		if not destination.intercepts(start_room):
+			seed = random.randrange(2)
+			if seed == 1:
+				y_choices = [start_room.wall_top, start_room.wall_bottom]
+				x = random.randrange(start_room.x1, start_room.x2+1)
+				y = random.randrange(start_room.y1, start_room.y2+1)
+				destination_y = random.randrange(destination.height) + destination.y1
+				while y < destination_y:
+					carve_map(x, y, map_list)
+					y += 1
+				while y > destination_y:
+					carve_map(x, y, map_list)
+					y += -1
+				while x < destination.x1:
+					carve_map(x, y, map_list)
+					x += 1
+				while x > destination.x2:
+					carve_map(x, y, map_list)
+					x += -1
+			if seed == 0:
+				x_choices = [start_room.wall_left, start_room.wall_right]
+				x = random.randrange(start_room.x1, start_room.x2+1)
+				y = random.randrange(start_room.y1, start_room.y2+1)
+				destination_x = random.randrange(destination.width) + destination.x1
+				while x < destination_x:
+					carve_map(x, y, map_list)
+					x += 1
+				while x > destination_x:
+					carve_map(x, y, map_list)
+					x += -1
+				while y < destination.y1:
+					carve_map(x, y, map_list)
+					y += 1
+				while y > destination.y2:
+					carve_map(x, y, map_list)
+					y += -1
 	else:
 		return make_corridors()
+	unfill()
 	fill_start = random.choice(rooms)
 	fill(fill_start.x1, fill_start.y1)
 	# print_map()
@@ -178,43 +223,7 @@ for x in range(random.randrange(4, 21)):
 	room.tile_map(map_list)
 	rooms.append(room)
 tile_rooms()
-def print_map():
-	while True:
-		
-		framerate = pygame.time.Clock()
-		framerate.tick(30)
-		counter = 0
-		# map_string = ''
-		for y in map_list:
-			x_counter = 0
-			for x in y:
 
-				if x.type == 0:
-					screen.blit(bg_tile, (x_counter*4, counter*4))
-					# map_string += '╦'
-				if x.type == 1 and x.water == False:
-					screen.blit(floor_tile, (x_counter*4, counter*4))
-					# map_string += '.'
-				if x.type == 2:
-					screen.blit(wall_tile, (x_counter*4, counter*4))
-					# map_string += 'I'
-				if x.type == 3 and x.water  == False:
-					screen.blit(hall_tile, (x_counter*4, counter*4))
-					# map_string += ','
-				if x.water == True:
-					screen.blit(water_tile, (x_counter*4, counter*4))
-					# map_string += '*'
-				x_counter+=1
-			
-			# map_string += '\n'
-			counter += 1
-		pygame.display.update()
-		# map_string += '\n\n\n\n\n\n\n\n'
-		# print(map_string)
-		events = pygame.event.get()
-		for x in events:
-			if x.type == pygame.QUIT:
-				sys.exit(0)
 
 make_corridors()
 unfill()
