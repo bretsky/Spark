@@ -5,8 +5,6 @@ import os
 
 getcontext().prec = 64
 
-
-
 def rationalize(weight_list):
 	weight_sum = 0
 	weight_ratio_list = []
@@ -73,11 +71,8 @@ def setup():
 				weapon_level = round((int((10-rarity_linear[weapon]/2))))
 				weapon_type = s
 			weapons[weapon_list[weapon]] = Weapon(material_type=material[weapon], rarity_linear=rarity_linear[weapon], rarity=rarity[weapon], name=weapon_list[weapon], weapon_class=s, level=weapon_level, descript=weapons_descript[weapon], weapon_type = weapon_type)
-		# weapon_dict['material'] = material
-		# weapon_dict['rarity_linear'] = rarity_linear
 		weapon_dict['rarity'] = rarity
 		weapon_dict['weapons'] = weapons
-		# weapon_dict['weapons_info'] = weapons_info
 		data_dict[s] = weapon_dict
 	return data_dict
 
@@ -119,30 +114,12 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 		weapon_material = weapon.material_type
 		if weapon_material == 's':
 			weapon.set_material(material='special', material_stat=1)
-			# weapon_attributes['type'] = 'special ' + weapon_class 
-			# weapon_attributes['material'] = 'special'
-			# weapon_attributes['material_stat'] = 1	
 		if weapon_material == 'm':
 			material_pick = random_material('metal')
 			weapon.set_material(material=material_pick[0], material_stat=material_pick[1])
-			# weapon_attributes['material'] = material_pick[0]
-			# weapon_attributes['material_stat'] = material_pick[1]
-			# weapon_attributes['type'] = weapon_class
 		if weapon_material == 'w':
 			material_pick = random_material('wood')
 			weapon.set_material(material=material_pick[0], material_stat=material_pick[1])
-			# weapon_attributes['material'] = material_pick[0]
-			# weapon_attributes['material_stat'] = material_pick[1]
-			# weapon_attributes['type'] = weapon_class
-		# weapon_attributes['weapon'] = random_weapon
-		# weapon_attributes['class'] = weapon_class
-		# weapon_attributes['skill'] = weapon_class
-		# weapon_attributes['info'] = weapon.info.replace('%m', weapon_attributes['material'])
-		# weapon_rarity = int(rarity_linear[weapon_index])
-		# if weapon_material == 's':
-		# 	weapon_level = round((10-int(weapon_rarity))**2.09590327429)
-		# if not weapon_material == 's':
-		# 	weapon.level = round((weapon.level*weapon_attributes['material_stat'])**(0.562151993))	
 		if weapon.level > maxlevel:
 			return weapon_chooser(weapon_class)
 		material = weapon.material
