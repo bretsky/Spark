@@ -3,3 +3,4 @@ enslaver/A powerful whip that allows you to control enemies for a brief period.
 electric guitar/Unleash the power of shred on your enemies.
 monkey king's staff/A magical staff wielded by Wukong, the Monkey King. It can change to become any size.
 hockey stick/A barbaric weapon, wielded by the warriors of the cold northern hinterlands.
+shivering spine/This bone can petrify enemies with fear. It's 2spooky4u.

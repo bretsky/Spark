@@ -6,3 +6,4 @@ arc whip/An whip made of electrically charged wires. It can cut through almost a
 lightsaber/Also known as a laser sword, this is the standard weapon of the Jedi. It consists of a blade of pure plasma emitted from the hilt.
 holographic de-materialization device/A device that dematerializes enemies, converting all matter in the target area to pure energy.
 banana gun/A BG-238 fully automatic submachine banana. It fires potassium point rounds for extra penetration.
+excessive force/Why do you need a gun this big? Isn't it impractical? Yes, but it's badass.

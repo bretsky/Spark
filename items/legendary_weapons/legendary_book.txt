@@ -4,3 +4,4 @@ bible/"Whoever takes a human life shall surely be put to death." -Leviticus 24:1
 calculus textbook/An ancient trove of knowledge, containing arcane spells and formulas created by the archmages Newton and Leibniz.
 10 commandments/Thou shalt not kill? I'm probably going to hell.
 holocron/This black pyramid contains a wealth of Sith knowledge.
+brett's report card/What a slacker, only 97%.
