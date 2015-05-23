@@ -2,7 +2,10 @@ import random
 from numpy.random import choice
 from decimal import *
 import os
+import time 
+from copy import deepcopy
 
+time.clock()
 getcontext().prec = 64
 
 def rationalize(weight_list):
@@ -65,7 +68,7 @@ def setup():
 		rarity = rationalize(rarity)
 		for weapon in range(len(weapon_list)):
 			if material[weapon] == 's':
-				weapon_level = round((10-int(rarity_linear[weapon]))**2.09590327429)
+				weapon_level = round((10-int(rarity_linear[weapon]))**1.8)
 				weapon_type = 'special' + ' ' + s
 			else:
 				weapon_level = round((int((10-rarity_linear[weapon]/2))))
@@ -94,7 +97,8 @@ class Weapon():
 		self.weapon_class = weapon_class
 		self.weapon_type = weapon_type
 	def set_material(self, material, material_stat):
-		self.level = round((self.level*material_stat)**(0.562151993))
+		if self.material_type != 's':
+			self.level = round((self.level*material_stat)**(0.562151993))
 		self.material_stat = material_stat
 		self.material = material
 		self.descript = self.descript.replace('%m', material)
@@ -110,7 +114,8 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 		random_weapon = choice(weapon_list, p=rarity)
 		weapon_attributes = {}
 		weapons = class_dict['weapons']
-		weapon = class_dict['weapons'][random_weapon]
+		random_weapon = class_dict['weapons'][random_weapon]
+		weapon = deepcopy(random_weapon)
 		weapon_material = weapon.material_type
 		if weapon_material == 's':
 			weapon.set_material(material='special', material_stat=1)
@@ -146,8 +151,6 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 		return weapon_chooser(weapon_class_chooser())
 	else:	
 		return weapon_chooser(weapon_type)
-
-
 
 def weapon_generator(weapons_limit):
 	counter = 0
@@ -192,5 +195,7 @@ def material_lister():
 materials = material_lister()
 classes = ['ranged','long bladed','shield','magic', 'blunt', 'concealed', 'gadget', 'book']
 data_dict = setup()
-print(user_process(input('How many weapons to generate? (Type "end" to close program.) '))
-)
+print(str(time.clock()), 'time for setup')
+weapon_generator(100)
+print(str(time.clock()), 'time for run')
+print(user_process(input('How many weapons to generate? (Type "end" to close program.) ')))

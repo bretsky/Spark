@@ -8,7 +8,7 @@ s/9/dynamite/It's a stick of explosive dynamite.
 s/2/flintlock pistol/A short range pistol, small enough to be carried in a holster. 
 s/3/gas canister/This canister contains disorienting poison gas that confuses and hurts your eneemy.
 s/6/branding iron/An electric branding iron that can be used to seriously burn your enemy.
-m/16/trap/A trap with spring-loaded %m claws. 
 s/2/flamethrower/This device sprays a stream of flaming liquid.
 m/18/wrench/A large %m wrench, made more for hitting than building.
 s/2/arquebus/A muzzle-loaded firearm that's lighter than a musket.
+m/4/drill/The %m drill bit spins menacingly. Time for an impromptu lobotomy!

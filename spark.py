@@ -243,6 +243,8 @@ def options():
 							screen_y = x[1]
 							pygame.display.set_mode((screen_x, screen_y), flags)
 							options()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+				menu()
 		pygame.display.update()
 		options_go = quit_check(events)
 		
@@ -334,6 +336,8 @@ def volume_options():
 					click_sound = False
 				if back_button_rect.collidepoint(pygame.mouse.get_pos()):
 					options()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+				options()
 		pygame.display.update()
 		menu_go = quit_check(events)
 	

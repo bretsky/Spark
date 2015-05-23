@@ -7,3 +7,4 @@ lightsaber/Also known as a laser sword, this is the standard weapon of the Jedi.
 holographic de-materialization device/A device that dematerializes enemies, converting all matter in the target area to pure energy.
 banana gun/A BG-238 fully automatic submachine banana. It fires potassium point rounds for extra penetration.
 excessive force/Why do you need a gun this big? Isn't it impractical? Yes, but it's badass.
+sonic screwdriver/This multi-functional sonic device is advanced Gallifreyan technology.

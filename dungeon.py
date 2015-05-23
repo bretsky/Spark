@@ -2,6 +2,7 @@ import random
 import pygame
 from pygame.locals import *
 import sys
+import time
 sys.setrecursionlimit(5000)
 class Tile:
 	def __init__(self, tile_type, water):
@@ -21,6 +22,10 @@ water_tile = pygame.Surface((4, 4)).convert()
 water_tile.fill((16, 16, 160))
 hall_tile = pygame.Surface((4, 4)).convert()
 hall_tile.fill((128, 128, 128))
+character_tile = pygame.Surface((4, 4)).convert()
+character_tile.fill((255, 255, 255))
+destination_tile = pygame.Surface((4, 4)).convert()
+destination_tile.fill((255, 0, 0))
 rooms = []
 framerate = pygame.time.Clock()
 
@@ -28,7 +33,7 @@ def print_map():
 	print_go = True
 	while print_go == True:
 		
-		framerate.tick(30)
+		framerate.tick(55)
 		counter = 0
 		# map_string = ''
 		for y in map_list:
@@ -54,6 +59,50 @@ def print_map():
 			
 			# map_string += '\n'
 			counter += 1
+
+		# screen.blit(character_tile, (character_pos[0]*4, character_pos[1]*4))
+		pygame.display.update()
+		# map_string += '\n\n\n\n\n\n\n\n'
+		# print(map_string)
+		events = pygame.event.get()
+		for x in events:
+			if x.type == pygame.QUIT:
+				return
+	return
+
+def print_map_dots(fill_start, destination):
+	print_go = True
+	while print_go == True:
+		
+		framerate.tick(55)
+		counter = 0
+		# map_string = ''
+		for y in map_list:
+			x_counter = 0
+			for x in y:
+
+				if x.type == 0:
+					screen.blit(bg_tile, (x_counter*4, counter*4))
+					# map_string += '╦'
+				if x.type == 1 and x.water == False:
+					screen.blit(floor_tile, (x_counter*4, counter*4))
+					# map_string += '.'
+				if x.type == 2:
+					screen.blit(wall_tile, (x_counter*4, counter*4))
+					# map_string += 'I'
+				if x.type == 3 and x.water  == False:
+					screen.blit(hall_tile, (x_counter*4, counter*4))
+					# map_string += ','
+				if x.water == True:
+					screen.blit(water_tile, (x_counter*4, counter*4))
+					# map_string += '*'
+				x_counter+=1
+			
+			# map_string += '\n'
+			counter += 1
+		screen.blit(destination_tile, (destination.x1*4, destination.y1*4))
+		screen.blit(character_tile, (fill_start.x1*4, fill_start.y1*4))
+		# screen.blit(character_tile, (character_pos[0]*4, character_pos[1]*4))
 		pygame.display.update()
 		# map_string += '\n\n\n\n\n\n\n\n'
 		# print(map_string)
@@ -103,33 +152,36 @@ class Room:
 	def tile_map(self, level_map):
 		for y in range(self.wall_top, self.wall_bottom+1):
 			for x in range(self.wall_left, self.wall_right+1):
-				level_map[x][y] = Tile(2, False)
+				level_map[y][x] = Tile(2, False)
 		for y in range(self.y1, self.y2+1):
 			for x in range(self.x1, self.x2+1):
-				level_map[x][y] = Tile(1, False)
+				level_map[y][x] = Tile(1, False)
 
 def carve_map(x, y, level_map):
 	for row in range(y-1, y+2):
 		for column in range(x-1, x+2):
-			if level_map[column][row].type == 0:
-				level_map[column][row] = Tile(2, False)
+			if level_map[row][column].type == 0:
+				level_map[row][column] = Tile(2, False)
 	else:
-		level_map[x][y] = Tile(3, False)
+		level_map[y][x] = Tile(3, False)
 
 def tile_rooms():
 	for x in range(128):
 		for y in range(128):
 			for room in rooms:
 				if room.in_this_room(x, y):
-					map_list[x][y] = Tile(1, False)
+					map_list[y][x] = Tile(1, False)
 
 
 
 
 def fill(x, y):
-	if map_list[x][y].type == 1 or map_list[x][y].type == 3:
-		if map_list[x][y].water == False:
-			map_list[x][y].water = True
+
+	if map_list[y][x].type == 1 or map_list[y][x].type == 3:
+		if map_list[y][x].water == False:
+			map_list[y][x].water = True
+			screen.blit(water_tile, (x, y))
+			# time.sleep(0.01)
 			fill(x-1, y)
 			fill(x+1, y)
 			fill(x, y-1)
@@ -140,19 +192,26 @@ def fill(x, y):
 def unfill():
 	for x in range(128):
 		for y in range(128):
-			map_list[x][y].water = False
+			map_list[y][x].water = False
 
+corridors_made = 0
 def make_corridors():
+	global rooms
+	global corridors_made
+	global map_list
 	# tile_rooms()
 	# print_map()
 	unfill()
 	fill_start = random.choice(rooms)
 	fill(fill_start.x1, fill_start.y1)
+	
 	start_room = fill_start
 	destination = random.choice(rooms)
-	if not map_list[destination.x1][destination.y1].water:
+	print_map_dots(fill_start, destination)
+	if not map_list[destination.y1][destination.x1].water:
 		if not destination.intercepts(start_room):
 			seed = random.randrange(2)
+			corridors_made += 1
 			if seed == 1:
 				y_choices = [start_room.wall_top, start_room.wall_bottom]
 				x = random.randrange(start_room.x1, start_room.x2+1)
@@ -187,21 +246,30 @@ def make_corridors():
 				while y > destination.y2:
 					carve_map(x, y, map_list)
 					y += -1
+			print('Successfully created corridor %(corridor)i' % {'corridor' : corridors_made})
+		else:
+			print('Start and destination were the same, regenerating')
+			return make_corridors()
 	else:
+		print('Invalid room pair, regenerating')
 		return make_corridors()
 	unfill()
 	fill_start = random.choice(rooms)
 	fill(fill_start.x1, fill_start.y1)
-	# print_map()
+	print_map()
+	if corridors_made > 12:
+		map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
+		rooms = make_rooms()
+		tile_rooms()
+		print('Dungeon was too complex, regenerating')
+		corridors_made = 0
+		return make_corridors()
 	for y in map_list:
 		for x in y:
 			if x.type == 1 and x.water == False:
 				return make_corridors()
-	else:
-		return
-	
 
-def random_room():
+def random_room(rooms):
 	x = random.randrange(1, 127)
 	y = random.randrange(1, 127)
 	w = random.randrange(1, 15)
@@ -210,24 +278,60 @@ def random_room():
 	y2 = y + h
 	room = Room(x, x2, y, y2)
 	if x2 >= 127 or y2 >= 127:
-		return random_room()
+		return random_room(rooms)
 	for x in rooms:
 		if room.intercepts(x):
-			return random_room()
+			print('Room conflicted with existing room, regenerating')
+			return random_room(rooms)
 	else:
+		print('Made room dimensions')
 		return room
 
-rooms = []
-for x in range(random.randrange(4, 21)):
-	room = random_room()
-	room.tile_map(map_list)
-	rooms.append(room)
-tile_rooms()
+def make_rooms():
+	rooms = []
+	for x in range(random.randrange(4, 17)):
+		room = random_room(rooms)
+		print('Made room %(counter)i' % {'counter' : x + 1})
+		room.tile_map(map_list)
+		print_map()
+		rooms.append(room)
+	tile_rooms()
+	return rooms
 
-
+rooms = make_rooms()
 make_corridors()
 unfill()
 tile_rooms()
+char_room = rooms[0]
+character_pos = (char_room.x1, char_room.y1)
+
+# if True:
+# 	counter = 0
+# 	map_string = ''
+# 	for y in map_list:
+# 		x_counter = 0
+# 		for x in y:
+
+# 			if x.type == 0:
+# 				map_string += '╦'
+# 			if x.type == 1 and x.water == False:
+# 				map_string += '.'
+# 			if x.type == 2:
+# 				map_string += 'I'
+# 			if x.type == 3 and x.water  == False:
+# 				map_string += ','
+# 			if x.water == True:
+# 				map_string += '*'
+# 			x_counter+=1
+		
+# 		map_string += '\n'
+# 		counter += 1
+# 	map_string += '\n\n\n\n\n\n\n\n'
+# 	print(map_string)
+# print(char_room.x1, char_room.x2, char_room.y1, char_room.y2)
+# print(character_pos)
+# print(character_pos[0]*4, character_pos[1]*4)
+# for room in rooms:
+# 	print((room.x1, room.y1))
 
 print_map()
-
