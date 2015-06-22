@@ -4,7 +4,9 @@ from decimal import *
 import os
 import time 
 from copy import deepcopy
+import sys
 
+sys.setrecursionlimit(1000)
 time.clock()
 getcontext().prec = 64
 
@@ -64,7 +66,7 @@ def setup():
 		rarity = []
 		for x in rarity_linear:
 			x = int(x)
-			rarity.append(Decimal(x**(1/1.5)))
+			rarity.append(Decimal(x**(1/3)))
 		rarity = rationalize(rarity)
 		for weapon in range(len(weapon_list)):
 			if material[weapon] == 's':
@@ -98,14 +100,14 @@ class Weapon():
 		self.weapon_type = weapon_type
 	def set_material(self, material, material_stat):
 		if self.material_type != 's':
-			self.level = round((self.level*material_stat)**(0.562151993))
+			self.level = round((self.level*material_stat**1.5)**(0.562151993))
 		self.material_stat = material_stat
 		self.material = material
 		self.descript = self.descript.replace('%m', material)
 	def set_info(self, info):
 		self.info = info
 
-def random_weapon(weapon_type='rand', maxlevel=100):
+def random_weapon(weapon_type='rand', maxlevel=100, minlevel=0):
 
 	def weapon_chooser(weapon_class):
 		class_dict = data_dict[weapon_class]
@@ -126,6 +128,8 @@ def random_weapon(weapon_type='rand', maxlevel=100):
 			material_pick = random_material('wood')
 			weapon.set_material(material=material_pick[0], material_stat=material_pick[1])
 		if weapon.level > maxlevel:
+			return weapon_chooser(weapon_class)
+		if weapon.level < minlevel:
 			return weapon_chooser(weapon_class)
 		material = weapon.material
 		material = ' '.join(word[0].upper() + word[1:] for word in material.split())

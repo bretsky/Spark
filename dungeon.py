@@ -77,7 +77,7 @@ def print_map():
 			w_count += 1
 			if w_count == 20:
 				w_count = 0
-				if character_pos[1] != 0:
+				if map_list[character_pos[1]-1][character_pos[0]].type != 2:
 					w_count += 16
 					character_pos[1] -= 1
 		else:
@@ -86,7 +86,7 @@ def print_map():
 			s_count += 1
 			if s_count == 20:
 				s_count = 0
-				if character_pos[1] != len(map_list)-1:
+				if map_list[character_pos[1]+1][character_pos[0]].type != 2:
 					s_count += 16
 					character_pos[1] += 1
 		else:
@@ -95,7 +95,7 @@ def print_map():
 			a_count += 1
 			if a_count == 20:
 				a_count = 0
-				if character_pos[0] != 0:
+				if map_list[character_pos[1]][character_pos[0]-1].type != 2:
 					a_count += 16
 					character_pos[0] -= 1
 		else:
@@ -104,7 +104,7 @@ def print_map():
 			d_count += 1
 			if d_count == 20:
 				d_count = 0
-				if character_pos[0] != len(map_list)-1:
+				if map_list[character_pos[1]][character_pos[0]+1].type != 2:
 					d_count += 16
 					character_pos[0] += 1
 		else:
@@ -114,16 +114,16 @@ def print_map():
 				return
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_w or event.key == pygame.K_UP:
-					if character_pos[1] != 0:
+					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
 						character_pos[1] -= 1
 				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-					if character_pos[1] != len(map_list)-1:
+					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
 						character_pos[1] += 1
 				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-					if character_pos[0] != 0:
+					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
 						character_pos[0] -= 1
 				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-					if character_pos[0] != len(map_list)-1:
+					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
 						character_pos[0] += 1
 				if event.key == pygame.K_SPACE:
 					return
