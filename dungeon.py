@@ -4,11 +4,18 @@ from pygame.locals import *
 import sys
 import time
 import dungeon_name_generator
+
 sys.setrecursionlimit(5000)
+
 class Tile:
 	def __init__(self, tile_type, water):
 		self.type = tile_type
 		self.water = water
+		self.light = 0
+	def set_light(self, value):
+		if value > self.light:
+			self.light = value
+
 character_pos = [0, 0]
 map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
 pygame.init()
@@ -16,16 +23,18 @@ screen_x = 1024
 screen_y = 1024
 screen = pygame.display.set_mode((screen_x, screen_y))
 pygame.display.set_caption(dungeon_name_generator.random_dungeon_name())
+screen_bg = pygame.Surface((1024, 1024)).convert()
+screen_bg.fill((0, 0, 0))
 floor_tile = pygame.Surface((8, 8)).convert()
-floor_tile.fill((0,0,0))
+floor_tile.fill((30, 16, 3))
 wall_tile = pygame.Surface((8, 8)).convert()
-wall_tile.fill((64, 64, 64))
+wall_tile.fill((63, 63, 63))
 bg_tile = pygame.Surface((8, 8)).convert()
 bg_tile.fill((70, 45, 10))
 water_tile = pygame.Surface((8, 8)).convert()
 water_tile.fill((16, 16, 160))
 hall_tile = pygame.Surface((8, 8)).convert()
-hall_tile.fill((128, 128, 128))
+hall_tile.fill((148, 120, 78))
 character_tile = pygame.Surface((8, 8)).convert()
 character_tile.fill((255, 255, 255))
 destination_tile = pygame.Surface((8, 8)).convert()
@@ -44,135 +53,152 @@ def print_map():
 	while print_go == True:	
 		framerate.tick(60)
 		counter = 0
-		# map_string = ''
 		for y in map_list:
 			x_counter = 0
 			for x in y:
-
 				if x.type == 0:
 					screen.blit(bg_tile, (x_counter*8, counter*8))
-					# map_string += '╦'
 				if x.type == 1 and x.water == False:
 					screen.blit(floor_tile, (x_counter*8, counter*8))
-					# map_string += '.'
 				if x.type == 2:
 					screen.blit(wall_tile, (x_counter*8, counter*8))
-					# map_string += 'I'
 				if x.type == 3 and x.water  == False:
 					screen.blit(hall_tile, (x_counter*8, counter*8))
-					# map_string += ','
 				if x.water == True:
 					screen.blit(water_tile, (x_counter*8, counter*8))
-					# map_string += '*'
 				x_counter+=1
-			
-			# map_string += '\n'
 			counter += 1
-
 		screen.blit(character_tile, (character_pos[0]*8, character_pos[1]*8))
 		pygame.display.update()
-		# map_string += '\n\n\n\n\n\n\n\n'
-		# print(map_string)
 		events = pygame.event.get()
-		key = pygame.key.get_pressed()
-		if key[pygame.K_w] or key[pygame.K_UP]:
-			w_count += 1
-			if w_count == 20:
-				w_count = 0
-				if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-					w_count += 16
-					character_pos[1] -= 1
-		else:
-			w_count = 0
-		if key[pygame.K_s] or key[pygame.K_DOWN]:
-			s_count += 1
-			if s_count == 20:
-				s_count = 0
-				if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-					s_count += 16
-					character_pos[1] += 1
-		else:
-			s_count = 0
-		if key[pygame.K_a] or key[pygame.K_LEFT]:
-			a_count += 1
-			if a_count == 20:
-				a_count = 0
-				if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-					a_count += 16
-					character_pos[0] -= 1
-		else:
-			a_count = 0
-		if key[pygame.K_d] or key[pygame.K_RIGHT]:
-			d_count += 1
-			if d_count == 20:
-				d_count = 0
-				if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-					d_count += 16
-					character_pos[0] += 1
-		else:
-			d_count = 0
 		for event in events:
 			if event.type == pygame.QUIT:
 				return
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_w or event.key == pygame.K_UP:
-					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-						character_pos[1] -= 1
-				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-						character_pos[1] += 1
-				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-						character_pos[0] -= 1
-				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-						character_pos[0] += 1
 				if event.key == pygame.K_SPACE:
 					return
-				
 	return
 
 def print_map_dots(fill_start, destination):
 	print_go = True
 	while print_go == True:
-		
 		framerate.tick(55)
-		counter = 0
-		# map_string = ''
+		counter = 0	
+		screen.blit(screen_bg, (0,0))
 		for y in map_list:
 			x_counter = 0
 			for x in y:
 
 				if x.type == 0:
 					screen.blit(bg_tile, (x_counter*8, counter*8))
-					# map_string += '╦'
 				if x.type == 1 and x.water == False:
 					screen.blit(floor_tile, (x_counter*8, counter*8))
-					# map_string += '.'
 				if x.type == 2:
 					screen.blit(wall_tile, (x_counter*8, counter*8))
-					# map_string += 'I'
 				if x.type == 3 and x.water  == False:
 					screen.blit(hall_tile, (x_counter*8, counter*8))
-					# map_string += ','
 				if x.water == True:
 					screen.blit(water_tile, (x_counter*8, counter*8))
-					# map_string += '*'
 				x_counter+=1
-			
-			# map_string += '\n'
 			counter += 1
 		screen.blit(destination_tile, (destination[0]*8, destination[1]*8))
 		screen.blit(start_tile, (fill_start[0]*8, fill_start[1]*8))
+		pygame.display.update()
+		events = pygame.event.get()
+		for event in events:
+			if event.type == pygame.QUIT:
+				return
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE:
+					return
+	return
+
+def print_map_game(destination):
+	print_go = True
+	while print_go == True:
+		framerate.tick(55)
+		counter = 0
+		for room in rooms:
+			if room.in_this_room(character_pos[0], character_pos[1]):
+				for room_y in range(room.height+3):
+					for room_x in range(room.width+3):
+						for y in range(7):
+							for x in range(7):
+								light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
+								if light_pos[0] < 128 and light_pos[1] < 128: 
+									map_list[light_pos[1]][light_pos[0]].set_light(31)
+						for y in range(5):
+							for x in range(5):
+								light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
+								if light_pos[0] < 128 and light_pos[1] < 128: 
+									map_list[light_pos[1]][light_pos[0]].set_light(63)
+						for y in range(3):
+							for x in range(3):
+								light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
+								if light_pos[0] < 128 and light_pos[1] < 128: 
+									map_list[light_pos[1]][light_pos[0]].set_light(127)						
+						map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
+		for y in range(9):
+			for x in range(9):
+				light_pos = [character_pos[0]-4+x, character_pos[1]-4+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(31)
+		for y in range(7):
+			for x in range(7):
+				light_pos = [character_pos[0]-3+x, character_pos[1]-3+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(63)
+		for y in range(5):
+			for x in range(5):
+				light_pos = [character_pos[0]-2+x, character_pos[1]-2+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(127)
+		for y in range(3):
+			for x in range(3):
+				light_pos = [character_pos[0]-1+x, character_pos[1]-1+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(255)		
+		screen.blit(screen_bg, (0,0))
+		for y in map_list:
+			x_counter = 0
+			for x in y:
+
+				if x.type == 0:
+					x_tile = bg_tile
+					x_tile.set_alpha(x.light)
+					screen.blit(x_tile, (x_counter*8, counter*8))
+				if x.type == 1 and x.water == False:
+					x_tile = floor_tile
+					x_tile.set_alpha(x.light)
+					screen.blit(x_tile, (x_counter*8, counter*8))
+				if x.type == 2:
+					x_tile = wall_tile
+					x_tile.set_alpha(x.light)
+					screen.blit(x_tile, (x_counter*8, counter*8))
+				if x.type == 3 and x.water  == False:
+					x_tile = hall_tile
+					x_tile.set_alpha(x.light)
+					screen.blit(x_tile, (x_counter*8, counter*8))
+				if x.water == True:
+					screen.blit(water_tile, (x_counter*8, counter*8))
+				x_counter+=1
+			counter += 1
+		x_tile = destination_tile
+		x_tile.set_alpha(map_list[destination[1]][destination[0]].light)
+		screen.blit(x_tile, (destination[0]*8, destination[1]*8))
 		screen.blit(character_tile, (character_pos[0]*8, character_pos[1]*8))
 		pygame.display.update()
-		# map_string += '\n\n\n\n\n\n\n\n'
-		# print(map_string)
+		if character_pos == destination:
+			return
 		events = pygame.event.get()
 		key = pygame.key.get_pressed()
+		move_speed = 1
+		mods = pygame.key.get_mods()
+		if mods & KMOD_SHIFT:
+			move_speed = 2
 		if key[pygame.K_w] or key[pygame.K_UP]:
-			w_count += 1
-			if w_count == 20:
+			w_count += move_speed
+			if w_count >= 20:
 				w_count = 0
 				if map_list[character_pos[1]-1][character_pos[0]].type != 2:
 					w_count += 16
@@ -180,8 +206,8 @@ def print_map_dots(fill_start, destination):
 		else:
 			w_count = 0
 		if key[pygame.K_s] or key[pygame.K_DOWN]:
-			s_count += 1
-			if s_count == 20:
+			s_count += move_speed
+			if s_count >= 20:
 				s_count = 0
 				if map_list[character_pos[1]+1][character_pos[0]].type != 2:
 					s_count += 16
@@ -189,8 +215,8 @@ def print_map_dots(fill_start, destination):
 		else:
 			s_count = 0
 		if key[pygame.K_a] or key[pygame.K_LEFT]:
-			a_count += 1
-			if a_count == 20:
+			a_count += move_speed
+			if a_count >= 20:
 				a_count = 0
 				if map_list[character_pos[1]][character_pos[0]-1].type != 2:
 					a_count += 16
@@ -198,8 +224,8 @@ def print_map_dots(fill_start, destination):
 		else:
 			a_count = 0
 		if key[pygame.K_d] or key[pygame.K_RIGHT]:
-			d_count += 1
-			if d_count == 20:
+			d_count += move_speed
+			if d_count >= 20:
 				d_count = 0
 				if map_list[character_pos[1]][character_pos[0]+1].type != 2:
 					d_count += 16
@@ -212,24 +238,22 @@ def print_map_dots(fill_start, destination):
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_w or event.key == pygame.K_UP:
 					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-						character_pos[1] -= 1
+						character_pos[1] -= move_speed
 				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
 					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-						character_pos[1] += 1
+						character_pos[1] += move_speed
 				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
 					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-						character_pos[0] -= 1
+						character_pos[0] -= move_speed
 				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
 					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-						character_pos[0] += 1
+						character_pos[0] += move_speed
 				if event.key == pygame.K_SPACE:
 					return
-		
 	return
 
 class Room:
-	def __init__(self, x1, x2, y1, y2):
-		
+	def __init__(self, x1, x2, y1, y2):	
 		self.x1 = x1
 		self.x2 = x2
 		self.y1 = y1
@@ -254,7 +278,6 @@ class Room:
 				return True
 		else:
 			return False
-
 
 	def is_wall(self, x, y):
 		if not self.in_this_room(x, y):
@@ -287,11 +310,7 @@ def tile_rooms():
 				if room.in_this_room(x, y):
 					map_list[y][x] = Tile(1, False)
 
-
-
-
 def fill(x, y):
-
 	if map_list[y][x].type == 1 or map_list[y][x].type == 3:
 		if map_list[y][x].water == False:
 			map_list[y][x].water = True
@@ -314,12 +333,9 @@ def make_corridors():
 	global rooms
 	global corridors_made
 	global map_list
-	# tile_rooms()
-	# print_map()
 	unfill()
 	fill_start = random.choice(rooms)
 	fill(fill_start.x1, fill_start.y1)
-	
 	start_room = fill_start
 	destination = random.choice(rooms)
 	fill_start_pos = [fill_start.x1, fill_start.y1]
@@ -423,33 +439,4 @@ char_room = rooms[0]
 character_pos = [char_room.x1, char_room.y1]
 end_room = rooms[random.randrange(1, len(rooms))]
 end_pos = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
-print_map_dots([-1,-1], end_pos)
-
-# if True:
-# 	counter = 0
-# 	map_string = ''
-# 	for y in map_list:
-# 		x_counter = 0
-# 		for x in y:
-
-# 			if x.type == 0:
-# 				map_string += '╦'
-# 			if x.type == 1 and x.water == False:
-# 				map_string += '.'
-# 			if x.type == 2:
-# 				map_string += 'I'
-# 			if x.type == 3 and x.water  == False:
-# 				map_string += ','
-# 			if x.water == True:
-# 				map_string += '*'
-# 			x_counter+=1
-		
-# 		map_string += '\n'
-# 		counter += 1
-# 	map_string += '\n\n\n\n\n\n\n\n'
-# 	print(map_string)
-# print(char_room.x1, char_room.x2, char_room.y1, char_room.y2)
-# print(character_pos)
-# print(character_pos[0]*4, character_pos[1]*4)
-# for room in rooms:
-# 	print((room.x1, room.y1))
+print_map_game(end_pos)

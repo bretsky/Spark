@@ -19,7 +19,7 @@ def random_dungeon_name():
 	elif num == 3:
 		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
 	elif num == 4:
-		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of the ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
+		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
 	return dungeon_name
 
 # while True:
