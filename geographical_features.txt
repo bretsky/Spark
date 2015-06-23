@@ -56,3 +56,8 @@ labyrinth
 barrow
 pit
 temple
+maze
+tombs
+lair
+mine
+dungeon

@@ -3,6 +3,7 @@ import pygame
 from pygame.locals import *
 import sys
 import time
+import dungeon_name_generator
 sys.setrecursionlimit(5000)
 class Tile:
 	def __init__(self, tile_type, water):
@@ -14,6 +15,7 @@ pygame.init()
 screen_x = 1024
 screen_y = 1024
 screen = pygame.display.set_mode((screen_x, screen_y))
+pygame.display.set_caption(dungeon_name_generator.random_dungeon_name())
 floor_tile = pygame.Surface((8, 8)).convert()
 floor_tile.fill((0,0,0))
 wall_tile = pygame.Surface((8, 8)).convert()
@@ -160,19 +162,69 @@ def print_map_dots(fill_start, destination):
 			
 			# map_string += '\n'
 			counter += 1
-		screen.blit(destination_tile, (destination.x1*8, destination.y1*8))
-		screen.blit(start_tile, (fill_start.x1*8, fill_start.y1*8))
-		# screen.blit(character_tile, (character_pos[0]*4, character_pos[1]*4))
+		screen.blit(destination_tile, (destination[0]*8, destination[1]*8))
+		screen.blit(start_tile, (fill_start[0]*8, fill_start[1]*8))
+		screen.blit(character_tile, (character_pos[0]*8, character_pos[1]*8))
 		pygame.display.update()
 		# map_string += '\n\n\n\n\n\n\n\n'
 		# print(map_string)
 		events = pygame.event.get()
+		key = pygame.key.get_pressed()
+		if key[pygame.K_w] or key[pygame.K_UP]:
+			w_count += 1
+			if w_count == 20:
+				w_count = 0
+				if map_list[character_pos[1]-1][character_pos[0]].type != 2:
+					w_count += 16
+					character_pos[1] -= 1
+		else:
+			w_count = 0
+		if key[pygame.K_s] or key[pygame.K_DOWN]:
+			s_count += 1
+			if s_count == 20:
+				s_count = 0
+				if map_list[character_pos[1]+1][character_pos[0]].type != 2:
+					s_count += 16
+					character_pos[1] += 1
+		else:
+			s_count = 0
+		if key[pygame.K_a] or key[pygame.K_LEFT]:
+			a_count += 1
+			if a_count == 20:
+				a_count = 0
+				if map_list[character_pos[1]][character_pos[0]-1].type != 2:
+					a_count += 16
+					character_pos[0] -= 1
+		else:
+			a_count = 0
+		if key[pygame.K_d] or key[pygame.K_RIGHT]:
+			d_count += 1
+			if d_count == 20:
+				d_count = 0
+				if map_list[character_pos[1]][character_pos[0]+1].type != 2:
+					d_count += 16
+					character_pos[0] += 1
+		else:
+			d_count = 0
 		for event in events:
 			if event.type == pygame.QUIT:
 				return
 			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_w or event.key == pygame.K_UP:
+					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
+						character_pos[1] -= 1
+				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
+					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
+						character_pos[1] += 1
+				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
+					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
+						character_pos[0] -= 1
+				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
+						character_pos[0] += 1
 				if event.key == pygame.K_SPACE:
 					return
+		
 	return
 
 class Room:
@@ -270,7 +322,9 @@ def make_corridors():
 	
 	start_room = fill_start
 	destination = random.choice(rooms)
-	print_map_dots(fill_start, destination)
+	fill_start_pos = [fill_start.x1, fill_start.y1]
+	destination_pos = [destination.x1, destination.y1]
+	print_map_dots(fill_start_pos, destination_pos)
 	if not map_list[destination.y1][destination.x1].water:
 		if not destination.intercepts(start_room):
 			seed = random.randrange(2)
@@ -367,7 +421,9 @@ unfill()
 tile_rooms()
 char_room = rooms[0]
 character_pos = [char_room.x1, char_room.y1]
-print_map()
+end_room = rooms[random.randrange(1, len(rooms))]
+end_pos = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
+print_map_dots([-1,-1], end_pos)
 
 # if True:
 # 	counter = 0
@@ -397,5 +453,3 @@ print_map()
 # print(character_pos[0]*4, character_pos[1]*4)
 # for room in rooms:
 # 	print((room.x1, room.y1))
-
-print_map()
