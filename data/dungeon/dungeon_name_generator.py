@@ -1,8 +1,8 @@
 import random
-geo_file = open(r'data\dungeon\geographical_features.txt')
-dungeon_attr_file = open(r'data\dungeon\dungeon_attributes.txt')
-dungeon_adj_file = open(r'data\dungeon\dungeon_adjectives.txt')
-dungeon_word_file = open(r'data\dungeon\dungeon_words.txt')
+geo_file = open('geographical_features.txt')
+dungeon_attr_file = open('dungeon_attributes.txt')
+dungeon_adj_file = open('dungeon_adjectives.txt')
+dungeon_word_file = open('dungeon_words.txt')
 geo_list = geo_file.read().splitlines()
 dungeon_attr_list = dungeon_attr_file.read().splitlines()
 dungeon_adj_list = dungeon_adj_file.read().splitlines()
