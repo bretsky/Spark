@@ -237,16 +237,16 @@ def print_map_game(destination):
 				return
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_w or event.key == pygame.K_UP:
-					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
+					if map_list[character_pos[1]-1][character_pos[0]].type != 2 and map_list[character_pos[1]-2][character_pos[0]].type != 2:
 						character_pos[1] -= move_speed
 				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
+					if map_list[character_pos[1]+1][character_pos[0]].type != 2 and map_list[character_pos[1]+2][character_pos[0]].type != 2:
 						character_pos[1] += move_speed
 				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
+					if map_list[character_pos[1]][character_pos[0]-1].type != 2 and map_list[character_pos[1]][character_pos[0]-2].type != 2:
 						character_pos[0] -= move_speed
 				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
+					if map_list[character_pos[1]][character_pos[0]+1].type != 2 and map_list[character_pos[1]][character_pos[0]+2].type != 2:
 						character_pos[0] += move_speed
 				if event.key == pygame.K_SPACE:
 					return
