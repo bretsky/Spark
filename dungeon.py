@@ -115,8 +115,17 @@ def print_map_dots(fill_start, destination):
 
 def print_map_game(destination):
 	print_go = True
+	# time.clock()
+	# frame_counter = 0
+	# seconds = 1
 	while print_go == True:
-		framerate.tick(55)
+		framerate.tick(60)
+		# frame_counter += 1
+		# if time.clock() >= seconds:
+		# 	print(frame_counter)
+		# 	frame_counter = 0
+		# 	seconds += 1
+		moved_this_turn = False
 		counter = 0
 		for room in rooms:
 			if room.in_this_room(character_pos[0], character_pos[1]):
@@ -187,7 +196,15 @@ def print_map_game(destination):
 		x_tile.set_alpha(map_list[destination[1]][destination[0]].light)
 		screen.blit(x_tile, (destination[0]*8, destination[1]*8))
 		screen.blit(character_tile, (character_pos[0]*8, character_pos[1]*8))
+		for enemy in enemies:
+			x_tile = water_tile
+			x_tile.set_alpha(map_list[enemy[1]][enemy[0]].light)
+			screen.blit(x_tile, (enemy[0]*8, enemy[1]*8))
 		pygame.display.update()
+		for enemy in enemies:
+			if enemy == character_pos:
+				print('You Lose')
+				return
 		if character_pos == destination:
 			return
 		events = pygame.event.get()
@@ -196,60 +213,77 @@ def print_map_game(destination):
 		mods = pygame.key.get_mods()
 		if mods & KMOD_SHIFT:
 			move_speed = 2
-		if key[pygame.K_w] or key[pygame.K_UP]:
-			w_count += move_speed
-			if w_count >= 20:
+		if not moved_this_turn:
+			if key[pygame.K_w] or key[pygame.K_UP]:
+				w_count += move_speed
+				if w_count >= 20:
+					w_count = 0
+					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
+						w_count += 16
+						character_pos[1] -= 1
+						moved_this_turn = True
+			else:
 				w_count = 0
-				if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-					w_count += 16
-					character_pos[1] -= 1
-		else:
-			w_count = 0
-		if key[pygame.K_s] or key[pygame.K_DOWN]:
-			s_count += move_speed
-			if s_count >= 20:
+		if not moved_this_turn:
+			if key[pygame.K_s] or key[pygame.K_DOWN]:
+				s_count += move_speed
+				if s_count >= 20:
+					s_count = 0
+					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
+						s_count += 16
+						character_pos[1] += 1
+						moved_this_turn = True
+			else:
 				s_count = 0
-				if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-					s_count += 16
-					character_pos[1] += 1
-		else:
-			s_count = 0
-		if key[pygame.K_a] or key[pygame.K_LEFT]:
-			a_count += move_speed
-			if a_count >= 20:
+		if not moved_this_turn:
+			if key[pygame.K_a] or key[pygame.K_LEFT]:
+				a_count += move_speed
+				if a_count >= 20:
+					a_count = 0
+					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
+						a_count += 16
+						character_pos[0] -= 1
+						moved_this_turn = True
+			else:
 				a_count = 0
-				if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-					a_count += 16
-					character_pos[0] -= 1
-		else:
-			a_count = 0
-		if key[pygame.K_d] or key[pygame.K_RIGHT]:
-			d_count += move_speed
-			if d_count >= 20:
+		if not moved_this_turn:
+			if key[pygame.K_d] or key[pygame.K_RIGHT]:
+				d_count += move_speed
+				if d_count >= 20:
+					d_count = 0
+					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
+						d_count += 16
+						character_pos[0] += 1
+						moved_this_turn = True
+			else:
 				d_count = 0
-				if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-					d_count += 16
-					character_pos[0] += 1
-		else:
-			d_count = 0
 		for event in events:
 			if event.type == pygame.QUIT:
 				return
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_w or event.key == pygame.K_UP:
-					if map_list[character_pos[1]-1][character_pos[0]].type != 2 and map_list[character_pos[1]-2][character_pos[0]].type != 2:
-						character_pos[1] -= move_speed
-				if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-					if map_list[character_pos[1]+1][character_pos[0]].type != 2 and map_list[character_pos[1]+2][character_pos[0]].type != 2:
-						character_pos[1] += move_speed
-				if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-					if map_list[character_pos[1]][character_pos[0]-1].type != 2 and map_list[character_pos[1]][character_pos[0]-2].type != 2:
-						character_pos[0] -= move_speed
-				if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-					if map_list[character_pos[1]][character_pos[0]+1].type != 2 and map_list[character_pos[1]][character_pos[0]+2].type != 2:
-						character_pos[0] += move_speed
+				if not moved_this_turn:
+					if event.key == pygame.K_w or event.key == pygame.K_UP:
+						if map_list[character_pos[1]-move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]-1][character_pos[0]].type != 2:
+							character_pos[1] -= move_speed
+							moved_this_turn = True
+				if not moved_this_turn:
+					if event.key == pygame.K_s or event.key == pygame.K_DOWN:
+						if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
+							character_pos[1] += move_speed
+							moved_this_turn = True
+				if not moved_this_turn:
+					if event.key == pygame.K_a or event.key == pygame.K_LEFT:
+						if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
+							character_pos[0] -= move_speed
+							moved_this_turn = True
+				if not moved_this_turn:			
+					if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
+						if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
+							character_pos[0] += move_speed
+							moved_this_turn = True
 				if event.key == pygame.K_SPACE:
 					return
+
 	return
 
 class Room:
@@ -431,12 +465,24 @@ def make_rooms():
 	tile_rooms()
 	return rooms
 
+def make_enemy():
+	enemy_room = random.choice(rooms)
+	enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
+	if enemy_pos != character_pos:
+		if not enemy_pos in enemies:
+			return enemy_pos
+	else:
+		return make_enemy()
 rooms = make_rooms()
 make_corridors()
 unfill()
 tile_rooms()
 char_room = rooms[0]
-character_pos = [char_room.x1, char_room.y1]
+character_pos = [char_room.x1 + random.randrange(0, char_room.width), char_room.y1 + random.randrange(0, char_room.height)]
 end_room = rooms[random.randrange(1, len(rooms))]
 end_pos = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
+enemies = []
+for enemy in range(random.randrange(1,5)):
+	enemies.append(make_enemy())
+print(enemies)
 print_map_game(end_pos)
