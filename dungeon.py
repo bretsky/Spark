@@ -12,9 +12,12 @@ class Tile:
 		self.type = tile_type
 		self.water = water
 		self.light = 0
+		self.visible = False
 	def set_light(self, value):
 		if value > self.light:
 			self.light = value
+	def set_visible(self, visible):
+		self.visible = visible
 
 character_pos = [0, 0]
 map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
@@ -39,6 +42,8 @@ character_tile = pygame.Surface((8, 8)).convert()
 character_tile.fill((255, 255, 255))
 destination_tile = pygame.Surface((8, 8)).convert()
 destination_tile.fill((255, 0, 0))
+enemy_tile = pygame.Surface((8,8)).convert()
+enemy_tile.fill((255, 255, 0))
 start_tile = pygame.Surface((8, 8)).convert()
 start_tile.fill((0, 255, 0))
 rooms = []
@@ -120,6 +125,10 @@ def print_map_game(destination):
 	# seconds = 1
 	while print_go == True:
 		framerate.tick(60)
+		# print(framerate.get_fps())
+		for y in map_list:
+			for x in y:
+				x.set_visible(False)
 		# frame_counter += 1
 		# if time.clock() >= seconds:
 		# 	print(frame_counter)
@@ -129,39 +138,62 @@ def print_map_game(destination):
 		counter = 0
 		for room in rooms:
 			if room.in_this_room(character_pos[0], character_pos[1]):
-				for room_y in range(room.height+3):
-					for room_x in range(room.width+3):
-						for y in range(7):
-							for x in range(7):
-								light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
-								if light_pos[0] < 128 and light_pos[1] < 128: 
-									map_list[light_pos[1]][light_pos[0]].set_light(31)
-						for y in range(5):
-							for x in range(5):
-								light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
-								if light_pos[0] < 128 and light_pos[1] < 128: 
-									map_list[light_pos[1]][light_pos[0]].set_light(63)
-						for y in range(3):
-							for x in range(3):
-								light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
-								if light_pos[0] < 128 and light_pos[1] < 128: 
-									map_list[light_pos[1]][light_pos[0]].set_light(127)						
-						map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
+				if not room.discovered:
+					room.discover()
+					for room_y in range(room.height+3):
+						for room_x in range(room.width+3):
+							for y in range(11):
+								for x in range(11):
+									light_pos = [room_x-5+x+room.wall_left, room_y-5+y+room.wall_top]
+									if light_pos[0] < 128 and light_pos[1] < 128: 
+										map_list[light_pos[1]][light_pos[0]].set_light(15)
+							for y in range(9):
+								for x in range(9):
+									light_pos = [room_x-4+x+room.wall_left, room_y-4+y+room.wall_top]
+									if light_pos[0] < 128 and light_pos[1] < 128: 
+										map_list[light_pos[1]][light_pos[0]].set_light(31)
+							for y in range(7):
+								for x in range(7):
+									light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
+									if light_pos[0] < 128 and light_pos[1] < 128: 
+										map_list[light_pos[1]][light_pos[0]].set_light(63)
+							for y in range(5):
+								for x in range(5):
+									light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
+									if light_pos[0] < 128 and light_pos[1] < 128: 
+										map_list[light_pos[1]][light_pos[0]].set_light(127)
+							for y in range(3):
+								for x in range(3):
+									light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
+									if light_pos[0] < 128 and light_pos[1] < 128: 
+										map_list[light_pos[1]][light_pos[0]].set_light(255)						
+							map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
+		for y in range(13):
+			for x in range(13):
+				light_pos = [character_pos[0]-6+x, character_pos[1]-6+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(15)
+					map_list[light_pos[1]][light_pos[0]].set_visible(True)
+		for y in range(11):
+			for x in range(11):
+				light_pos = [character_pos[0]-5+x, character_pos[1]-5+y]
+				if light_pos[0] < 128 and light_pos[1] < 128: 
+					map_list[light_pos[1]][light_pos[0]].set_light(31)
 		for y in range(9):
 			for x in range(9):
 				light_pos = [character_pos[0]-4+x, character_pos[1]-4+y]
 				if light_pos[0] < 128 and light_pos[1] < 128: 
-					map_list[light_pos[1]][light_pos[0]].set_light(31)
+					map_list[light_pos[1]][light_pos[0]].set_light(63)
 		for y in range(7):
 			for x in range(7):
 				light_pos = [character_pos[0]-3+x, character_pos[1]-3+y]
 				if light_pos[0] < 128 and light_pos[1] < 128: 
-					map_list[light_pos[1]][light_pos[0]].set_light(63)
+					map_list[light_pos[1]][light_pos[0]].set_light(127)
 		for y in range(5):
 			for x in range(5):
 				light_pos = [character_pos[0]-2+x, character_pos[1]-2+y]
 				if light_pos[0] < 128 and light_pos[1] < 128: 
-					map_list[light_pos[1]][light_pos[0]].set_light(127)
+					map_list[light_pos[1]][light_pos[0]].set_light(255)
 		for y in range(3):
 			for x in range(3):
 				light_pos = [character_pos[0]-1+x, character_pos[1]-1+y]
@@ -174,22 +206,32 @@ def print_map_game(destination):
 
 				if x.type == 0:
 					x_tile = bg_tile
-					x_tile.set_alpha(x.light)
+					if x.visible:
+						x_tile.set_alpha(x.light)
+					else:
+						x_tile.set_alpha(x.light/2)
 					screen.blit(x_tile, (x_counter*8, counter*8))
 				if x.type == 1 and x.water == False:
 					x_tile = floor_tile
-					x_tile.set_alpha(x.light)
+					if x.visible:
+						x_tile.set_alpha(x.light)
+					else:
+						x_tile.set_alpha(x.light/2)
 					screen.blit(x_tile, (x_counter*8, counter*8))
 				if x.type == 2:
 					x_tile = wall_tile
-					x_tile.set_alpha(x.light)
+					if x.visible:
+						x_tile.set_alpha(x.light)
+					else:
+						x_tile.set_alpha(x.light/2)
 					screen.blit(x_tile, (x_counter*8, counter*8))
 				if x.type == 3 and x.water  == False:
 					x_tile = hall_tile
-					x_tile.set_alpha(x.light)
+					if x.visible:
+						x_tile.set_alpha(x.light)
+					else:
+						x_tile.set_alpha(x.light/2)
 					screen.blit(x_tile, (x_counter*8, counter*8))
-				if x.water == True:
-					screen.blit(water_tile, (x_counter*8, counter*8))
 				x_counter+=1
 			counter += 1
 		x_tile = destination_tile
@@ -197,15 +239,17 @@ def print_map_game(destination):
 		screen.blit(x_tile, (destination[0]*8, destination[1]*8))
 		screen.blit(character_tile, (character_pos[0]*8, character_pos[1]*8))
 		for enemy in enemies:
-			x_tile = water_tile
+			x_tile = enemy_tile
 			x_tile.set_alpha(map_list[enemy[1]][enemy[0]].light)
-			screen.blit(x_tile, (enemy[0]*8, enemy[1]*8))
+			if map_list[enemy[1]][enemy[0]].visible:
+				screen.blit(x_tile, (enemy[0]*8, enemy[1]*8))
 		pygame.display.update()
 		for enemy in enemies:
 			if enemy == character_pos:
 				print('You Lose')
 				return
 		if character_pos == destination:
+			print('You Win!')
 			return
 		events = pygame.event.get()
 		key = pygame.key.get_pressed()
@@ -221,6 +265,7 @@ def print_map_game(destination):
 					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
 						w_count += 16
 						character_pos[1] -= 1
+						print('Moved')
 						moved_this_turn = True
 			else:
 				w_count = 0
@@ -232,6 +277,7 @@ def print_map_game(destination):
 					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
 						s_count += 16
 						character_pos[1] += 1
+						print('Moved')
 						moved_this_turn = True
 			else:
 				s_count = 0
@@ -243,6 +289,7 @@ def print_map_game(destination):
 					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
 						a_count += 16
 						character_pos[0] -= 1
+						print('Moved')
 						moved_this_turn = True
 			else:
 				a_count = 0
@@ -254,6 +301,7 @@ def print_map_game(destination):
 					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
 						d_count += 16
 						character_pos[0] += 1
+						print('Moved')
 						moved_this_turn = True
 			else:
 				d_count = 0
@@ -265,25 +313,76 @@ def print_map_game(destination):
 					if event.key == pygame.K_w or event.key == pygame.K_UP:
 						if map_list[character_pos[1]-move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]-1][character_pos[0]].type != 2:
 							character_pos[1] -= move_speed
+							print('Moved')
 							moved_this_turn = True
 				if not moved_this_turn:
 					if event.key == pygame.K_s or event.key == pygame.K_DOWN:
 						if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
 							character_pos[1] += move_speed
+							print('Moved')
 							moved_this_turn = True
 				if not moved_this_turn:
 					if event.key == pygame.K_a or event.key == pygame.K_LEFT:
 						if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
 							character_pos[0] -= move_speed
+							print('Moved')
 							moved_this_turn = True
 				if not moved_this_turn:			
 					if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
 						if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
 							character_pos[0] += move_speed
+							print('Moved')
 							moved_this_turn = True
 				if event.key == pygame.K_SPACE:
 					return
-
+		if moved_this_turn:
+			print('Moved this turn')
+			for enemy in enemies:
+				if map_list[enemy[1]][enemy[0]].visible:
+					print('Enemy is visible')
+					move_horizontal = random.choice([True, False])
+					if move_horizontal:
+						print('Horizontal movement has priority')
+						if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
+							print('You are to my right')
+							enemy[0] += 1
+						elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
+							print('You are below me')
+							enemy[1] += 1
+						elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
+							print('You are above me')
+							enemy[1] -= 1
+						elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
+							print('You are to my left')
+							enemy[0] -= 1
+						else:
+							print('No possible movement')
+					if not move_horizontal:
+						print('Vertical movement has priority')
+						if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
+							print('You are below me')
+							enemy[1] += 1
+						elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
+							print('You are to my right')
+							enemy[0] += 1
+						elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
+							print('You are to my left')
+							enemy[0] -= 1
+						elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
+							print('You are above me')
+							enemy[1] -= 1
+						else:
+							print('No possible movement')
+				else:
+					direction = random.randrange(0,4)
+					if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
+						enemy[0] += 1
+					if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
+						enemy[1] += 1
+					if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
+						enemy[1] -= 1
+					if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
+						enemy[0] -= 1
 	return
 
 class Room:
@@ -298,6 +397,7 @@ class Room:
 		self.wall_right = x2 + 1
 		self.height = y2 - y1
 		self.width = x2 - x1
+		self.discovered = False
 
 	def intercepts(self, other_room):
 		if self.wall_left <= other_room.wall_right and self.wall_right >= other_room.wall_left:
@@ -328,6 +428,8 @@ class Room:
 		for y in range(self.y1, self.y2+1):
 			for x in range(self.x1, self.x2+1):
 				level_map[y][x] = Tile(1, False)
+	def discover(self):
+		self.discovered = True
 
 def carve_map(x, y, level_map):
 	for row in range(y-1, y+2):
@@ -374,7 +476,7 @@ def make_corridors():
 	destination = random.choice(rooms)
 	fill_start_pos = [fill_start.x1, fill_start.y1]
 	destination_pos = [destination.x1, destination.y1]
-	print_map_dots(fill_start_pos, destination_pos)
+	# print_map_dots(fill_start_pos, destination_pos)
 	if not map_list[destination.y1][destination.x1].water:
 		if not destination.intercepts(start_room):
 			seed = random.randrange(2)
@@ -423,7 +525,7 @@ def make_corridors():
 	unfill()
 	fill_start = random.choice(rooms)
 	fill(fill_start.x1, fill_start.y1)
-	print_map()
+	# print_map()
 	if corridors_made > 12:
 		map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
 		rooms = make_rooms()
@@ -456,11 +558,11 @@ def random_room(rooms):
 
 def make_rooms():
 	rooms = []
-	for x in range(random.randrange(4, 17)):
+	for x in range(random.randrange(4, 15)):
 		room = random_room(rooms)
 		print('Made room %(counter)i' % {'counter' : x + 1})
 		room.tile_map(map_list)
-		print_map()
+		# print_map()
 		rooms.append(room)
 	tile_rooms()
 	return rooms
@@ -471,8 +573,9 @@ def make_enemy():
 	if enemy_pos != character_pos:
 		if not enemy_pos in enemies:
 			return enemy_pos
-	else:
-		return make_enemy()
+	return make_enemy()
+
+		
 rooms = make_rooms()
 make_corridors()
 unfill()
@@ -482,7 +585,7 @@ character_pos = [char_room.x1 + random.randrange(0, char_room.width), char_room.
 end_room = rooms[random.randrange(1, len(rooms))]
 end_pos = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
 enemies = []
-for enemy in range(random.randrange(1,5)):
+for enemy in range(random.randrange(2,len(rooms)*2)):
 	enemies.append(make_enemy())
 print(enemies)
 print_map_game(end_pos)
