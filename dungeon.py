@@ -11,6 +11,7 @@ class Tile:
 	def __init__(self, tile_type, water):
 		self.type = tile_type
 		self.water = water
+		# self.light = 255
 		self.light = 0
 		self.visible = False
 	def set_light(self, value):
@@ -93,7 +94,6 @@ def print_map_dots(fill_start, destination):
 		for y in map_list:
 			x_counter = 0
 			for x in y:
-
 				if x.type == 0:
 					screen.blit(bg_tile, (x_counter*7, counter*7))
 				if x.type == 1 and x.water == False:
@@ -137,19 +137,20 @@ def print_map_game(destination):
 		# 	print(frame_counter)
 		# 	frame_counter = 0
 		# 	seconds += 1
-		
 		moved_this_turn = False
-
 		if jumped_this_turn == True:
 			jump_wait_counter += 1
-			print(jump_wait_counter)
 			enemy_wait = True
+			if jump_wait_counter == 7:
+				enemy_wait = False
+				print('Enemy moves')
 			if jump_wait_counter >= 15:
 				jumped_this_turn = False
 				jump_wait_counter = 0
-				enemy_wait = False
-			
+				print('Recovery Done')
 			moved_this_turn = True
+		else:
+			enemy_wait = False
 		counter = 0
 		for room in rooms:
 			if room.in_this_room(character_pos[0], character_pos[1]):
@@ -335,6 +336,7 @@ def print_map_game(destination):
 							moved_this_turn = True
 							if move_speed == 2:
 								jumped_this_turn = True
+								print('You jumped')
 				if not moved_this_turn:
 					if event.key == pygame.K_s or event.key == pygame.K_DOWN:
 						if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
@@ -343,6 +345,7 @@ def print_map_game(destination):
 							moved_this_turn = True
 							if move_speed == 2:
 								jumped_this_turn = True
+								print('You jumped')
 				if not moved_this_turn:
 					if event.key == pygame.K_a or event.key == pygame.K_LEFT:
 						if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
@@ -351,6 +354,7 @@ def print_map_game(destination):
 							moved_this_turn = True
 							if move_speed == 2:
 								jumped_this_turn = True
+								print('You jumped')
 				if not moved_this_turn:			
 					if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
 						if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
@@ -359,57 +363,62 @@ def print_map_game(destination):
 							moved_this_turn = True
 							if move_speed == 2:
 								jumped_this_turn = True
+								print('You jumped')
 				if event.key == pygame.K_SPACE:
 					return
 		if moved_this_turn:
 			print('Moved this turn')
 			if not enemy_wait:
 				for enemy in enemies:
-					if map_list[enemy[1]][enemy[0]].visible:
-						print('Enemy is visible')
-						move_horizontal = random.choice([True, False])
-						if move_horizontal:
-							print('Horizontal movement has priority')
-							if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
-								print('You are to my right')
+					if not random.randrange(0,8) == 0:
+						if map_list[enemy[1]][enemy[0]].visible:
+							print('Enemy is visible')
+							move_horizontal = random.choice([True, False])
+							if move_horizontal:
+								print('Horizontal movement has priority')
+								if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
+									print('You are to my right')
+									enemy[0] += 1
+								elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
+									print('You are below me')
+									enemy[1] += 1
+								elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
+									print('You are above me')
+									enemy[1] -= 1
+								elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
+									print('You are to my left')
+									enemy[0] -= 1
+								else:
+									print('No possible movement')
+							if not move_horizontal:
+								print('Vertical movement has priority')
+								if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
+									print('You are below me')
+									enemy[1] += 1
+								elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
+									print('You are to my right')
+									enemy[0] += 1
+								elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
+									print('You are to my left')
+									enemy[0] -= 1
+								elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
+									print('You are above me')
+									enemy[1] -= 1
+								else:
+									print('No possible movement')
+						else:
+							print("I'm moving randomly!")
+							direction = random.randrange(0,4)
+							if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
 								enemy[0] += 1
-							elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
-								print('You are below me')
+							if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
 								enemy[1] += 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
-								print('You are above me')
+							if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
 								enemy[1] -= 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
-								print('You are to my left')
+							if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
 								enemy[0] -= 1
-							else:
-								print('No possible movement')
-						if not move_horizontal:
-							print('Vertical movement has priority')
-							if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
-								print('You are below me')
-								enemy[1] += 1
-							elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
-								print('You are to my right')
-								enemy[0] += 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
-								print('You are to my left')
-								enemy[0] -= 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
-								print('You are above me')
-								enemy[1] -= 1
-							else:
-								print('No possible movement')
 					else:
-						direction = random.randrange(0,4)
-						if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemies:
-							enemy[0] += 1
-						if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemies:
-							enemy[1] += 1
-						if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemies:
-							enemy[1] -= 1
-						if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemies:
-							enemy[0] -= 1
+						print("Hurr durr, I'm just gonna sit here")
 	return
 
 class Room:
@@ -445,9 +454,9 @@ class Room:
 			if x >= self.wall_left and x <= self.wall_right:
 				if y >= self.wall_top and y <= self.wall_bottom:
 					return True
-
 		else:
 			return False
+
 	def tile_map(self, level_map):
 		for y in range(self.wall_top, self.wall_bottom+1):
 			for x in range(self.wall_left, self.wall_right+1):
@@ -455,6 +464,7 @@ class Room:
 		for y in range(self.y1, self.y2+1):
 			for x in range(self.x1, self.x2+1):
 				level_map[y][x] = Tile(1, False)
+
 	def discover(self):
 		self.discovered = True
 
@@ -492,6 +502,7 @@ def unfill():
 			map_list[y][x].water = False
 
 corridors_made = 0
+
 def make_corridors():
 	global rooms
 	global corridors_made
@@ -594,6 +605,11 @@ def make_rooms():
 	tile_rooms()
 	return rooms
 
+class Enemy():
+	def __init__(self, arg):
+		self.arg = arg
+		
+
 def make_enemy():
 	enemy_room = random.choice(rooms)
 	enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
@@ -602,7 +618,6 @@ def make_enemy():
 			return enemy_pos
 	return make_enemy()
 
-		
 rooms = make_rooms()
 make_corridors()
 unfill()
