@@ -193,27 +193,27 @@ def print_map_game(destination):
 							for y in range(11):
 								for x in range(11):
 									light_pos = [room_x-5+x+room.wall_left, room_y-5+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128: 
+									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(15)
 							for y in range(9):
 								for x in range(9):
 									light_pos = [room_x-4+x+room.wall_left, room_y-4+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128: 
+									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(31)
 							for y in range(7):
 								for x in range(7):
 									light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128: 
+									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(63)
 							for y in range(5):
 								for x in range(5):
 									light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128: 
+									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(127)
 							for y in range(3):
 								for x in range(3):
 									light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128: 
+									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(255)						
 							map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
 		for y in range(13):
