@@ -61,3 +61,4 @@ tombs
 lair
 mine
 dungeon
+dunes
