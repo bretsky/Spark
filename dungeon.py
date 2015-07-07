@@ -50,31 +50,32 @@ print(infoObject.current_h)
 screen_x = 128*int((infoObject.current_h-72.0)/128.0)
 print(screen_x)
 screen_y = screen_x
+tile_size = int(screen_x/128)
 screen = pygame.display.set_mode((screen_x, screen_y))
 pygame.display.set_caption(random_dungeon_name())
-screen_bg = pygame.Surface((768, 768)).convert()
+screen_bg = pygame.Surface((screen_x, screen_y)).convert()
 screen_bg.fill((0, 0, 0))
-floor_tile = pygame.Surface((6, 6)).convert()
+floor_tile = pygame.Surface((tile_size, tile_size)).convert()
 floor_tile.fill((30, 16, 3))
-wall_tile = pygame.Surface((6, 6)).convert()
+wall_tile = pygame.Surface((tile_size, tile_size)).convert()
 wall_tile.fill((63, 63, 63))
-bg_tile = pygame.Surface((6, 6)).convert()
+bg_tile = pygame.Surface((tile_size, tile_size)).convert()
 bg_tile.fill((70, 45, 10))
-water_tile = pygame.Surface((6, 6)).convert()
+water_tile = pygame.Surface((tile_size, tile_size)).convert()
 water_tile.fill((16, 16, 160))
-hall_tile = pygame.Surface((6, 6)).convert()
+hall_tile = pygame.Surface((tile_size, tile_size)).convert()
 hall_tile.fill((148, 120, 78))
-character_tile = pygame.Surface((6, 6)).convert()
+character_tile = pygame.Surface((tile_size, tile_size)).convert()
 character_tile.fill((255, 255, 255))
-destination_tile = pygame.Surface((6, 6)).convert()
+destination_tile = pygame.Surface((tile_size, tile_size)).convert()
 destination_tile.fill((255, 0, 0))
-enemy_tile = pygame.Surface((6,6)).convert()
+enemy_tile = pygame.Surface((tile_size,tile_size)).convert()
 enemy_tile.fill((255, 255, 0))
-start_tile = pygame.Surface((6, 6)).convert()
+start_tile = pygame.Surface((tile_size, tile_size)).convert()
 start_tile.fill((0, 255, 0))
-dead_tile = pygame.Surface((6, 6)).convert()
+dead_tile = pygame.Surface((tile_size, tile_size)).convert()
 dead_tile.fill((255, 128, 0))
-health_pixel = pygame.Surface((1,3)).convert()
+health_pixel = pygame.Surface((1,2)).convert()
 health_pixel.fill((255,0,0))
 rooms = []
 framerate = pygame.time.Clock()
@@ -93,18 +94,18 @@ def print_map():
 			x_counter = 0
 			for x in y:
 				if x.type == 0:
-					screen.blit(bg_tile, (x_counter*6, counter*6))
+					screen.blit(bg_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 1 and x.water == False:
-					screen.blit(floor_tile, (x_counter*6, counter*6))
+					screen.blit(floor_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 2:
-					screen.blit(wall_tile, (x_counter*6, counter*6))
+					screen.blit(wall_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 3 and x.water  == False:
-					screen.blit(hall_tile, (x_counter*6, counter*6))
+					screen.blit(hall_tile, (x_counter*tile_size, counter*tile_size))
 				if x.water == True:
-					screen.blit(water_tile, (x_counter*6, counter*6))
+					screen.blit(water_tile, (x_counter*tile_size, counter*tile_size))
 				x_counter+=1
 			counter += 1
-		screen.blit(character_tile, (character_pos[0]*6, character_pos[1]*6))
+		screen.blit(character_tile, (character_pos[0]*tile_size, character_pos[1]*tile_size))
 		pygame.display.update()
 		events = pygame.event.get()
 		for event in events:
@@ -125,19 +126,19 @@ def print_map_dots(fill_start, destination):
 			x_counter = 0
 			for x in y:
 				if x.type == 0:
-					screen.blit(bg_tile, (x_counter*6, counter*6))
+					screen.blit(bg_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 1 and x.water == False:
-					screen.blit(floor_tile, (x_counter*6, counter*6))
+					screen.blit(floor_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 2:
-					screen.blit(wall_tile, (x_counter*6, counter*6))
+					screen.blit(wall_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 3 and x.water  == False:
-					screen.blit(hall_tile, (x_counter*6, counter*6))
+					screen.blit(hall_tile, (x_counter*tile_size, counter*tile_size))
 				if x.water == True:
-					screen.blit(water_tile, (x_counter*6, counter*6))
+					screen.blit(water_tile, (x_counter*tile_size, counter*tile_size))
 				x_counter+=1
 			counter += 1
-		screen.blit(destination_tile, (destination[0]*6, destination[1]*6))
-		screen.blit(start_tile, (fill_start[0]*6, fill_start[1]*6))
+		screen.blit(destination_tile, (destination[0]*tile_size, destination[1]*tile_size))
+		screen.blit(start_tile, (fill_start[0]*tile_size, fill_start[1]*tile_size))
 		pygame.display.update()
 		events = pygame.event.get()
 		for event in events:
@@ -162,7 +163,7 @@ def print_map_game(destination):
 	# seconds = 1
 	while print_go == True:
 		framerate.tick(30)
-		# print(character_health)
+		print(character_health)
 		# print(framerate.get_fps())
 		for y in map_list:
 			for x in y:
@@ -176,7 +177,7 @@ def print_map_game(destination):
 		if jumped_this_turn == True:
 			jump_wait_counter += 1
 			enemy_wait = True
-			if jump_wait_counter == 6:
+			if jump_wait_counter == tile_size:
 				enemy_wait = False
 				print('Enemy moves')
 			if jump_wait_counter >= 15:
@@ -203,8 +204,8 @@ def print_map_game(destination):
 									light_pos = [room_x-4+x+room.wall_left, room_y-4+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(31)
-							for y in range(6):
-								for x in range(6):
+							for y in range(tile_size):
+								for x in range(tile_size):
 									light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 										map_list[light_pos[1]][light_pos[0]].set_light(63)
@@ -221,7 +222,7 @@ def print_map_game(destination):
 							map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
 		for y in range(13):
 			for x in range(13):
-				light_pos = [character_pos[0]-6+x, character_pos[1]-6+y]
+				light_pos = [character_pos[0]-tile_size+x, character_pos[1]-tile_size+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 					map_list[light_pos[1]][light_pos[0]].set_light(15)
 					map_list[light_pos[1]][light_pos[0]].set_visible(True)
@@ -235,8 +236,8 @@ def print_map_game(destination):
 				light_pos = [character_pos[0]-4+x, character_pos[1]-4+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
 					map_list[light_pos[1]][light_pos[0]].set_light(63)
-		for y in range(6):
-			for x in range(6):
+		for y in range(tile_size):
+			for x in range(tile_size):
 				light_pos = [character_pos[0]-3+x, character_pos[1]-3+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
 					map_list[light_pos[1]][light_pos[0]].set_light(127)
@@ -261,28 +262,28 @@ def print_map_game(destination):
 						x_tile.set_alpha(x.light)
 					else:
 						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*6, counter*6))
+					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 1 and x.water == False:
 					x_tile = floor_tile
 					if x.visible:
 						x_tile.set_alpha(x.light)
 					else:
 						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*6, counter*6))
+					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 2:
 					x_tile = wall_tile
 					if x.visible:
 						x_tile.set_alpha(x.light)
 					else:
 						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*6, counter*6))
+					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
 				if x.type == 3 and x.water  == False:
 					x_tile = hall_tile
 					if x.visible:
 						x_tile.set_alpha(x.light)
 					else:
 						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*6, counter*6))
+					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
 				x_counter+=1
 			counter += 1
 		x_tile = destination_tile
@@ -290,18 +291,18 @@ def print_map_game(destination):
 			x_tile.set_alpha(map_list[destination[1]][destination[0]].light)
 		else:
 			x_tile.set_alpha(map_list[destination[1]][destination[0]].light/2)
-		screen.blit(x_tile, (destination[0]*6, destination[1]*6))
-		screen.blit(character_tile, (character_pos[0]*6, character_pos[1]*6))
+		screen.blit(x_tile, (destination[0]*tile_size, destination[1]*tile_size))
+		screen.blit(character_tile, (character_pos[0]*tile_size, character_pos[1]*tile_size))
 		for enemy in dead_enemy_locations:
 			x_tile = dead_tile
 			x_tile.set_alpha(min(map_list[enemy[1]][enemy[0]].light,255.0-(255.0*(dead_enemies[dead_enemy_locations.index(enemy)].turns_dead)/45.0)))
 			if map_list[enemy[1]][enemy[0]].visible:
-				screen.blit(x_tile, (enemy[0]*6, enemy[1]*6))
+				screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
 		for enemy in enemy_locations:				
 			x_tile = enemy_tile
 			x_tile.set_alpha(map_list[enemy[1]][enemy[0]].light)
 			if map_list[enemy[1]][enemy[0]].visible:
-				screen.blit(x_tile, (enemy[0]*6, enemy[1]*6))
+				screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
 		for pixel in range(round(screen_x*character_health/max_character_health)):
 			screen.blit(health_pixel, (pixel, 0))
 		pygame.display.update()
@@ -386,7 +387,7 @@ def print_map_game(destination):
 			if not moved_this_turn:
 				if event.type == MOUSEBUTTONUP and event.button == 1:
 					position = pygame.mouse.get_pos()
-					position = [int(x/6) for x in position]
+					position = [int(x/tile_size) for x in position]
 					print(position)
 					if position in enemy_locations:
 						if position[0] > character_pos[0]-2 and position[0] < character_pos[0]+2:
