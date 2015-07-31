@@ -12,7 +12,7 @@ for i in range(96):
 	spark = pygame.image.load('images/intro/spark/spark (%(number)i).gif' % {'number' : i+1})
 	spark_animation.append(spark)
 
-resolution_list = [(1280, 720), (1366, 768), (1600, 900), (1920, 1080)]
+resolution_list = [(1280, 720), (640, 360), (1600, 900), (1920, 1080)]
 resolution = random.choice(resolution_list)
 screen_x = resolution[0]
 screen_y = resolution[1]
@@ -299,6 +299,7 @@ def volume_options():
 					position = position - music_bar_rect.x
 				volume = position / 715.000
 				screen.blit(slider_button_pressed, (position+music_bar_rect.x, slider_button_rect.y))
+				pygame.mixer.music.set_volume(volume)
 			else:
 				screen.blit(slider_button, (music_bar_rect.x + volume*715, slider_button_rect.y))
 		else:
@@ -369,8 +370,8 @@ def escape_check(events):
 		return True
 
 def game():
-	# splash()
-	# intro()
+	splash()
+	intro()
 	menu()
 
 game()
