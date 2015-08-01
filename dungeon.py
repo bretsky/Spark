@@ -3,7 +3,8 @@ import pygame
 from pygame.locals import *
 import sys
 import time
-
+WIN = pygame.event.Event(pygame.USEREVENT)
+LOSE = pygame.event.Event(pygame.USEREVENT) 
 geo_file = open(r'data\dungeon\geographical_features.txt')
 dungeon_attr_file = open(r'data\dungeon\dungeon_attributes.txt')
 dungeon_adj_file = open(r'data\dungeon\dungeon_adjectives.txt')
@@ -81,6 +82,20 @@ rooms = []
 framerate = pygame.time.Clock()
 dead_enemies = []
 dead_enemy_locations = []
+regen_rate = 15
+regen_counter = 0
+character_health = 10
+max_character_health = 10
+tile_type_list = [bg_tile, floor_tile, wall_tile, hall_tile]
+tile_list = []
+for tile in tile_type_list:
+	alpha_list = []
+	for alpha in range(256):
+		x_tile = tile.copy()
+		x_tile.set_alpha(alpha)
+		alpha_list.append(x_tile)
+	tile_list.append(alpha_list)
+
 def print_map():
 	print_go = True
 	w_count = 0
@@ -149,87 +164,17 @@ def print_map_dots(fill_start, destination):
 					return
 	return
 
-def on_move_events(regen_counter, moves_this_turn, enemy_wait, regen_rate, character_health):
-	if moves_this_turn:
-		print('Moved this turn')
 
-		if not enemy_wait:
-			regen_counter += 1
-			if regen_counter >= regen_rate:
-				if character_health >= max_character_health:
-					regen_counter = int(regen_rate/2.0)
-				else: 
-					character_health += int(regen_counter/regen_rate)
-					print(character_health)
-					regen_counter = 0
-				
-			for enemy in enemy_locations:
-				if enemies[enemy_locations.index(enemy)].alive:
-					if enemy[0] > character_pos[0]-2 and enemy[0] < character_pos[0]+2 and enemy[1] > character_pos[1]-2 and enemy[1] < character_pos[1]+2:
-						print('Imma attack you!')
-						character_health -= 1
-						print(character_health)
-					elif not random.randrange(0,8) == 0:
-						if map_list[enemy[1]][enemy[0]].visible:
-							print('Enemy is visible')
-							move_horizontal = random.choice([True, False])
-							if move_horizontal:
-								print('Horizontal movement has priority')
-								if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-									print('You are to my right')
-									enemy[0] += 1
-								elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-									print('You are below me')
-									enemy[1] += 1
-								elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-									print('You are above me')
-									enemy[1] -= 1
-								elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-									print('You are to my left')
-									enemy[0] -= 1
-								else:
-									print('No possible movement')
-							if not move_horizontal:
-								print('Vertical movement has priority')
-								if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-									print('You are below me')
-									enemy[1] += 1
-								elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-									print('You are to my right')
-									enemy[0] += 1
-								elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-									print('You are to my left')
-									enemy[0] -= 1
-								elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-									print('You are above me')
-									enemy[1] -= 1
-								else:
-									print('No possible movement')
-						else:
-							print("I'm moving randomly!")
-							direction = random.randrange(0,4)
-							if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-								enemy[0] += 1
-							if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-								enemy[1] += 1
-							if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-								enemy[1] -= 1
-							if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-								enemy[0] -= 1
-					else:
-						print("Hurr durr, I'm just gonna sit here")
 
 def print_map_game(destination):
-
+	global regen_counter
+	global regen_rate
+	global character_health
+	global max_character_health
 	print_go = True
 	jumped_this_turn = False
 	jump_wait_counter = 0
-	enemy_wait = False
 	jump_time = False
-	character_health = 10
-	max_character_health = 10
-	regen_rate = 15
-	regen_counter = 0
 	time.clock()
 	frame_counter = 0
 	seconds = 2
@@ -241,36 +186,19 @@ def print_map_game(destination):
 	a_time = False
 	s_time = False
 	d_time = False
-
-
+	jump_midpoint = False
 	framerate = pygame.time.Clock()
-	while print_go == True:
-		framerate.tick(60)
-		frame_time = framerate.get_time()
-		# print(character_health)
-		# print(framerate.get_fps())
+
+	def on_move_events():
+		print('on_move_events called')
+		global regen_counter
+		global regen_rate
+		global character_health
+		global max_character_health
+		global map_list
 		for y in map_list:
 			for x in y:
 				x.set_visible(False)
-		if time.clock() >= seconds:
-			print(framerate.get_fps())
-			seconds += 2
-		moves_this_turn = 0
-		if jumped_this_turn == True:
-			if not jump_time:
-				jump_time = pygame.time.get_ticks()
-			enemy_wait = True
-			if pygame.time.get_ticks()-jump_time >= 250:
-				enemy_wait = False
-				print('Enemy moves')
-			if pygame.time.get_ticks()-jump_time >= 500:
-				jumped_this_turn = False
-				jump_time = False
-				print('Recovery Done')
-			moves_this_turn = 1
-		else:
-			enemy_wait = False
-		counter = 0
 		for room in rooms:
 			if room.in_this_room(character_pos[0], character_pos[1]):
 				if not room.discovered:
@@ -334,39 +262,119 @@ def print_map_game(destination):
 				light_pos = [character_pos[0]-1+x, character_pos[1]-1+y]
 				if light_pos[0] < 128 and light_pos[1] < 128: 
 					map_list[light_pos[1]][light_pos[0]].set_light(255)		
+		print('Moved this turn')
+		regen_counter += 1
+		if regen_counter >= regen_rate:
+			if character_health >= max_character_health:
+				regen_counter = int(regen_rate/2.0)
+			else: 
+				character_health += int(regen_counter/regen_rate)
+				print(character_health)
+				regen_counter = 0			
+		for enemy in enemy_locations:
+			if enemies[enemy_locations.index(enemy)].alive:
+				if enemy[0] > character_pos[0]-2 and enemy[0] < character_pos[0]+2 and enemy[1] > character_pos[1]-2 and enemy[1] < character_pos[1]+2:
+					print('Imma attack you!')
+					character_health -= 1
+					print(character_health)
+				elif random.randrange(1,8) != 0:
+					if map_list[enemy[1]][enemy[0]].visible:
+						print('Enemy is visible')
+						move_horizontal = random.choice([True, False])
+						if move_horizontal:
+							print('Horizontal movement has priority')
+							if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+								print('You are to my right')
+								enemy[0] += 1
+							elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+								print('You are below me')
+								enemy[1] += 1
+							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+								print('You are above me')
+								enemy[1] -= 1
+							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+								print('You are to my left')
+								enemy[0] -= 1
+							else:
+								pass
+								print('No possible movement')
+						if not move_horizontal:
+							print('Vertical movement has priority')
+							if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+								print('You are below me')
+								enemy[1] += 1
+							elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+								print('You are to my right')
+								enemy[0] += 1
+							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+								print('You are to my left')
+								enemy[0] -= 1
+							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+								print('You are above me')
+								enemy[1] -= 1
+							else:
+								pass
+								print('No possible movement')
+					else:
+						print("I'm moving randomly!")
+						direction = random.randrange(0,4)
+						if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+							enemy[0] += 1
+						if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+							enemy[1] += 1
+						if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+							enemy[1] -= 1
+						if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+							enemy[0] -= 1
+				else:
+					pass
+					print("Hurr durr, I'm just gonna sit here")
+		if character_health <= 0:
+			print('You Lose')
+			pygame.event.post(LOSE)
+		if character_pos == destination:
+			print('You Win!')
+			pygame.event.post(WIN)
+		for enemy in enemies:
+			if not enemy.alive:
+				dead_enemies.append(enemy)
+				dead_enemy_locations.append(enemy_locations[enemies.index(enemy)])
+				del enemy_locations[enemies.index(enemy)]
+				del enemies[enemies.index(enemy)]
+		print('END TURN\n\n\n\n')
+
+	on_move_events()
+	while print_go == True:
+		framerate.tick(60)
+		frame_time = framerate.get_time()
+		# print(character_health)
+		# print(framerate.get_fps())
+		if time.clock() >= seconds:
+			print(framerate.get_fps())
+			seconds += 2
+		if jumped_this_turn:
+			if not jump_time:
+				jump_time = pygame.time.get_ticks()
+			if pygame.time.get_ticks()-jump_time >= 250 and not jump_midpoint:
+				jump_midpoint = True
+				print('Enemy moves during recovery')
+				on_move_events()
+			if pygame.time.get_ticks()-jump_time >= 500:
+				jumped_this_turn = False
+				jump_time = False
+				jump_midpoint = False
+				print('Recovery Done')
 		screen.blit(screen_bg, (0,0))
+		counter = 0
 		for y in map_list:
 			x_counter = 0
 			for x in y:
-
-				if x.type == 0:
-					x_tile = bg_tile
-					if x.visible:
-						x_tile.set_alpha(x.light)
-					else:
-						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
-				if x.type == 1 and x.water == False:
-					x_tile = floor_tile
-					if x.visible:
-						x_tile.set_alpha(x.light)
-					else:
-						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
-				if x.type == 2:
-					x_tile = wall_tile
-					if x.visible:
-						x_tile.set_alpha(x.light)
-					else:
-						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
-				if x.type == 3 and x.water  == False:
-					x_tile = hall_tile
-					if x.visible:
-						x_tile.set_alpha(x.light)
-					else:
-						x_tile.set_alpha(x.light/2)
-					screen.blit(x_tile, (x_counter*tile_size, counter*tile_size))
+				if x.visible:
+					alpha = x.light
+					# print(x.light)
+				else:
+					alpha = round(x.light/2)
+				screen.blit(tile_list[x.type][alpha], (x_counter*tile_size, counter*tile_size))
 				x_counter+=1
 			counter += 1
 		x_tile = destination_tile
@@ -389,18 +397,8 @@ def print_map_game(destination):
 		for pixel in range(round(screen_x*character_health/max_character_health)):
 			screen.blit(health_pixel, (pixel, 0))
 		pygame.display.update()
-		if character_health <= 0:
-			print('You Lose')
-			return
-		if character_pos == destination:
-			print('You Win!')
-			return
-		for enemy in enemies:
-			if not enemy.alive:
-				dead_enemies.append(enemy)
-				dead_enemy_locations.append(enemy_locations[enemies.index(enemy)])
-				del enemy_locations[enemies.index(enemy)]
-				del enemies[enemies.index(enemy)]
+
+
 		for enemy in dead_enemies:
 			enemy.turns_dead += 1
 			if enemy.turns_dead >= 45:
@@ -412,67 +410,7 @@ def print_map_game(destination):
 		mods = pygame.key.get_mods()
 		if mods & KMOD_SHIFT:
 			move_speed = 2
-		if not moves_this_turn:
-			if key[pygame.K_w] or key[pygame.K_UP]:
-				if not w_time:
-					w_time = pygame.time.get_ticks()
-				w_time_val = (pygame.time.get_ticks()-w_time)*w_accel*move_speed
-				while w_time_val >= 200:
-					w_time = False
-					w_time_val -= 200
-					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-						if not [character_pos[0],character_pos[1]-1] in enemy_locations:
-							w_accel = 10
-							character_pos[1] -= 1
-							print('Moved')
-							moves_this_turn += 1
-			else:
-				w_accel = 1
-				w_time = False
-		if not moves_this_turn:
-			if key[pygame.K_s] or key[pygame.K_DOWN]:
-				if not s_time:
-					s_time = pygame.time.get_ticks()
-				s_count += move_speed
-				if s_count >= 10:
-					print(pygame.time.get_ticks()-s_time, 'time to move')
-					s_time = False
-					s_count = 0
-					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-						if not [character_pos[0],character_pos[1]+1] in enemy_locations:
-							s_count += 8
-							character_pos[1] += 1
-							print('Moved')
-							moves_this_turn = 1
-			else:
-				s_count = 0
-		if not moves_this_turn:
-			if key[pygame.K_a] or key[pygame.K_LEFT]:
-				a_count += move_speed
-				if a_count >= 10:
-					a_count = 0
-					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-						if not [character_pos[0]-1,character_pos[1]] in enemy_locations:
-							a_count += 8
-							character_pos[0] -= 1
-							print('Moved')
-							moves_this_turn = 1
-			else:
-				a_count = 0
-		if not moves_this_turn:
-			if key[pygame.K_d] or key[pygame.K_RIGHT]:
-				d_count += move_speed
-				if d_count >= 10:
-					d_count = 0
-					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-						if not [character_pos[0]+1,character_pos[1]] in enemy_locations:
-							d_count += 8
-							character_pos[0] += 1
-							print('Moved')
-							moves_this_turn = 1
-			else:
-				d_count = 0
-		on_move_events(regen_counter, moves_this_turn, enemy_wait, regen_rate, character_health)
+
 		# if not moves_this_turn:
 		# 	if key[pygame.K_w] or key[pygame.K_UP]:
 		# 		w_count += move_speed
@@ -528,7 +466,11 @@ def print_map_game(destination):
 		for event in events:
 			if event.type == pygame.QUIT:
 				return
-			if not moves_this_turn:
+			if event == WIN:
+				return
+			if event == LOSE:
+				return
+			if not jumped_this_turn:
 				if event.type == MOUSEBUTTONUP and event.button == 1:
 					position = pygame.mouse.get_pos()
 					position = [int(x/tile_size) for x in position]
@@ -538,51 +480,120 @@ def print_map_game(destination):
 							if position[1] > character_pos[1]-2 and position[1] < character_pos[1]+2:
 								enemies[enemy_locations.index(position)].damage(1)
 								print('Attack successful')
-								moves_this_turn = 1
+								on_move_events()
 
 			if event.type == pygame.KEYDOWN:
-				if not moves_this_turn:
+				if not jumped_this_turn:
 					if event.key == pygame.K_w or event.key == pygame.K_UP:
 						if map_list[character_pos[1]-move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]-1][character_pos[0]].type != 2:
 							if not [character_pos[0],character_pos[1]-move_speed] in enemy_locations:
 								character_pos[1] -= move_speed
 								print('Moved')
-								moves_this_turn = 1
 								if move_speed == 2:
 									jumped_this_turn = True
 									print('You jumped')
-				if not moves_this_turn:
+								on_move_events()
+				if not jumped_this_turn:
 					if event.key == pygame.K_s or event.key == pygame.K_DOWN:
 						if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
 							if not [character_pos[0],character_pos[1]+move_speed] in enemy_locations:
 								character_pos[1] += move_speed
 								print('Moved')
-								moves_this_turn = 1
 								if move_speed == 2:
 									jumped_this_turn = True
 									print('You jumped')
-				if not moves_this_turn:
+								on_move_events()									
+				if not jumped_this_turn:
 					if event.key == pygame.K_a or event.key == pygame.K_LEFT:
 						if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
 							if not [character_pos[0]-move_speed,character_pos[1]] in enemy_locations:
 								character_pos[0] -= move_speed
 								print('Moved')
-								moves_this_turn = 1
 								if move_speed == 2:
 									jumped_this_turn = True
 									print('You jumped')
-				if not moves_this_turn:			
+								on_move_events()									
+				if not jumped_this_turn:			
 					if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
 						if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
 							if not [character_pos[0]+move_speed,character_pos[1]] in enemy_locations:
 								character_pos[0] += move_speed
 								print('Moved')
-								moves_this_turn = 1
 								if move_speed == 2:
 									jumped_this_turn = True
 									print('You jumped')
+								on_move_events()									
 				if event.key == pygame.K_SPACE:
 					return
+		if not jumped_this_turn:
+			if key[pygame.K_w] or key[pygame.K_UP]:
+				if not w_time:
+					w_time = pygame.time.get_ticks()
+				w_time_val = (pygame.time.get_ticks()-w_time)*w_accel*move_speed
+				while w_time_val >= 200:
+					w_time = False
+					w_time_val -= 200
+					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
+						if not [character_pos[0],character_pos[1]-1] in enemy_locations:
+							w_accel = 10
+							character_pos[1] -= 1
+							print('Moved')
+							on_move_events()
+			else:
+				w_accel = 1
+				w_time = False
+		if not jumped_this_turn:
+			if key[pygame.K_s] or key[pygame.K_DOWN]:
+				if not s_time:
+					s_time = pygame.time.get_ticks()
+				s_time_val = (pygame.time.get_ticks()-s_time)*s_accel*move_speed
+				while s_time_val >= 200:
+					s_time = False
+					s_time_val -= 200
+					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
+						if not [character_pos[0],character_pos[1]+1] in enemy_locations:
+							s_accel = 10
+							character_pos[1] += 1
+							print('Moved')
+							on_move_events()
+			else:
+				s_accel = 1
+				s_time = False
+		if not jumped_this_turn:
+			if key[pygame.K_a] or key[pygame.K_LEFT]:
+				if not a_time:
+					a_time = pygame.time.get_ticks()
+				a_time_val = (pygame.time.get_ticks()-a_time)*a_accel*move_speed
+				while a_time_val >= 200:
+					a_time = False
+					a_time_val -= 200
+					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
+						if not [character_pos[0]-1,character_pos[1]] in enemy_locations:
+							a_accel = 10
+							character_pos[0] -= 1
+							print('Moved')
+							on_move_events()
+			else:
+				a_accel = 1
+				a_time = False
+		if not jumped_this_turn:
+			if key[pygame.K_d] or key[pygame.K_RIGHT]:
+				if not d_time:
+					d_time = pygame.time.get_ticks()
+				d_time_val = (pygame.time.get_ticks()-d_time)*d_accel*move_speed
+				while d_time_val >= 200:
+					d_time = False
+					d_time_val -= 200
+					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
+						if not [character_pos[0]+1,character_pos[1]] in enemy_locations:
+							d_accel = 10
+							character_pos[0] += 1
+							print('Moved')
+							on_move_events()
+			else:
+				d_accel = 1
+				d_time = False
+
 		# if moves_this_turn:
 
 		# 	print('Moved this turn')
