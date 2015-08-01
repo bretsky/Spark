@@ -3,9 +3,9 @@ Report any bugs to bretskyselby99@gmail.com
 If possible, provide screenshots.
 Feature requests may be taken into consideration, and we have much planned for later updates.
 
---Version 0.3.1 [Patch]--
--bugfix involving negative locations
--game now automatically resizes for different sized monitors
+--Version 0.3.2 [Patch]--
+-the game now runs faster
+-movement is now based on realtime as opposed to framerate
 
 --Spark--
 
