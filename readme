@@ -1,4 +1,40 @@
+--THIS GAME IS IN ALPHA--
+Report any bugs to bretskyselby99@gmail.com
+If possible, provide screenshots.
+Feature requests may be taken into consideration, and we have much planned for later updates.
 
-Spark is an indie RPG with roguelike dungeons. Currently being built by one lazy and overworked high school student with a few friends providing ideas (behind schedule) and moral support (but not much).
+--Version 0.4 [Patch]--
+-bugfix involving negative locations
+-game now automatically resizes for different sized monitors
 
-Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final Fantasy, and Pokemon Mystery Dungeon. The pixel art is currently a work in progress.
+--Spark--
+
+Spark is an indie RPG with roguelike dungeons. 
+Currently being built by one lazy and overworked high school student with a few friends providing ideas (behind schedule) and moral support (but not much).
+
+
+Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final Fantasy, and Pokemon Mystery Dungeon.
+Programmed in Python using the Pygame module.
+Created by: 
+Brett Selby, programming, art, creative design
+Griffin Bennett, art, creative design, story
+Jackson MacPherson, creative design, game mechanics
+
+--Instructions--
+-You are the white dot
+-WASD or arrow keys for movement
+-W=UP
+-A=LEFT
+-S=DOWN
+-D=RIGHT
+-Hold shift, then press on a movement key to jump two spaces in that direction
+-After jumping, you must wait a turn to recover
+-Hold a movement key, then hold shift, to sprint at double speed in that direction
+-The dungeon is dark until you explore it
+-The bright area around you is your vision
+-If enemies are outside of your vision, you can't see them, but they can't see you
+-Enemy dots are yellow
+-Click them to attack them
+-They will turn orange and fade away when dead
+-The red bar at the top is your health, if it reaches 0, you lose
+-The red dot is your destination, if you find it, you win
