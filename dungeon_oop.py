@@ -23,10 +23,7 @@ class Game():
 		self.character.pos = [char_room.x1 + random.randrange(0, char_room.width), char_room.y1 + random.randrange(0, char_room.height)]
 		end_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
 		self.destination = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
-		self.enemy_locations = []
-		self.enemies = []
-		self.dead_enemy_locations = []
-		self.dead_enemies = []
+		self.enemies = Enemies()
 		self.create_enemies()
 		self.run()
 
@@ -446,22 +443,6 @@ class Game():
 				del self.enemies[self.enemies.index(enemy)]
 		print('END TURN\n\n\n\n')
 
-	def place_enemy(self):
-		enemy_room = random.choice(self.dungeon.rooms)
-		enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
-		if enemy_pos != self.character.pos:
-			if not enemy_pos in self.enemy_locations:
-				return [enemy_pos,Enemy('monster', 5)]
-		return self.place_enemy()
-
-	def create_enemies(self):
-		for enemy in range(random.randrange(2,len(self.dungeon.rooms))):
-			enemy_info = self.place_enemy()
-			self.enemy_locations.append(enemy_info[0])
-			self.enemies.append(enemy_info[1])
-		print(self.enemy_locations)
-		print(self.enemies)
-
 class Character():
 	def __init__(self):
 		self.position = [0, 0]
@@ -694,14 +675,80 @@ class Room:
 
 
 class Enemy():
-	def __init__(self, monster_type, hp):
+	def __init__(self, monster_type, hp, location, original=False):
 		self.type = monster_type
 		self.hp = hp
 		self.alive = True
-		self.turns_dead = 0
-	def damage(self, value):
-		self.hp -= value
-		if self.hp <= 0:
-			self.alive = False
+		self.turns_dying = 0
+		self.x = location[0]
+		self.y = location[1]
+		self.original = original
+
+	def kill(self):
+		self.alive = False
+
+	def check_if_dead(self):
+		if not self.alive:
+			self.turns_dying += 1
+		return self.turns_dying
+
+
+
+class Enemies():
+	def __init__(self):
+		self.count = 0
+		self.original_count = 0
+		self.alive = 0
+		self.dying = 0
+		self.dead = 0
+		self.locations = []
+		self.dying_locations = []
+		self.enemies = []
+
+	def place_enemy(self, dungeon, character, original=False):
+		enemy_room = random.choice(dungeon.rooms)
+		enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
+		if enemy_pos != character.pos:
+			if not enemy_pos in self.locations:
+				self.locations.append(enemy_pos)
+				self.enemies.append(Enemy('monster', 5, enemy_pos, original))
+				self.count += 1
+				if original:
+					self.original += 1
+				self.alive += 1
+		return self.place_enemy(rooms, character_pos, original)
+
+	def create_enemies(self, dungeon, character):
+		for enemy in range(random.randrange(2,len(dungeon.rooms))):
+			self.place_enemy(dungeon, character, True)
+		print(self.locations)
+		print(self.enemies)
+
+	def damage(self, enemy_index, value):
+		enemy = self.enemies[enemy_index]
+		enemy.hp -= value
+		if enemy.hp <= 0:
+			self.kill(enemy_index)
+
+	def kill(self, enemy_index):
+		enemy = enemies[enemy_index]
+		del self.locations[enemy_index]
+		self.alive -= 1
+		self.dying += 1
+		self.dead += 1
+		enemy.kill()
+
+	def check_if_dead(self):
+		for i in range(len(self.enemies)):
+			turns_dying = enemies[i].check_if_dead()
+			if turns_dying > 45:
+				self.remove(i)
+
+	def remove(self, enemy_index):
+		self.dying -= 1
+		del self.dying_locations[enemy_index]
+		del self.enemies[enemy_index]
+		
+
 
 game = Game()
