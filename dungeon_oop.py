@@ -2,7 +2,7 @@ import sys
 import random
 import pygame
 from pygame.locals import *
-from time import clock
+from time import clock as get_time
 
 # sys.dont_write_bytecode = True
 # Not sure if necessary
@@ -15,12 +15,23 @@ HALL_TILE = 3
 
 class Game():
 	def __init__(self):
-		self.character = Character()
 		self.dungeon = Dungeon()
+		self.character = Character()
+		self.initialise_screen()
 		self.create_tiles()
-
+		char_room = self.dungeon.rooms[0]
+		self.character.pos = [char_room.x1 + random.randrange(0, char_room.width), char_room.y1 + random.randrange(0, char_room.height)]
+		end_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
+		self.destination = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
+		self.enemy_locations = []
+		self.enemies = []
+		self.dead_enemy_locations = []
+		self.dead_enemies = []
+		self.create_enemies()
+		self.run()
 
 	def create_tiles(self):
+		tile_size = self.tile_size
 		self.floor_tile = pygame.Surface((tile_size, tile_size)).convert()
 		self.floor_tile.fill((30, 16, 3))
 		self.wall_tile = pygame.Surface((tile_size, tile_size)).convert()
@@ -43,7 +54,7 @@ class Game():
 		self.dead_tile.fill((255, 128, 0))
 		self.health_pixel = pygame.Surface((1,2)).convert()
 		self.health_pixel.fill((255,0,0))
-		tile_type_list = [bg_tile, floor_tile, wall_tile, hall_tile]
+		tile_type_list = [self.bg_tile, self.floor_tile, self.wall_tile, self.hall_tile]
 		self.tile_list = []
 		for tile in tile_type_list:
 			alpha_list = []
@@ -58,22 +69,23 @@ class Game():
 		infoObject = pygame.display.Info()
 		print(infoObject.current_h)
 		self.screen_x = 128*int((infoObject.current_h-72.0)/128.0)
-		print(screen_x)
+		print(self.screen_x)
 		self.screen_y = self.screen_x
-		self.tile_size = int(screen_x/128)
-		self.screen = pygame.display.set_mode((screen_x, screen_y))
+		self.tile_size = int(self.screen_x/128)
+		self.screen = pygame.display.set_mode((self.screen_x, self.screen_y))
 		pygame.display.set_caption(self.dungeon.name)
-		screen_bg = pygame.Surface((screen_x, screen_y)).convert()
-		screen_bg.fill((0, 0, 0))
+		self.screen_bg = pygame.Surface((self.screen_x, self.screen_y)).convert()
+		self.screen_bg.fill((0, 0, 0))
 
 	def run(self):
 		screen = self.screen
 		tile_size = self.tile_size
+		screen_bg = self.screen_bg
 		print_go = True
 		jumped_this_turn = False
 		jump_wait_counter = 0
 		jump_time = False
-		time.clock()
+		get_time()
 		frame_counter = 0
 		seconds = 2
 		w_accel = 1
@@ -90,7 +102,7 @@ class Game():
 		while print_go == True:
 			framerate.tick(60)
 			frame_time = framerate.get_time()
-			if time.clock() >= seconds:
+			if get_time() >= seconds:
 				print(framerate.get_fps())
 				seconds += 2
 			if jumped_this_turn:
@@ -118,37 +130,37 @@ class Game():
 					x_counter+=1
 				counter += 1
 			x_tile = self.destination_tile
-			if self.dungeon.map_list[destination[1]][destination[0]].visible:
-				x_tile.set_alpha(map_list[destination[1]][destination[0]].light)
+			if self.dungeon.map_list[self.destination[1]][self.destination[0]].visible:
+				x_tile.set_alpha(self.dungeon.map_list[self.destination[1]][self.destination[0]].light)
 			else:
-				x_tile.set_alpha(map_list[destination[1]][destination[0]].light/2)
-			screen.blit(x_tile, (destination[0]*tile_size, destination[1]*tile_size))
-			screen.blit(self.character_tile, (character_pos[0]*tile_size, character_pos[1]*tile_size))
+				x_tile.set_alpha(self.dungeon.map_list[self.destination[1]][self.destination[0]].light/2)
+			screen.blit(x_tile, (self.destination[0]*tile_size, self.destination[1]*tile_size))
+			screen.blit(self.character_tile, (self.character.pos[0]*tile_size, self.character.pos[1]*tile_size))
 			for enemy in self.dead_enemy_locations:
-				x_tile = dead_tile
+				x_tile = self.dead_tile
 				x_tile.set_alpha(min(self.dungeon.map_list[enemy[1]][enemy[0]].light,255.0-(255.0*(self.dead_enemies[self.dead_enemy_locations.index(enemy)].turns_dead)/45.0)))
 				if self.dungeon.map_list[enemy[1]][enemy[0]].visible:
 					screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
 			for enemy in self.enemy_locations:				
-				x_tile = enemy_tile
+				x_tile = self.enemy_tile
 				x_tile.set_alpha(self.dungeon.map_list[enemy[1]][enemy[0]].light)
-				if map_list[enemy[1]][enemy[0]].visible:
+				if self.dungeon.map_list[enemy[1]][enemy[0]].visible:
 					screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
-			for pixel in range(round(screen_x*character_health/max_character_health)):
-				screen.blit(health_pixel, (pixel, 0))
+			for pixel in range(round(self.screen_x*self.character.health/self.character.max_health)):
+				screen.blit(self.health_pixel, (pixel, 0))
 			pygame.display.update()
-			for enemy in dead_enemies:
+			for enemy in self.dead_enemies:
 				enemy.turns_dead += 1
 				if enemy.turns_dead >= 45:
-					del dead_enemy_locations[dead_enemies.index(enemy)]
-					del dead_enemies[dead_enemies.index(enemy)]
-			events = pygame.event.get()
-			key = pygame.key.get_pressed()
-			move_speed = 1
+					del self.dead_enemy_locations[self.dead_enemies.index(enemy)]
+					del self.dead_enemies[self.dead_enemies.index(enemy)]
+			self.events = pygame.event.get()
+			self.key = pygame.key.get_pressed()
+			self.move_speed = 1
 			mods = pygame.key.get_mods()
 			if mods & KMOD_SHIFT:
-				move_speed = 2
-			for event in events:
+				self.move_speed = 2
+			for event in self.events:
 				if event.type == pygame.QUIT:
 					return
 				if event == WIN:
@@ -160,137 +172,138 @@ class Game():
 						position = pygame.mouse.get_pos()
 						position = [int(x/tile_size) for x in position]
 						print(position)
-						if position in enemy_locations:
-							if position[0] > character_pos[0]-2 and position[0] < character_pos[0]+2:
-								if position[1] > character_pos[1]-2 and position[1] < character_pos[1]+2:
-									enemies[enemy_locations.index(position)].damage(1)
+						if position in self.enemy_locations:
+							if position[0] > self.character.pos[0]-2 and position[0] < self.character.pos[0]+2:
+								if position[1] > self.character.pos[1]-2 and position[1] < self.character.pos[1]+2:
+									self.enemies[self.enemy_locations.index(position)].damage(1)
 									print('Attack successful')
-									on_move_events()
+									self.on_move_events()
 				if event.type == pygame.KEYDOWN:
 					if not jumped_this_turn:
 						if event.key == pygame.K_w or event.key == pygame.K_UP:
-							if map_list[character_pos[1]-move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]-1][character_pos[0]].type != 2:
-								if not [character_pos[0],character_pos[1]-move_speed] in enemy_locations:
-									character_pos[1] -= move_speed
+							if self.dungeon.map_list[self.character.pos[1]-self.move_speed][self.character.pos[0]].type != 2 and self.dungeon.map_list[self.character.pos[1]-1][self.character.pos[0]].type != 2:
+								if not [self.character.pos[0],self.character.pos[1]-self.move_speed] in self.enemy_locations:
+									self.character.pos[1] -= self.move_speed
 									print('Moved')
-									if move_speed == 2:
+									if self.move_speed == 2:
 										jumped_this_turn = True
 										print('You jumped')
-									on_move_events()
+									self.on_move_events()
 					if not jumped_this_turn:
 						if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-							if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
-								if not [character_pos[0],character_pos[1]+move_speed] in enemy_locations:
-									character_pos[1] += move_speed
+							if self.dungeon.map_list[self.character.pos[1]+self.move_speed][self.character.pos[0]].type != 2 and self.dungeon.map_list[self.character.pos[1]+1][self.character.pos[0]].type != 2:
+								if not [self.character.pos[0],self.character.pos[1]+self.move_speed] in self.enemy_locations:
+									self.character.pos[1] += self.move_speed
 									print('Moved')
-									if move_speed == 2:
+									if self.move_speed == 2:
 										jumped_this_turn = True
 										print('You jumped')
-									on_move_events()									
+									self.on_move_events()									
 					if not jumped_this_turn:
 						if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-							if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
-								if not [character_pos[0]-move_speed,character_pos[1]] in enemy_locations:
-									character_pos[0] -= move_speed
+							if self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]-self.move_speed].type != 2 and self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]-1].type != 2:
+								if not [self.character.pos[0]-self.move_speed,self.character.pos[1]] in self.enemy_locations:
+									self.character.pos[0] -= self.move_speed
 									print('Moved')
-									if move_speed == 2:
+									if self.move_speed == 2:
 										jumped_this_turn = True
 										print('You jumped')
-									on_move_events()									
+									self.on_move_events()									
 					if not jumped_this_turn:			
 						if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-							if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
-								if not [character_pos[0]+move_speed,character_pos[1]] in enemy_locations:
-									character_pos[0] += move_speed
+							if self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]+self.move_speed].type != 2 and self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]+1].type != 2:
+								if not [self.character.pos[0]+self.move_speed,self.character.pos[1]] in self.enemy_locations:
+									self.character.pos[0] += self.move_speed
 									print('Moved')
-									if move_speed == 2:
+									if self.move_speed == 2:
 										jumped_this_turn = True
 										print('You jumped')
-									on_move_events()									
+									self.on_move_events()									
 					if event.key == pygame.K_SPACE:
 						return
 			if not jumped_this_turn:
-				if key[pygame.K_w] or key[pygame.K_UP]:
+				if self.key[pygame.K_w] or self.key[pygame.K_UP]:
 					if not w_time:
 						w_time = pygame.time.get_ticks()
-					w_time_val = (pygame.time.get_ticks()-w_time)*w_accel*move_speed
+					w_time_val = (pygame.time.get_ticks()-w_time)*w_accel*self.move_speed
 					while w_time_val >= 200:
 						w_time = False
 						w_time_val -= 200
-						if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-							if not [character_pos[0],character_pos[1]-1] in enemy_locations:
+						if self.dungeon.map_list[self.character.pos[1]-1][self.character.pos[0]].type != 2:
+							if not [self.character.pos[0],self.character.pos[1]-1] in self.enemy_locations:
 								w_accel = 10
-								character_pos[1] -= 1
+								self.character.pos[1] -= 1
 								print('Moved')
-								on_move_events()
+								self.on_move_events()
 				else:
 					w_accel = 1
 					w_time = False
 			if not jumped_this_turn:
-				if key[pygame.K_s] or key[pygame.K_DOWN]:
+				if self.key[pygame.K_s] or self.key[pygame.K_DOWN]:
 					if not s_time:
 						s_time = pygame.time.get_ticks()
-					s_time_val = (pygame.time.get_ticks()-s_time)*s_accel*move_speed
+					s_time_val = (pygame.time.get_ticks()-s_time)*s_accel*self.move_speed
 					while s_time_val >= 200:
 						s_time = False
 						s_time_val -= 200
-						if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-							if not [character_pos[0],character_pos[1]+1] in enemy_locations:
+						if self.dungeon.map_list[self.character.pos[1]+1][self.character.pos[0]].type != 2:
+							if not [self.character.pos[0],self.character.pos[1]+1] in self.enemy_locations:
 								s_accel = 10
-								character_pos[1] += 1
+								self.character.pos[1] += 1
 								print('Moved')
-								on_move_events()
+								self.on_move_events()
 				else:
 					s_accel = 1
 					s_time = False
 			if not jumped_this_turn:
-				if key[pygame.K_a] or key[pygame.K_LEFT]:
+				if self.key[pygame.K_a] or self.key[pygame.K_LEFT]:
 					if not a_time:
 						a_time = pygame.time.get_ticks()
-					a_time_val = (pygame.time.get_ticks()-a_time)*a_accel*move_speed
+					a_time_val = (pygame.time.get_ticks()-a_time)*a_accel*self.move_speed
 					while a_time_val >= 200:
 						a_time = False
 						a_time_val -= 200
-						if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-							if not [character_pos[0]-1,character_pos[1]] in enemy_locations:
+						if self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]-1].type != 2:
+							if not [self.character.pos[0]-1,self.character.pos[1]] in self.enemy_locations:
 								a_accel = 10
-								character_pos[0] -= 1
+								self.character.pos[0] -= 1
 								print('Moved')
-								on_move_events()
+								self.on_move_events()
 				else:
 					a_accel = 1
 					a_time = False
 			if not jumped_this_turn:
-				if key[pygame.K_d] or key[pygame.K_RIGHT]:
+				if self.key[pygame.K_d] or self.key[pygame.K_RIGHT]:
 					if not d_time:
 						d_time = pygame.time.get_ticks()
-					d_time_val = (pygame.time.get_ticks()-d_time)*d_accel*move_speed
+					d_time_val = (pygame.time.get_ticks()-d_time)*d_accel*self.move_speed
 					while d_time_val >= 200:
 						d_time = False
 						d_time_val -= 200
-						if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-							if not [character_pos[0]+1,character_pos[1]] in enemy_locations:
+						if self.dungeon.map_list[self.character.pos[1]][self.character.pos[0]+1].type != 2:
+							if not [self.character.pos[0]+1,self.character.pos[1]] in self.enemy_locations:
 								d_accel = 10
-								character_pos[0] += 1
+								self.character.pos[0] += 1
 								print('Moved')
-								on_move_events()
+								self.on_move_events()
 				else:
 					d_accel = 1
 					d_time = False
 		return
 
-	def on_move_events():
+	def on_move_events(self):
 		print('on_move_events called')
-		global regen_counter
-		global regen_rate
-		global character_health
-		global max_character_health
-		global map_list
-		for y in map_list:
+		tile_size = self.tile_size
+		self.character.regen_counter
+		self.character.regen_rate
+		self.character.health
+		self.character.max_health
+		self.dungeon.map_list
+		for y in self.dungeon.map_list:
 			for x in y:
 				x.set_visible(False)
-		for room in rooms:
-			if room.in_this_room(character_pos[0], character_pos[1]):
+		for room in self.dungeon.rooms:
+			if room.in_this_room(self.character.pos[0], self.character.pos[1]):
 				if not room.discovered:
 					room.discover()
 					for room_y in range(room.height+3):
@@ -299,90 +312,90 @@ class Game():
 								for x in range(11):
 									light_pos = [room_x-5+x+room.wall_left, room_y-5+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-										map_list[light_pos[1]][light_pos[0]].set_light(15)
+										self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(15)
 							for y in range(9):
 								for x in range(9):
 									light_pos = [room_x-4+x+room.wall_left, room_y-4+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(31)
-							for y in range(tile_size):
-								for x in range(tile_size):
+										self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(31)
+							for y in range(7):
+								for x in range(7):
 									light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(63)
+										self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(63)
 							for y in range(5):
 								for x in range(5):
 									light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(127)
+										self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(127)
 							for y in range(3):
 								for x in range(3):
 									light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
 									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(255)						
-							map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
+										self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(255)						
+							self.dungeon.map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
 		for y in range(13):
 			for x in range(13):
-				light_pos = [character_pos[0]-tile_size+x, character_pos[1]-tile_size+y]
+				light_pos = [self.character.pos[0]-tile_size+x, self.character.pos[1]-tile_size+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-					map_list[light_pos[1]][light_pos[0]].set_light(15)
-					map_list[light_pos[1]][light_pos[0]].set_visible(True)
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(15)
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_visible(True)
 		for y in range(11):
 			for x in range(11):
-				light_pos = [character_pos[0]-5+x, character_pos[1]-5+y]
+				light_pos = [self.character.pos[0]-5+x, self.character.pos[1]-5+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(31)
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(31)
 		for y in range(9):
 			for x in range(9):
-				light_pos = [character_pos[0]-4+x, character_pos[1]-4+y]
+				light_pos = [self.character.pos[0]-4+x, self.character.pos[1]-4+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(63)
-		for y in range(tile_size):
-			for x in range(tile_size):
-				light_pos = [character_pos[0]-3+x, character_pos[1]-3+y]
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(63)
+		for y in range(7):
+			for x in range(7):
+				light_pos = [self.character.pos[0]-3+x, self.character.pos[1]-3+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(127)
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(127)
 		for y in range(5):
 			for x in range(5):
-				light_pos = [character_pos[0]-2+x, character_pos[1]-2+y]
+				light_pos = [self.character.pos[0]-2+x, self.character.pos[1]-2+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(255)
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(255)
 		for y in range(3):
 			for x in range(3):
-				light_pos = [character_pos[0]-1+x, character_pos[1]-1+y]
+				light_pos = [self.character.pos[0]-1+x, self.character.pos[1]-1+y]
 				if light_pos[0] < 128 and light_pos[1] < 128: 
-					map_list[light_pos[1]][light_pos[0]].set_light(255)		
+					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(255)		
 		print('Moved this turn')
-		regen_counter += 1
-		if regen_counter >= regen_rate:
-			if character_health >= max_character_health:
-				regen_counter = int(regen_rate/2.0)
+		self.character.regen_counter += 1
+		if self.character.regen_counter >= self.character.regen_rate:
+			if self.character.health >= self.character.max_health:
+				self.character.regen_counter = int(self.character.regen_rate/2.0)
 			else: 
-				character_health += int(regen_counter/regen_rate)
-				print(character_health)
-				regen_counter = 0			
-		for enemy in enemy_locations:
-			if enemies[enemy_locations.index(enemy)].alive:
-				if enemy[0] > character_pos[0]-2 and enemy[0] < character_pos[0]+2 and enemy[1] > character_pos[1]-2 and enemy[1] < character_pos[1]+2:
+				self.character.health += int(self.character.regen_counter/self.character.regen_rate)
+				print(self.character.health)
+				self.character.regen_counter = 0			
+		for enemy in self.enemy_locations:
+			if self.enemies[self.enemy_locations.index(enemy)].alive:
+				if enemy[0] > self.character.pos[0]-2 and enemy[0] < self.character.pos[0]+2 and enemy[1] > self.character.pos[1]-2 and enemy[1] < self.character.pos[1]+2:
 					print('Imma attack you!')
-					character_health -= 1
-					print(character_health)
+					self.character.health -= 1
+					print(self.character.health)
 				elif random.randrange(1,8) != 0:
-					if map_list[enemy[1]][enemy[0]].visible:
+					if self.dungeon.map_list[enemy[1]][enemy[0]].visible:
 						print('Enemy is visible')
 						move_horizontal = random.choice([True, False])
 						if move_horizontal:
 							print('Horizontal movement has priority')
-							if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+							if enemy[0] < self.character.pos[0] and self.dungeon.map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in self.enemy_locations:
 								print('You are to my right')
 								enemy[0] += 1
-							elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+							elif enemy[1] < self.character.pos[1] and self.dungeon.map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in self.enemy_locations:
 								print('You are below me')
 								enemy[1] += 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+							elif enemy[1] > self.character.pos[1] and self.dungeon.map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in self.enemy_locations:
 								print('You are above me')
 								enemy[1] -= 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+							elif enemy[0] > self.character.pos[0] and self.dungeon.map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in self.enemy_locations:
 								print('You are to my left')
 								enemy[0] -= 1
 							else:
@@ -390,16 +403,16 @@ class Game():
 								print('No possible movement')
 						if not move_horizontal:
 							print('Vertical movement has priority')
-							if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+							if enemy[1] < self.character.pos[1] and self.dungeon.map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in self.enemy_locations:
 								print('You are below me')
 								enemy[1] += 1
-							elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+							elif enemy[0] < self.character.pos[0] and self.dungeon.map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in self.enemy_locations:
 								print('You are to my right')
 								enemy[0] += 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+							elif enemy[0] > self.character.pos[0] and self.dungeon.map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in self.enemy_locations:
 								print('You are to my left')
 								enemy[0] -= 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+							elif enemy[1] > self.character.pos[1] and self.dungeon.map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in self.enemy_locations:
 								print('You are above me')
 								enemy[1] -= 1
 							else:
@@ -408,44 +421,46 @@ class Game():
 					else:
 						print("I'm moving randomly!")
 						direction = random.randrange(0,4)
-						if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
+						if direction == 0 and self.dungeon.map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in self.enemy_locations:
 							enemy[0] += 1
-						if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
+						if direction == 1 and self.dungeon.map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in self.enemy_locations:
 							enemy[1] += 1
-						if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
+						if direction == 2 and self.dungeon.map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in self.enemy_locations:
 							enemy[1] -= 1
-						if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
+						if direction == 3 and self.dungeon.map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in self.enemy_locations:
 							enemy[0] -= 1
 				else:
 					pass
 					print("Hurr durr, I'm just gonna sit here")
-		if character_health <= 0:
+		if self.character.health <= 0:
 			print('You Lose')
 			pygame.event.post(LOSE)
-		if character_pos == destination:
+		if self.character.pos == self.destination:
 			print('You Win!')
 			pygame.event.post(WIN)
-		for enemy in enemies:
+		for enemy in self.enemies:
 			if not enemy.alive:
-				dead_enemies.append(enemy)
-				dead_enemy_locations.append(enemy_locations[enemies.index(enemy)])
-				del enemy_locations[enemies.index(enemy)]
-				del enemies[enemies.index(enemy)]
+				self.dead_enemies.append(enemy)
+				self.dead_enemy_locations.append(self.enemy_locations[self.enemies.index(enemy)])
+				del self.enemy_locations[self.enemies.index(enemy)]
+				del self.enemies[self.enemies.index(enemy)]
 		print('END TURN\n\n\n\n')
 
-	def place_enemy():
+	def place_enemy(self):
 		enemy_room = random.choice(self.dungeon.rooms)
 		enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
-		if enemy_pos != character.position:
+		if enemy_pos != self.character.pos:
 			if not enemy_pos in self.enemy_locations:
 				return [enemy_pos,Enemy('monster', 5)]
 		return self.place_enemy()
 
-	def create_enemies():
+	def create_enemies(self):
 		for enemy in range(random.randrange(2,len(self.dungeon.rooms))):
 			enemy_info = self.place_enemy()
 			self.enemy_locations.append(enemy_info[0])
 			self.enemies.append(enemy_info[1])
+		print(self.enemy_locations)
+		print(self.enemies)
 
 class Character():
 	def __init__(self):
@@ -461,6 +476,10 @@ class Dungeon():
 		self.name = self.random_dungeon_name()
 		self.map_list = [[Tile(BG_TILE, False) for y in range(128)] for x in range(128)]
 		self.corridors_made = 0
+		self.rooms = self.make_rooms()
+		self.make_corridors()
+		self.unfill()
+		self.tile_rooms()
 
 	def import_files(self):
 		geo_file = open(r'data\dungeon\geographical_features.txt')
@@ -489,7 +508,7 @@ class Dungeon():
 	def make_corridors(self):
 		self.unfill()
 		fill_start = random.choice(self.rooms)
-		fill(fill_start.x1, fill_start.y1)
+		self.fill(fill_start.x1, fill_start.y1)
 		start_room = fill_start
 		destination = random.choice(self.rooms)
 		fill_start_pos = [fill_start.x1, fill_start.y1]
@@ -541,7 +560,7 @@ class Dungeon():
 			return self.make_corridors()
 		self.unfill()
 		fill_start = random.choice(self.rooms)
-		fill(fill_start.x1, fill_start.y1)
+		self.fill(fill_start.x1, fill_start.y1)
 		if self.corridors_made > 12:
 			self.map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
 			self.rooms = make_rooms()
@@ -579,11 +598,11 @@ class Dungeon():
 		y2 = y + h
 		room = Room(x, x2, y, y2)
 		if x2 >= 127 or y2 >= 127:
-			return random_room(self.rooms)
+			return self.random_room()
 		for x in self.rooms:
 			if room.intercepts(x):
 				print('Room conflicted with existing room, regenerating')
-				return random_room(self.rooms)
+				return self.random_room()
 		else:
 			print('Made room dimensions')
 			return room
@@ -591,15 +610,15 @@ class Dungeon():
 	def carve_map(self, x, y):
 		for row in range(y-1, y+2):
 			for column in range(x-1, x+2):
-				if self.maplist[row][column].type == 0:
-					self.maplist[row][column] = Tile(2, False)
+				if self.map_list[row][column].type == 0:
+					self.map_list[row][column] = Tile(2, False)
 		else:
-			self.maplist[y][x] = Tile(3, False)
+			self.map_list[y][x] = Tile(3, False)
 
 	def make_rooms(self):
 		self.rooms = []
 		for x in range(random.randrange(4, 15)):
-			room = random_room(self.rooms)
+			room = self.random_room()
 			print('Made room %(counter)i' % {'counter' : x + 1})
 			self.maplist = room.tile_map(self.map_list)
 			self.rooms.append(room)
@@ -684,3 +703,5 @@ class Enemy():
 		self.hp -= value
 		if self.hp <= 0:
 			self.alive = False
+
+game = Game()
