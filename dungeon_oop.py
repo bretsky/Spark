@@ -119,11 +119,12 @@ class Game():
 			for y in self.dungeon.map_list:
 				x_counter = 0
 				for x in y:
-					if x.visible:
-						alpha = x.light
-					else:
-						alpha = round(x.light/2)
-					screen.blit(self.tile_list[x.type][alpha], (x_counter*tile_size, counter*tile_size))
+					if x.light:
+						if x.visible:
+							alpha = x.light
+						else:
+							alpha = round(x.light/2)
+						screen.blit(self.tile_list[x.type][alpha], (x_counter*tile_size, counter*tile_size))
 					x_counter+=1
 				counter += 1
 			x_tile = self.destination_tile
@@ -141,9 +142,10 @@ class Game():
 					screen.blit(x_tile, (enemy_location[0]*tile_size, enemy_location[1]*tile_size))
 			for enemy in self.enemies.locations:				
 				x_tile = self.enemy_tile
-				x_tile.set_alpha(self.dungeon.map_list[enemy[1]][enemy[0]].light)
-				if self.dungeon.map_list[enemy[1]][enemy[0]].visible:
-					screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
+				if self.dungeon.map_list[enemy[1]][enemy[0]].light:
+					x_tile.set_alpha(self.dungeon.map_list[enemy[1]][enemy[0]].light)
+					if self.dungeon.map_list[enemy[1]][enemy[0]].visible:
+						screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
 			for pixel in range(round(self.screen_x*self.character.health/self.character.max_health)):
 				screen.blit(self.health_pixel, (pixel, 0))
 			pygame.display.update()
@@ -461,6 +463,7 @@ class Dungeon():
 		self.dungeon_attr_list = dungeon_attr_file.read().splitlines()
 		self.dungeon_adj_list = dungeon_adj_file.read().splitlines()
 		self.dungeon_word_list = dungeon_word_file.read().splitlines()
+		print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
 
 	def random_dungeon_name(self):
 		num = random.randrange(0,5)
@@ -743,5 +746,7 @@ class Enemies():
 		del self.dying_enemies[enemy_index]
 		
 
-
+# dungeon = Dungeon()
+# for x in range(100000):
+# 	print(dungeon.random_dungeon_name())
 game = Game()
