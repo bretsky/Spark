@@ -73,3 +73,11 @@ rainforest
 hillock
 ocean
 plateau
+hole
+plain
+land
+stronghold
+fortress
+shrine
+ziggurat
+pyramid

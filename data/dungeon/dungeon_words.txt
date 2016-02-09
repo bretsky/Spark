@@ -121,7 +121,10 @@ thunder
 mist
 death
 king's
+royal
+king
 emperor
+emperor's
 imperial
 goblin
 undead
