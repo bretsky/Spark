@@ -112,4 +112,3 @@ tall
 long
 big
 massive
-sarlacc

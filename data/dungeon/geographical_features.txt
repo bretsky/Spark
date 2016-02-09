@@ -81,3 +81,5 @@ fortress
 shrine
 ziggurat
 pyramid
+church
+cathedral
