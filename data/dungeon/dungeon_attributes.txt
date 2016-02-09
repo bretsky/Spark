@@ -58,3 +58,9 @@ phantoms
 titans
 hammers
 guardians
+forgiveness
+gods
+power
+beasts
+flames
+righteousness

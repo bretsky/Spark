@@ -62,3 +62,14 @@ lair
 mine
 dungeon
 dunes
+stream
+dune
+tomb
+barrows
+archipelago
+falls
+woodland
+rainforest
+hillock
+ocean
+plateau
