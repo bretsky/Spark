@@ -606,6 +606,12 @@ class Dungeon():
 					if room.in_this_room(x, y):
 						self.map_list[y][x] = Tile(1, False)
 
+	def get_room(self, x, y):
+		for room in self.rooms:
+			if room.in_this_room(x, y):
+				return room
+		return False
+
 class Tile:
 	def __init__(self, tile_type, water):
 		self.type = tile_type
@@ -700,7 +706,8 @@ class Enemies():
 	def place_enemy(self, dungeon, character, original=False):
 		enemy_room = random.choice(dungeon.rooms)
 		enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
-		if enemy_pos != character.pos:
+		character_room = dungeon.get_room(character.pos[0], character.pos[1])
+		if not enemy_room == character_room:
 			if not enemy_pos in self.locations:
 				self.locations.append(enemy_pos)
 				self.enemies.append(Enemy('monster', 5, enemy_pos, original))
