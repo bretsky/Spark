@@ -331,7 +331,7 @@ class Game():
 							self.dungeon.map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
 		for y in range(13):
 			for x in range(13):
-				light_pos = [self.character.pos[0]-tile_size+x, self.character.pos[1]-tile_size+y]
+				light_pos = [self.character.pos[0]-6+x, self.character.pos[1]-6+y]
 				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
 					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_light(15)
 					self.dungeon.map_list[light_pos[1]][light_pos[0]].set_visible(True)
