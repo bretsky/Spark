@@ -10,15 +10,9 @@ Feature requests may be taken into consideration, and we have much planned for l
 --Spark--
 
 Spark is an indie RPG with roguelike dungeons. 
-Currently being built by one lazy and overworked high school student with a few friends providing ideas (behind schedule) and moral support (but not much).
-
 
 Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final Fantasy, and Pokemon Mystery Dungeon.
 Programmed in Python using the Pygame module.
-Created by: 
-Brett Selby, programming, art, creative design
-Griffin Bennett, art, creative design, story
-Jackson MacPherson, creative design, game mechanics
 
 --Instructions--
 -You are the white dot
