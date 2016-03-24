@@ -10,3 +10,4 @@ s/9/handy spell handbook/This copy of 'Spell Casting for Dummies'contains useful
 m/10/rune/A piece of %m bearing a prehistoric magical symbol.
 m/12/glyph/A strange hieroglyphic symbol is carved into this archaic %m glyph.
 s/5/volume/This book is part of a bound collection detailing the origins of magic.
+w/8/sigil/A magical seal on a block of %m. Unsurprisingly, the seal is based around a large red pentagram.

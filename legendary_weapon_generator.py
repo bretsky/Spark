@@ -32,11 +32,30 @@ def legendary_setup():
 	return legendary_data_dict
 
 def isnumeric(n):
-        try:
-                i = float(n)
-        except (ValueError, TypeError):
-            return False
-        return True
+		try:
+				i = float(n)
+		except (ValueError, TypeError):
+			return False
+		return True
+
+class Weapon():
+	def __init__(self, material_type, rarity, rarity_linear, name, descript, level, weapon_class, weapon_type):
+		self.material_type = material_type
+		self.rarity = rarity
+		self.rarity_linear = rarity_linear
+		self.name = name
+		self.descript = descript
+		self.level = level
+		self.weapon_class = weapon_class
+		self.weapon_type = weapon_type
+	def set_material(self, material, material_stat):
+		if self.material_type != 's':
+			self.level = round((self.level*material_stat**1.5)**(0.562151993))
+		self.material_stat = material_stat
+		self.material = material
+		self.descript = self.descript.replace('%m', material)
+	def set_info(self, info):
+		self.info = info
 
 def random_legendary_weapon(weapon_type='rand'):
 

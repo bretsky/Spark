@@ -12,6 +12,7 @@ BG_TILE = 0
 FLOOR_TILE = 1
 WALL_TILE = 2
 HALL_TILE = 3
+SCREEN_RESOLUTION = (1280, 720)
 
 class Game():
 	def __init__(self):
@@ -51,6 +52,8 @@ class Game():
 		self.dead_tile.fill((255, 128, 0))
 		self.health_pixel = pygame.Surface((1,2)).convert()
 		self.health_pixel.fill((255,0,0))
+		self.item_tile = pygame.transform.scale(pygame.image.load('images/item.png'), (tile_size, tile_size))
+		self.item_tile.set_colorkey((19, 255, 19))
 		tile_type_list = [self.bg_tile, self.floor_tile, self.wall_tile, self.hall_tile]
 		self.tile_list = []
 		for tile in tile_type_list:
@@ -63,9 +66,10 @@ class Game():
 
 	def initialise_screen(self):
 		pygame.init()
-		infoObject = pygame.display.Info()
-		print(infoObject.current_h)
-		self.screen_x = 128*int((infoObject.current_h-72.0)/128.0)
+		infoObject = SCREEN_RESOLUTION
+		# infoObject = (pygame.display.Info().current_l, pygame.display.Info().current_h)
+		print(infoObject)
+		self.screen_x = 128*int((min(infoObject)-72.0)/128.0)
 		print(self.screen_x)
 		self.screen_y = self.screen_x
 		self.tile_size = int(self.screen_x/128)

@@ -114,7 +114,6 @@ def random_weapon(weapon_type='rand', maxlevel=100, minlevel=0):
 		rarity = class_dict['rarity']
 		weapon_list = list(class_dict['weapons'].keys())
 		random_weapon = choice(weapon_list, p=rarity)
-		weapon_attributes = {}
 		weapons = class_dict['weapons']
 		random_weapon = class_dict['weapons'][random_weapon]
 		weapon = deepcopy(random_weapon)
