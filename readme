@@ -3,7 +3,7 @@
 Spark is an indie RPG with roguelike dungeons. 
 
 Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final Fantasy, and Pokemon Mystery Dungeon.
-Programmed in Python using the Pygame module.
+Programmed in Python using Pybearlib terminal.
 
 --Instructions--
 -You are the white '@' symbol
