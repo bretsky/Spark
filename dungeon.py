@@ -1132,7 +1132,10 @@ class Game():
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
 				elif self.MOVEMENT_BINDS[key] == "right":
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
-				print(self.character.inventory.page)
+				elif self.MOVEMENT_BINDS[key] == "up":
+					self.character.inventory.item = max(1, self.character.inventory.item - 1)
+				elif self.MOVEMENT_BINDS[key] == "down":
+					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
 		if key == brlb.TK_I:
 			self.character.inventory.show = not self.character.inventory.show
 			if self.character.inventory.show:
@@ -1324,11 +1327,14 @@ class Inventory(Handler):
 		self.item_source = json.load(open('items.json', encoding='utf-8'))
 		self.materials = json.load(open('materials.json', encoding='utf-8'))
 		self.mat_abbr = {'m': 'metallic', 'w':'wooden', 'f': 'flexible', 'p':'precious'}
+		self.display_keys = {"name": "Name", "key": "Key", "mat": "Material"}
+		self.key_order = ["name", "key", "mat"]
 		self.items = []
 		self.show = False
 		self.width = width
 		self.height = height
 		self.page = 1
+		self.item = 1	
 
 	def set_dims(self, w, h):
 		self.width = w
@@ -1339,7 +1345,7 @@ class Inventory(Handler):
 
 	def refresh(self, width=False, height=False):
 		# print(self.show)
-		self.items = sorted(self.items, key=lambda x: x.info["name"])	
+		self.items = sorted(self.items, key=lambda x: x.info["name"])
 		self.pages = max(int(ceiling(len(self.items) / (int(self.height*0.875) - self.start_y - 3), 0)), 1)
 		if width:
 			self.width = width
@@ -1359,6 +1365,14 @@ class Inventory(Handler):
 			brlb.layer(3)
 			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 			for index in range(min(len(self.items) - (self.page - 1) * self.list_height, self.list_height)):
+				if index + 1 == self.item:
+					for key_index in range(len(self.key_order)):
+						attribute = self.display_keys[self.key_order[key_index]] + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
+						for c in range(len(attribute)):
+							brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
+					brlb.color(4294950481)
+				else:
+					brlb.color(4294967295)
 				for c in range(len(self.items[index + (self.page - 1) * self.list_height].info["name"])):
 					brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * self.list_height].info["name"][c])
 			page_numbers = ' '.join([str(i + 1) for i in range(self.pages)])
