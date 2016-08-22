@@ -1,686 +1,1637 @@
 import random
-import pygame
-from pygame.locals import *
-import sys
+import PyBearLibTerminal as brlb
+import screeninfo
+# from pycallgraph import PyCallGraph
+# from pycallgraph.output import GraphvizOutput
+import decimal 
+from time import perf_counter as get_time
+from copy import deepcopy
+import json
 import time
-WIN = pygame.event.Event(pygame.USEREVENT)
-LOSE = pygame.event.Event(pygame.USEREVENT) 
-geo_file = open(r'data\dungeon\geographical_features.txt')
-dungeon_attr_file = open(r'data\dungeon\dungeon_attributes.txt')
-dungeon_adj_file = open(r'data\dungeon\dungeon_adjectives.txt')
-dungeon_word_file = open(r'data\dungeon\dungeon_words.txt')
-geo_list = geo_file.read().splitlines()
-dungeon_attr_list = dungeon_attr_file.read().splitlines()
-dungeon_adj_list = dungeon_adj_file.read().splitlines()
-dungeon_word_list = dungeon_word_file.read().splitlines()
 
-def random_dungeon_name():
-	num = random.randrange(0,5)
-	if num == 0:
-		dungeon_name = ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_word_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split())
-	elif num == 1:
-		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split())
-	elif num == 2:
-		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
-	elif num == 3:
-		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
-	elif num == 4:
-		dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(dungeon_attr_list).split())
-	return dungeon_name
+def signed_pow(i, n):
+	return abs(i)/i * abs(i)**n
+
+def smooth_explode():
+	val = 0
+	for i in range(6):
+		roll = random.random()
+		val += roll
+		if roll < 0.95:
+			return val
+		print('exploded')
+	return val
+
+def explode(l):
+	val = 0
+	for i in range(4):
+		pick = random.choice(l)
+		val += pick
+		if val != max(l):
+			break
+	return val
+
+def round_rand(n):
+	r = random.choice([True, False])
+	if r:
+		return int(decimal.Decimal(n).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
+	else:
+		return int(decimal.Decimal(n).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_DOWN))
+
+def ceiling(n, p=-1):
+	return float(decimal.Decimal(n).quantize(decimal.Decimal(str(10**p)), rounding=decimal.ROUND_CEILING))
+
+def round_up(n):
+	return int(decimal.Decimal(n).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
+
+def randint(start, stop):
+	if start != stop:
+		return random.randrange(start, stop + 1)
+	return start
+
+def p_choice(n, total):
+	keys = list(n.keys())
+	r = random.randrange(total)
+	x = -1
+	while x < r:
+		key = random.choice(keys)
+		x += n[key]
+	return key
+
+def r_key_search(key, var):
+	if hasattr(var,'items'):
+		for k, v in var.items():
+			if k == key:
+				return [k]
+			if isinstance(v, dict):
+				result = r_key_search(key, v)
+				if result:
+					result.insert(0, k)
+					return result
+			elif isinstance(v, list):
+				for d in v:
+					result =  r_key_search(key, d)
+					if result:
+						result.insert(0, k)
+						return result
+	return False
+
+def get_from_path(d, path):
+	# print(d)
+	if path:
+		for s in path:
+			d = d[s]
+	return deepcopy(d)
+
+class Dungeon():
+	def __init__(self, level, animate=False):
+		self.animate = animate
+		self.level = level
+		self.import_files()
+		self.name = self.random_dungeon_name()
+		self.map_list = [[Tile(BG_TILE, False) for y in range(64)] for x in range(64)]
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list)):
+				if min(min(x, y), 63 - max(x, y)) == 0:
+					self.map_list[y][x].type = 2
+				elif min(min(x, y), 63 - max(x, y)) < 5:
+					if random.randrange(min(min(x, y), 63 - max(x, y))**2 + 1) == 0:
+						self.map_list[y][x].type = 2
+		if self.animate:
+			self.debug_draw() #animate
+		self.corridors_made = 0
+		start = get_time()
+		self.rooms = self.make_rooms()
+		print('made rooms in', get_time()-start)
+		self.debug = False
+		start = get_time()
+		self.make_corridors()
+		# try:
+		# 	self.make_corridors()
+		# except RuntimeError:
+		# 	self.debug = True
+		# 	print('RuntimeError occurred')
+		print('made corridors in', get_time()-start)
+		if self.debug:
+			self.persistent_draw()
+		self.unfill()
+		self.tile_rooms()
+
+	def import_files(self):
+		geo_file = open('data/dungeon/geographical_features.txt')
+		dungeon_attr_file = open('data/dungeon/dungeon_attributes.txt')
+		dungeon_adj_file = open('data/dungeon/dungeon_adjectives.txt')
+		dungeon_word_file = open('data/dungeon/dungeon_words.txt')
+		self.geo_list = geo_file.read().splitlines()
+		self.dungeon_attr_list = dungeon_attr_file.read().splitlines()
+		self.dungeon_adj_list = dungeon_adj_file.read().splitlines()
+		self.dungeon_word_list = dungeon_word_file.read().splitlines()
+		print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
+
+	def darken(self, room):
+		for wall in room.walls:
+			self.map_list[wall[1]][wall[0]].visible = False
+			self.map_list[wall[1]][wall[0]].light = 0
+		for tile in room.tiles:
+			self.map_list[tile[1]][tile[0]].visible = False
+			self.map_list[tile[1]][tile[0]].light = 0
+
+	def random_dungeon_name(self):
+		num = random.randrange(0,5)
+		if num == 0:
+			dungeon_name = ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_word_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
+		elif num == 1:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
+		elif num == 2:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		elif num == 3:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		elif num == 4:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		return dungeon_name
+
+	def make_corridors(self):
+		self.corridors = []
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list[y])):
+				if self.map_list[y][x].type == 0:
+					self.maze_trail = []
+					if self.suitable_starting_point((x, y)):
+						self.maze(x, y)
+						self.corridors.extend(self.maze_trail)
+		self.find_connectors()
+		self.make_doors()
+		self.remove_dead_ends()
+		# self.persistent_draw()
+
+	def suitable_starting_point(self, coord):
+		for x in range(3):
+			for y in range(3):
+				if self.map_list[coord[1] + y -1][coord[0] + x -1].type == 3:
+					self.map_list[coord[1]][coord[0]].type = 4
+					return False
+		return True
+
+	def creates_loop(self, starting_coord, new_coord):
+		change_coord = [starting_coord[i]-new_coord[i] for i in range(2)]
+		if change_coord[0] != 0:
+			for x in range(3):
+				for y in range(3):
+					if new_coord[0] + x - 1 != starting_coord[0]:
+						if self.map_list[new_coord[1] + y -1][new_coord[0] + x -1].type == 3:
+							self.map_list[new_coord[1]][new_coord[0]].type = 4
+							return True
+		if change_coord[1] != 0:
+			for x in range(3):
+				for y in range(3):
+					if new_coord[1] + y - 1 != starting_coord[1]:
+						if self.map_list[new_coord[1] + y -1][new_coord[0] + x -1].type == 3:
+							self.map_list[new_coord[1]][new_coord[0]].type = 4
+							return True
+		return False
+
+	def is_significant(self, starting_coord, new_coord):	
+		if self.map_list[new_coord[1]][new_coord[0]].type != 4:
+			return True
+		return self.creates_loop(starting_coord, new_coord)
+
+	def maze(self, x, y):
+		directions = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+		directions = [d for d in directions if self.map_list[d[1]][d[0]].type == 0]
+		direction = ()
+		self.maze_trail.append((x, y))
+		self.map_list[y][x].type = 3
+		while direction != self.maze_trail[0]:
+			self.branch_trail = []
+			while len(directions) > 0:
+				if self.animate:
+					if random.randrange(3) == 0:
+						self.debug_refresh() #animate
+				direction = directions.pop(random.randrange(len(directions)))
+				self.branch_trail.append(direction)
+				if len(self.branch_trail) >= 3:
+					if self.branch_trail[-3][0] != self.branch_trail[-1][0] and self.branch_trail[-3][1] != self.branch_trail[-1][1]:
+						first_change = (self.branch_trail[-3][0] - self.branch_trail[-2][0], self.branch_trail[-3][1] - self.branch_trail[-2][1])
+						second_change = (self.branch_trail[-2][0] - self.branch_trail[-1][0], self.branch_trail[-2][1] - self.branch_trail[-1][1])
+						if not self.map_list[self.branch_trail[-2][1] - first_change[1] + second_change[1]][self.branch_trail[-2][0] - first_change[0] + second_change[0]].type == 2:
+							self.map_list[self.branch_trail[-2][1] - first_change[1] + second_change[1]][self.branch_trail[-2][0] - first_change[0] + second_change[0]].type = 4
+				for d in directions:
+					self.map_list[d[1]][d[0]].type = 4
+				x, y = direction
+				self.map_list[y][x].type = 3
+				directions = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+				directions = [d for d in directions if self.map_list[d[1]][d[0]].type == 0 and not self.creates_loop(direction, d)]
+			self.maze_trail.extend(self.branch_trail)
+			index = 0
+			while len(directions) == 0 and index + len(self.maze_trail) > 0:
+				index -= 1
+				direction = self.maze_trail[index]
+				x, y = direction
+				directions = [(x+1, y), (x-1, y), (x, y+1), (x, y-1)]
+				directions = [d for d in directions if not self.is_significant(direction, d)]
+
+	def regionize(self):
+		self.non_region_tiles = []
+		self.regions = {}
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list[y])):
+				if self.map_list[y][x].type in set((3, 1, 5)):
+					self.non_region_tiles.append((x, y))
+		region = 0
+		while len(self.non_region_tiles) > 0:
+			
+			self.fill(*self.non_region_tiles[0])
+			if self.animate:
+				self.debug_refresh() #animate
+			region_tiles = set()
+			for tile in self.non_region_tiles:
+				if self.map_list[tile[1]][tile[0]].water:
+					region_tiles.add(tile)
+					self.map_list[tile[1]][tile[0]].region = region
+			self.non_region_tiles = [tile for tile in self.non_region_tiles if tile not in region_tiles]
+			self.regions[region] = list(region_tiles)
+			self.unfill()
+			region += 1
+		for room in self.rooms:
+			midpoint = room.midpoint
+			room.region = self.map_list[midpoint[1]][midpoint[0]].region
+		self.room_regions = {}
+		for region in list(self.regions.keys()):
+			region_rooms = []
+			for room in self.rooms:
+				if room.region == region:
+					region_rooms.append(room)
+			if region_rooms:
+				self.room_regions[region] = region_rooms
+
+	def in_bounds(self, x, y):
+		if max(x, y) >= 64 or min(x, y) < 0:
+			return False
+		return True
+
+	def find_connectors(self):
+		# brlb.close()
+		self.connectors = []
+		self.regionize()
+
+		for room in self.rooms:
+			for wall in room.walls:
+				x, y = wall
+				directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+				region_not_found = True
+				d = 0
+				while region_not_found and d < len(directions):
+					if self.in_bounds(x + directions[d][0], y + directions[d][1]):
+						if self.map_list[y + directions[d][1]][x + directions[d][0]].region != -1:
+							potential_connectors = []
+							region = self.map_list[y + directions[d][1]][x + directions[d][0]].region
+							i = 0
+							connected = False
+							while i < 4 and not connected:
+								if self.in_bounds(x - directions[d][0] * i, y - directions[d][1] * i):
+									connecting_region = self.map_list[y - directions[d][1] * i][x - directions[d][0] * i].region
+									if self.map_list[y - directions[d][1] * i][x - directions[d][0] * i].type == 4:
+										connected = True
+									elif connecting_region not in (-1, region):			
+										self.connectors.append(potential_connectors)
+										for x, y in potential_connectors:
+											self.map_list[y][x].connector = True
+										# self.debug_refresh() #animate
+										connected = True
+									elif connecting_region == region:
+										connected = True
+									else:
+										potential_connectors.append((x - directions[d][0] * i, y - directions[d][1] * i))
+								i += 1
+					d += 1
+		for connection in self.connectors:
+			for connector in connection:
+				x, y = connector
+				self.map_list[y][x].connector = True
+
+	def delete_connectors(self):
+		for i in range(len(self.connectors)):
+			if random.randrange(50) == 0:
+				for x, y in self.connectors[i]:
+					self.map_list[y][x].type = 5
+			for x, y in self.connectors[i]:
+				self.map_list[y][x].connector = False
+			if self.animate:
+				self.debug_refresh() #animate
+		self.connectors = []
+
+	def make_doors(self):
+		while len(self.connectors) > 0:
+			main_room = random.choice(self.room_regions[random.choice(list(self.room_regions.keys()))])
+			potential_connectors = [connection for connection in self.connectors for connector in connection if connector in [wall for room in self.room_regions[main_room.region] for wall in room.walls]]
+			if potential_connectors:
+				connection = random.choice(potential_connectors)
+				for connector in connection:
+					self.map_list[connector[1]][connector[0]].type = 5
+					if self.animate:
+						self.debug_refresh() #animate
+				self.delete_connectors()
+				self.find_connectors()
+
+	def remove_dead_ends(self):
+		self.find_dead_ends()
+		directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+		count = 1
+		remain = random.randrange(0, 4)
+		while len(self.dead_ends) > remain:			
+			for x, y in self.dead_ends:
+				if random.randrange(0, count*15) != 0:
+					self.map_list[y][x].type = 4
+					self.corridors.remove((x, y))
+				else:
+					d = [direction for direction in directions if self.map_list[direction[1] + y][direction[0] + x].type == 4]
+					if len(d) > 0:
+						d = random.choice(d)
+						self.map_list[d[1] + y][d[0] + x].type = 3
+						self.corridors.append((d[0] + x, d[1] + y))
+				if self.animate:			
+					self.debug_refresh() #animate
+			count += 1
+			self.find_dead_ends()
+
+
+	def find_dead_ends(self):
+		self.dead_ends = []
+		directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+		for x, y in self.corridors:
+			d = [direction for direction in directions if self.map_list[direction[1] + y][direction[0] + x].type in (2, 4)]
+			if len(d) >= 3:
+				self.dead_ends.append((x, y))
+
+
+	def fill(self, x, y):
+		potential_pos = set()
+		potential_pos.add((x, y))
+		new_pos = set()
+		filled_pos = set()
+		while len(potential_pos) > 0:
+			potential_pos.update(new_pos)
+			potential_pos.difference_update(filled_pos)
+			for x, y in potential_pos:
+				if self.map_list[y][x].type == 1 or self.map_list[y][x].type == 3 or self.map_list[y][x].type == 5:
+					if self.map_list[y][x].water == False:
+						self.map_list[y][x].water = True
+						if self.animate:
+							if random.randrange(0, 4) == 0:
+								self.debug_refresh() #animate
+						new_pos.add((x-1, y))
+						new_pos.add((x+1, y))
+						new_pos.add((x, y-1))
+						new_pos.add((x, y+1))
+				filled_pos.add((x, y))
+		return
+
+	def unfill(self):
+		for x in range(1, 63):
+			for y in range(1, 63):
+				self.map_list[y][x].water = False
+
+	def random_scale(self):
+		return int(sum([explode([1,1,1,1,1,1,2,2,3,4,5,6,7,8,9,10,10,10,10,10,10,10]) for i in range(4)])/3 + 3)
+
+	def random_room(self):
+		SQUARENESS = 1
+		xscale = self.random_scale()
+		yscale = self.random_scale()
+		p1 = (random.randrange(64), random.randrange(64))
+		p2 = (p1[0] + xscale, p1[1] + int(signed_pow(random.random()-0.5, SQUARENESS)*yscale))
+		p3 = (p2[0] + int(signed_pow(random.random()-0.5, SQUARENESS)*xscale), p2[1] + yscale)
+		rand = (random.random()-0.5, random.random()-0.5)
+		p4 = (p1[0] + int(signed_pow(rand[0], SQUARENESS)*xscale), p3[1] + int(signed_pow(rand[1], SQUARENESS)*yscale))
+		p = [p1, p2, p3, p4]		
+		room = Room(*p)
+		if room.in_bounds(0, 64):
+			return room
+		else:
+			return self.random_room()
+
+	def carve_map(self, x, y):
+		for row in range(y-1, y+2):
+			for column in range(x-1, x+2):
+				if self.map_list[row][column].type == 0:
+					self.map_list[row][column] = Tile(2, False)
+		else:
+			self.map_list[y][x] = Tile(3, False)
+
+	def random_room_count(self):
+		return 2*int(sum([explode([1,1,1,1,1,1,2,2,3,4,5,6,7,8,9,10,10,10,10,10,10,10]) for i in range(4)]) + 4)
+
+	def place(self, room):
+		if self.rooms:
+			for existing_room in self.rooms:
+				if room.intercepts(existing_room):
+					return self.rooms
+		self.rooms.append(room)
+		return self.rooms
+
+	def make_rooms(self):
+		self.rooms = []
+		# print(type(self.rooms))
+		if self.animate:
+			self.debug_draw() #animate
+		for x in range(self.random_room_count()):
+			room = self.random_room()
+			# print('Made room %(counter)i' % {'counter' : x + 1})
+			# print(type(self.rooms))
+			self.rooms = self.place(room)
+		for room in self.rooms:
+			room.tile_map(self.map_list)
+			if self.animate:
+				self.debug_refresh() #animate
+		self.tile_rooms()
+		return self.rooms
+
+	def tile_rooms(self):
+		for room in self.rooms:		
+			for x, y in room.tiles:
+				self.map_list[y][x] = Tile(1, False)
+
+	def get_room(self, x, y):
+		for room in self.rooms:
+			if room.in_this_room(x, y):
+				return room
+		return False
+
+	def debug_draw(self):
+		brlb.open()
+		brlb.set('window.title=d-gen; font: unifont-8.0.01.ttf, size=12x12; window.size=64x64;')
+		brlb.composition(brlb.TK_OFF)
+		brlb.refresh()
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list[y])):
+				if self.map_list[y][x].water:
+					brlb.color(brlb.color_from_argb(255, 0, 0, 255))
+				elif self.map_list[y][x].connector:
+					brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+				else:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+				if self.map_list[y][x].type == 1:
+					brlb.put(x, y, '.')
+				elif self.map_list[y][x].type == 2:
+					brlb.put(x, y, 9608)
+				elif self.map_list[y][x].type == 3:
+					brlb.put(x, y, '#')
+				elif self.map_list[y][x].type == 4:
+					brlb.put(x, y, 9618)
+				elif self.map_list[y][x].type == 0:
+					brlb.put(x, y, 'O')
+				elif self.map_list[y][x].type == 5:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 0))
+					brlb.put(x, y, 'X')
+		brlb.refresh()
+		closed = False
+		while closed != brlb.TK_CLOSE and closed != brlb.TK_SPACE:
+			if brlb.has_input():
+				
+				closed = brlb.read()
+
+	def persistent_draw(self):
+		brlb.open()
+		brlb.set('window.title=d-gen; font: unifont-8.0.01.ttf, size=12x12; window.size=64x64;')
+		brlb.composition(brlb.TK_OFF)
+		brlb.refresh()
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list[y])):
+				if self.map_list[y][x].water:
+					brlb.color(brlb.color_from_argb(255, 0, 0, 255))
+				elif self.map_list[y][x].connector:
+					brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+				else:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+				if self.map_list[y][x].type == 1:
+					brlb.put(x, y, '.')
+				elif self.map_list[y][x].type == 2:
+					brlb.put(x, y, 9608)
+				elif self.map_list[y][x].type == 3:
+					brlb.put(x, y, '#')
+				elif self.map_list[y][x].type == 4:
+					brlb.put(x, y, 9618)
+				elif self.map_list[y][x].type == 0:
+					brlb.put(x, y, 'O')
+				elif self.map_list[y][x].type == 5:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 0))
+					brlb.put(x, y, 'X')
+		for room in self.rooms:
+			brlb.color(brlb.color_from_argb(255, 0, 255, 255))
+			brlb.put(room.midpoint[0], room.midpoint[1], 9673)
+		brlb.refresh()
+		closed = False
+		while closed != brlb.TK_CLOSE:
+			if brlb.has_input():		
+				closed = brlb.read()
+
+	def debug_refresh(self):
+		for y in range(len(self.map_list)):
+			for x in range(len(self.map_list[y])):
+				if self.map_list[y][x].water:
+					brlb.color(brlb.color_from_argb(255, 0, 0, 255))
+				elif self.map_list[y][x].connector:
+					brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+				else:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+				if self.map_list[y][x].type == 1:
+					brlb.put(x, y, '.')
+				elif self.map_list[y][x].type == 2:
+					brlb.put(x, y, 9608)
+				elif self.map_list[y][x].type == 3:
+					brlb.put(x, y, '#')
+				elif self.map_list[y][x].type == 4:
+					brlb.put(x, y, 9618)
+				elif self.map_list[y][x].type == 0:
+					brlb.put(x, y, 'O')
+				elif self.map_list[y][x].type == 5:
+					brlb.color(brlb.color_from_argb(255, 255, 255, 0))
+					brlb.put(x, y, 'X')
+		brlb.refresh()
+		closed = False
+		while closed != brlb.TK_CLOSE and closed != brlb.TK_SPACE:
+			if brlb.has_input():			
+				closed = brlb.read()
+				if closed == brlb.TK_CLOSE:
+					brlb.close()
+
+	def discover(self, room):
+		for wall in room.walls:
+			self.map_list[wall[1]][wall[0]].seen = True
+			self.map_list[wall[1]][wall[0]].visible = True
+			self.map_list[wall[1]][wall[0]].light = 5
+		for tile in room.tiles:
+			self.map_list[tile[1]][tile[0]].seen = True
+			self.map_list[tile[1]][tile[0]].visible = True
+			self.map_list[tile[1]][tile[0]].light = 5
+
+class Line():
+	def __init__(self, p0, p1):
+		self.octants = {0: self.to_zero_from_zero, 1: self.to_one_from_zero, 2: self.to_two_from_zero, 3: self.to_three_from_zero, 4: self.to_four_from_zero, 5: self.to_five_from_zero, 6: self.to_six_from_zero, 7: self.to_seven_from_zero}
+		self.x0, self.y0 = p0
+		self.x1, self.y1 = p1
+		self.p0 = p0
+		self.p1 = p1
+		# self.points = self.plot_line()
+		# self.points_continuous = self.plot_line_continuous()
+
+	def calculate_slope(self):
+		return (self.x1 - self.x0),(self.y1 - self.y0)
+
+	def to_zero_from_zero(self, x, y):
+		return (x, y)
+
+	def to_one_from_zero(self, x, y):
+		return (y, x)
+
+	def to_two_from_zero(self, x, y):
+		return (-y, x)
+
+	def to_three_from_zero(self, x, y):
+		return (-x, y)
+
+	def to_four_from_zero(self, x, y):
+		return (-x, -y)
+
+	def to_five_from_zero(self, x, y):
+		return (-y, -x)
+
+	def to_six_from_zero(self, x, y):
+		return (y, -x)
+
+	def to_seven_from_zero(self, x, y):
+		return (x, -y)
+
+	def plot_line_continuous(self):
+		indices = []
+		if self.x1 == self.x0 or self.y1 == self.y0 or abs(self.x1 - self.x0) == abs(self.y1 - self.y0):
+			x = self.x0
+			y = self.y0
+			dx = self.x1 - x
+			dy = self.y1 - y
+			while x != self.x1 or y != self.y1:
+				# print(x, y)
+				indices.append((x, y))
+				if dx != 0 and dy != 0:
+					indices.append((x + int(dx/abs(dx)), y))
+				if dx != 0:
+					x += int(dx/abs(dx))
+				if dy != 0:
+					y += int(dy/abs(dy))
+			indices.append((self.x1, self.y1))
+			self.length = len(indices)
+			return indices
+		octant = self.octant()
+		x0, y0 = self.to_zero(octant, self.x0, self.y0)
+		x1, y1 = self.to_zero(octant, self.x1, self.y1)
+		self.dx = x1 - x0
+		self.dy = y1 - y0
+		y = y0
+		self.D = self.dy - self.dx
+		for x in range(x0, x1):
+			if self.D >= 0:
+				indices.append((x, y))
+				y += 1
+				self.D -= self.dx
+			self.D += self.dy
+			indices.append((x, y))
+		indices.append((x1, y1))
+		self.length = len(indices)
+		return [self.from_zero(octant, x, y) for (x, y) in indices]
+
+	def plot_line(self):
+		indices = []
+		if self.x1 == self.x0 or self.y1 == self.y0 or abs(self.x1 - self.x0) == abs(self.y1 - self.y0):
+			x = self.x0
+			y = self.y0
+			dx = self.x1 - x
+			dy = self.y1 - y
+			while x != self.x1 or y != self.y1:
+				indices.append((x, y))
+				if dx != 0:
+					x += int(dx/abs(dx))
+				if dy != 0:
+					y += int(dy/abs(dy))
+			indices.append((self.x1, self.y1))
+			self.length = len(indices)
+			return indices
+		octant = self.octant()
+		x0, y0 = self.to_zero(octant, self.x0, self.y0)
+		x1, y1 = self.to_zero(octant, self.x1, self.y1)
+		self.dx = x1 - x0
+		self.dy = y1 - y0
+		y = y0
+		self.D = self.dy - self.dx
+		for x in range(x0, x1):
+			if self.D >= 0:
+				y += 1
+				self.D -= self.dx
+			self.D += self.dy
+			indices.append((x, y))
+		indices.append((x1, y1))
+		self.length = len(indices)
+		return [self.from_zero(octant, x, y) for (x, y) in indices]
+
+	def from_zero(self, octant, x, y):
+		return self.octants[octant](x, y)
+
+	def to_zero(self, octant, x, y):
+		if octant == 0:
+			return (x, y)
+		if octant == 1:
+			return (y, x)
+		if octant == 2:
+			return (y, -x)
+		if octant == 3:
+			return (-x, y)
+		if octant == 4:
+			return (-x, -y)
+		if octant == 5:
+			return (-y, -x)
+		if octant == 6:
+			return (-y, x)
+		if octant == 7:
+			return (x, -y)
+
+	def octant(self):
+		dx = self.x1 - self.x0
+		dy = self.y1 - self.y0
+		if dx > 0:
+			if dy > 0:
+				if dy > dx:
+					return 1
+				else:
+					return 0
+			else:
+				if abs(dy) < dx:
+					return 7
+				else:
+					return 6
+		else:
+			if dy > 0:
+				if dy > abs(dx):
+					return 2
+				else:
+					return 3
+			else:
+				if abs(dy) > abs(dx):
+					return 5
+				else:
+					return 4
+
+	def intersects(self, line):
+		endpoints = (max(self.p1.x, line.p1.x), min(self.p2.x, line.p2.x))
+		endpoints = (self.f(x) - line.f(x) for x in endpoints)
+		if min(endpoints) <= 0 and max(endpoints) >= 0:
+			return True
+		return False
+
 
 class Tile:
 	def __init__(self, tile_type, water):
 		self.type = tile_type
 		self.water = water
-		# self.light = 255
 		self.light = 0
 		self.visible = False
-	def set_light(self, value):
-		if value > self.light:
-			self.light = value
-	def set_visible(self, visible):
-		self.visible = visible
+		self.seen = False
+		self.region = -1
+		self.connector = False
+		self.occupant = False
 
-character_pos = [0, 0]
-map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
-pygame.init()
-infoObject = pygame.display.Info()
-print(infoObject.current_h)
-screen_x = 128*int((infoObject.current_h-72.0)/128.0)
-print(screen_x)
-screen_y = screen_x
-tile_size = int(screen_x/128)
-screen = pygame.display.set_mode((screen_x, screen_y))
-pygame.display.set_caption(random_dungeon_name())
-screen_bg = pygame.Surface((screen_x, screen_y)).convert()
-screen_bg.fill((0, 0, 0))
-floor_tile = pygame.Surface((tile_size, tile_size)).convert()
-floor_tile.fill((30, 16, 3))
-wall_tile = pygame.Surface((tile_size, tile_size)).convert()
-wall_tile.fill((63, 63, 63))
-bg_tile = pygame.Surface((tile_size, tile_size)).convert()
-bg_tile.fill((70, 45, 10))
-water_tile = pygame.Surface((tile_size, tile_size)).convert()
-water_tile.fill((16, 16, 160))
-hall_tile = pygame.Surface((tile_size, tile_size)).convert()
-hall_tile.fill((148, 120, 78))
-character_tile = pygame.Surface((tile_size, tile_size)).convert()
-character_tile.fill((255, 255, 255))
-destination_tile = pygame.Surface((tile_size, tile_size)).convert()
-destination_tile.fill((255, 0, 0))
-enemy_tile = pygame.Surface((tile_size,tile_size)).convert()
-enemy_tile.fill((255, 255, 0))
-start_tile = pygame.Surface((tile_size, tile_size)).convert()
-start_tile.fill((0, 255, 0))
-dead_tile = pygame.Surface((tile_size, tile_size)).convert()
-dead_tile.fill((255, 128, 0))
-health_pixel = pygame.Surface((1,2)).convert()
-health_pixel.fill((255,0,0))
-rooms = []
-framerate = pygame.time.Clock()
-dead_enemies = []
-dead_enemy_locations = []
-regen_rate = 15
-regen_counter = 0
-character_health = 10
-max_character_health = 10
-tile_type_list = [bg_tile, floor_tile, wall_tile, hall_tile]
-tile_list = []
-for tile in tile_type_list:
-	alpha_list = []
-	for alpha in range(256):
-		x_tile = tile.copy()
-		x_tile.set_alpha(alpha)
-		alpha_list.append(x_tile)
-	tile_list.append(alpha_list)
+	def luminosity(self):
+		if not self.visible:
+			return 4278203136
+		return LUMINOSITY[min(self.light, 5)]
 
-def print_map_game(destination):
-	global regen_counter
-	global regen_rate
-	global character_health
-	global max_character_health
-	print_go = True
-	jumped_this_turn = False
-	jump_wait_counter = 0
-	jump_time = False
-	time.clock()
-	frame_counter = 0
-	seconds = 2
-	w_accel = 1
-	a_accel = 1
-	s_accel = 1
-	d_accel = 1
-	w_time = False
-	a_time = False
-	s_time = False
-	d_time = False
-	jump_midpoint = False
-	framerate = pygame.time.Clock()
 
-	def on_move_events():
-		print('on_move_events called')
-		global regen_counter
-		global regen_rate
-		global character_health
-		global max_character_health
-		global map_list
-		for y in map_list:
-			for x in y:
-				x.set_visible(False)
-		for room in rooms:
-			if room.in_this_room(character_pos[0], character_pos[1]):
-				if not room.discovered:
-					room.discover()
-					for room_y in range(room.height+3):
-						for room_x in range(room.width+3):
-							for y in range(11):
-								for x in range(11):
-									light_pos = [room_x-5+x+room.wall_left, room_y-5+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-										map_list[light_pos[1]][light_pos[0]].set_light(15)
-							for y in range(9):
-								for x in range(9):
-									light_pos = [room_x-4+x+room.wall_left, room_y-4+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(31)
-							for y in range(tile_size):
-								for x in range(tile_size):
-									light_pos = [room_x-3+x+room.wall_left, room_y-3+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(63)
-							for y in range(5):
-								for x in range(5):
-									light_pos = [room_x-2+x+room.wall_left, room_y-2+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(127)
-							for y in range(3):
-								for x in range(3):
-									light_pos = [room_x-1+x+room.wall_left, room_y-1+y+room.wall_top]
-									if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-										map_list[light_pos[1]][light_pos[0]].set_light(255)						
-							map_list[room_y+room.wall_top][room_x+room.wall_left].set_light(255)
-		for y in range(13):
-			for x in range(13):
-				light_pos = [character_pos[0]-tile_size+x, character_pos[1]-tile_size+y]
-				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1: 
-					map_list[light_pos[1]][light_pos[0]].set_light(15)
-					map_list[light_pos[1]][light_pos[0]].set_visible(True)
-		for y in range(11):
-			for x in range(11):
-				light_pos = [character_pos[0]-5+x, character_pos[1]-5+y]
-				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(31)
-		for y in range(9):
-			for x in range(9):
-				light_pos = [character_pos[0]-4+x, character_pos[1]-4+y]
-				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(63)
-		for y in range(tile_size):
-			for x in range(tile_size):
-				light_pos = [character_pos[0]-3+x, character_pos[1]-3+y]
-				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(127)
-		for y in range(5):
-			for x in range(5):
-				light_pos = [character_pos[0]-2+x, character_pos[1]-2+y]
-				if light_pos[0] < 128 and light_pos[1] < 128 and light_pos[0] > -1  and light_pos[1] > -1:
-					map_list[light_pos[1]][light_pos[0]].set_light(255)
-		for y in range(3):
-			for x in range(3):
-				light_pos = [character_pos[0]-1+x, character_pos[1]-1+y]
-				if light_pos[0] < 128 and light_pos[1] < 128: 
-					map_list[light_pos[1]][light_pos[0]].set_light(255)		
-		print('Moved this turn')
-		regen_counter += 1
-		if regen_counter >= regen_rate:
-			if character_health >= max_character_health:
-				regen_counter = int(regen_rate/2.0)
-			else: 
-				character_health += int(regen_counter/regen_rate)
-				print(character_health)
-				regen_counter = 0			
-		for enemy in enemy_locations:
-			if enemies[enemy_locations.index(enemy)].alive:
-				if enemy[0] > character_pos[0]-2 and enemy[0] < character_pos[0]+2 and enemy[1] > character_pos[1]-2 and enemy[1] < character_pos[1]+2:
-					print('Imma attack you!')
-					character_health -= 1
-					print(character_health)
-				elif random.randrange(1,8) != 0:
-					if map_list[enemy[1]][enemy[0]].visible:
-						print('Enemy is visible')
-						move_horizontal = random.choice([True, False])
-						if move_horizontal:
-							print('Horizontal movement has priority')
-							if enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-								print('You are to my right')
-								enemy[0] += 1
-							elif enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-								print('You are below me')
-								enemy[1] += 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-								print('You are above me')
-								enemy[1] -= 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-								print('You are to my left')
-								enemy[0] -= 1
-							else:
-								pass
-								print('No possible movement')
-						if not move_horizontal:
-							print('Vertical movement has priority')
-							if enemy[1] < character_pos[1] and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-								print('You are below me')
-								enemy[1] += 1
-							elif enemy[0] < character_pos[0] and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-								print('You are to my right')
-								enemy[0] += 1
-							elif enemy[0] > character_pos[0] and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-								print('You are to my left')
-								enemy[0] -= 1
-							elif enemy[1] > character_pos[1] and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-								print('You are above me')
-								enemy[1] -= 1
-							else:
-								pass
-								print('No possible movement')
-					else:
-						print("I'm moving randomly!")
-						direction = random.randrange(0,4)
-						if direction == 0 and map_list[enemy[1]][enemy[0]+1].type != 2 and not [enemy[0]+1, enemy[1]] in enemy_locations:
-							enemy[0] += 1
-						if direction == 1 and map_list[enemy[1]+1][enemy[0]].type != 2 and not [enemy[0], enemy[1]+1] in enemy_locations:
-							enemy[1] += 1
-						if direction == 2 and map_list[enemy[1]-1][enemy[0]].type != 2 and not [enemy[0], enemy[1]-1] in enemy_locations:
-							enemy[1] -= 1
-						if direction == 3 and map_list[enemy[1]][enemy[0]-1].type != 2 and not [enemy[0]-1, enemy[1]] in enemy_locations:
-							enemy[0] -= 1
-				else:
-					pass
-					print("Hurr durr, I'm just gonna sit here")
-		if character_health <= 0:
-			print('You Lose')
-			pygame.event.post(LOSE)
-		if character_pos == destination:
-			print('You Win!')
-			pygame.event.post(WIN)
-		for enemy in enemies:
-			if not enemy.alive:
-				dead_enemies.append(enemy)
-				dead_enemy_locations.append(enemy_locations[enemies.index(enemy)])
-				del enemy_locations[enemies.index(enemy)]
-				del enemies[enemies.index(enemy)]
-		print('END TURN\n\n\n\n')
+class Room():
+	def __init__(self, p1, p2, p3, p4):
+		self.p1 = p1
+		self.p2 = p2
+		self.p3 = p3
+		self.p4 = p4
+		self.walls = self.make_walls()
+		self.midpoint = (round_up((self.p1[0] + self.p2[0] + self.p3[0] + self.p4[0])/4), round_up((self.p1[1] + self.p2[1] + self.p3[1] + self.p4[1])/4))
+		self.fix()
+		self.region = -1
+		
+	def fix(self):
+		self.tile()
+		self.walls = self.trim_walls(self.walls)
 
-	on_move_events()
-	while print_go == True:
-		framerate.tick(60)
-		frame_time = framerate.get_time()
-		if time.clock() >= seconds:
-			print(framerate.get_fps())
-			seconds += 2
-		if jumped_this_turn:
-			if not jump_time:
-				jump_time = pygame.time.get_ticks()
-			if pygame.time.get_ticks()-jump_time >= 250 and not jump_midpoint:
-				jump_midpoint = True
-				print('Enemy moves during recovery')
-				on_move_events()
-			if pygame.time.get_ticks()-jump_time >= 500:
-				jumped_this_turn = False
-				jump_time = False
-				jump_midpoint = False
-				print('Recovery Done')
-		screen.blit(screen_bg, (0,0))
-		counter = 0
-		for y in map_list:
-			x_counter = 0
-			for x in y:
-				if x.visible:
-					alpha = x.light
-				else:
-					alpha = round(x.light/2)
-				screen.blit(tile_list[x.type][alpha], (x_counter*tile_size, counter*tile_size))
-				x_counter+=1
-			counter += 1
-		x_tile = destination_tile
-		if map_list[destination[1]][destination[0]].visible:
-			x_tile.set_alpha(map_list[destination[1]][destination[0]].light)
-		else:
-			x_tile.set_alpha(map_list[destination[1]][destination[0]].light/2)
-		screen.blit(x_tile, (destination[0]*tile_size, destination[1]*tile_size))
-		screen.blit(character_tile, (character_pos[0]*tile_size, character_pos[1]*tile_size))
-		for enemy in dead_enemy_locations:
-			x_tile = dead_tile
-			x_tile.set_alpha(min(map_list[enemy[1]][enemy[0]].light,255.0-(255.0*(dead_enemies[dead_enemy_locations.index(enemy)].turns_dead)/45.0)))
-			if map_list[enemy[1]][enemy[0]].visible:
-				screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
-		for enemy in enemy_locations:				
-			x_tile = enemy_tile
-			x_tile.set_alpha(map_list[enemy[1]][enemy[0]].light)
-			if map_list[enemy[1]][enemy[0]].visible:
-				screen.blit(x_tile, (enemy[0]*tile_size, enemy[1]*tile_size))
-		for pixel in range(round(screen_x*character_health/max_character_health)):
-			screen.blit(health_pixel, (pixel, 0))
-		pygame.display.update()
-		for enemy in dead_enemies:
-			enemy.turns_dead += 1
-			if enemy.turns_dead >= 45:
-				del dead_enemy_locations[dead_enemies.index(enemy)]
-				del dead_enemies[dead_enemies.index(enemy)]
-		events = pygame.event.get()
-		key = pygame.key.get_pressed()
-		move_speed = 1
-		mods = pygame.key.get_mods()
-		if mods & KMOD_SHIFT:
-			move_speed = 2
-		for event in events:
-			if event.type == pygame.QUIT:
-				return
-			if event == WIN:
-				return
-			if event == LOSE:
-				return
-			if not jumped_this_turn:
-				if event.type == MOUSEBUTTONUP and event.button == 1:
-					position = pygame.mouse.get_pos()
-					position = [int(x/tile_size) for x in position]
-					print(position)
-					if position in enemy_locations:
-						if position[0] > character_pos[0]-2 and position[0] < character_pos[0]+2:
-							if position[1] > character_pos[1]-2 and position[1] < character_pos[1]+2:
-								enemies[enemy_locations.index(position)].damage(1)
-								print('Attack successful')
-								on_move_events()
-			if event.type == pygame.KEYDOWN:
-				if not jumped_this_turn:
-					if event.key == pygame.K_w or event.key == pygame.K_UP:
-						if map_list[character_pos[1]-move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]-1][character_pos[0]].type != 2:
-							if not [character_pos[0],character_pos[1]-move_speed] in enemy_locations:
-								character_pos[1] -= move_speed
-								print('Moved')
-								if move_speed == 2:
-									jumped_this_turn = True
-									print('You jumped')
-								on_move_events()
-				if not jumped_this_turn:
-					if event.key == pygame.K_s or event.key == pygame.K_DOWN:
-						if map_list[character_pos[1]+move_speed][character_pos[0]].type != 2 and map_list[character_pos[1]+1][character_pos[0]].type != 2:
-							if not [character_pos[0],character_pos[1]+move_speed] in enemy_locations:
-								character_pos[1] += move_speed
-								print('Moved')
-								if move_speed == 2:
-									jumped_this_turn = True
-									print('You jumped')
-								on_move_events()									
-				if not jumped_this_turn:
-					if event.key == pygame.K_a or event.key == pygame.K_LEFT:
-						if map_list[character_pos[1]][character_pos[0]-move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]-1].type != 2:
-							if not [character_pos[0]-move_speed,character_pos[1]] in enemy_locations:
-								character_pos[0] -= move_speed
-								print('Moved')
-								if move_speed == 2:
-									jumped_this_turn = True
-									print('You jumped')
-								on_move_events()									
-				if not jumped_this_turn:			
-					if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
-						if map_list[character_pos[1]][character_pos[0]+move_speed].type != 2 and map_list[character_pos[1]][character_pos[0]+1].type != 2:
-							if not [character_pos[0]+move_speed,character_pos[1]] in enemy_locations:
-								character_pos[0] += move_speed
-								print('Moved')
-								if move_speed == 2:
-									jumped_this_turn = True
-									print('You jumped')
-								on_move_events()									
-				if event.key == pygame.K_SPACE:
-					return
-		if not jumped_this_turn:
-			if key[pygame.K_w] or key[pygame.K_UP]:
-				if not w_time:
-					w_time = pygame.time.get_ticks()
-				w_time_val = (pygame.time.get_ticks()-w_time)*w_accel*move_speed
-				while w_time_val >= 200:
-					w_time = False
-					w_time_val -= 200
-					if map_list[character_pos[1]-1][character_pos[0]].type != 2:
-						if not [character_pos[0],character_pos[1]-1] in enemy_locations:
-							w_accel = 10
-							character_pos[1] -= 1
-							print('Moved')
-							on_move_events()
-			else:
-				w_accel = 1
-				w_time = False
-		if not jumped_this_turn:
-			if key[pygame.K_s] or key[pygame.K_DOWN]:
-				if not s_time:
-					s_time = pygame.time.get_ticks()
-				s_time_val = (pygame.time.get_ticks()-s_time)*s_accel*move_speed
-				while s_time_val >= 200:
-					s_time = False
-					s_time_val -= 200
-					if map_list[character_pos[1]+1][character_pos[0]].type != 2:
-						if not [character_pos[0],character_pos[1]+1] in enemy_locations:
-							s_accel = 10
-							character_pos[1] += 1
-							print('Moved')
-							on_move_events()
-			else:
-				s_accel = 1
-				s_time = False
-		if not jumped_this_turn:
-			if key[pygame.K_a] or key[pygame.K_LEFT]:
-				if not a_time:
-					a_time = pygame.time.get_ticks()
-				a_time_val = (pygame.time.get_ticks()-a_time)*a_accel*move_speed
-				while a_time_val >= 200:
-					a_time = False
-					a_time_val -= 200
-					if map_list[character_pos[1]][character_pos[0]-1].type != 2:
-						if not [character_pos[0]-1,character_pos[1]] in enemy_locations:
-							a_accel = 10
-							character_pos[0] -= 1
-							print('Moved')
-							on_move_events()
-			else:
-				a_accel = 1
-				a_time = False
-		if not jumped_this_turn:
-			if key[pygame.K_d] or key[pygame.K_RIGHT]:
-				if not d_time:
-					d_time = pygame.time.get_ticks()
-				d_time_val = (pygame.time.get_ticks()-d_time)*d_accel*move_speed
-				while d_time_val >= 200:
-					d_time = False
-					d_time_val -= 200
-					if map_list[character_pos[1]][character_pos[0]+1].type != 2:
-						if not [character_pos[0]+1,character_pos[1]] in enemy_locations:
-							d_accel = 10
-							character_pos[0] += 1
-							print('Moved')
-							on_move_events()
-			else:
-				d_accel = 1
-				d_time = False
-	return
+	def make_walls(self):
+		walls = []
+		walls.extend(Line(self.p1, self.p2).plot_line_continuous())
+		walls.extend(Line(self.p2, self.p3).plot_line_continuous())
+		walls.extend(Line(self.p3, self.p4).plot_line_continuous())
+		walls.extend(Line(self.p4, self.p1).plot_line_continuous())
+		return set(walls)
 
-class Room:
-	def __init__(self, x1, x2, y1, y2):	
-		self.x1 = x1
-		self.x2 = x2
-		self.y1 = y1
-		self.y2 = y2
-		self.wall_top = y1 -1
-		self.wall_bottom = y2 + 1
-		self.wall_left = x1 - 1
-		self.wall_right = x2 + 1
-		self.height = y2 - y1
-		self.width = x2 - x1
-		self.discovered = False
-
-	def intercepts(self, other_room):
-		if self.wall_left <= other_room.wall_right and self.wall_right >= other_room.wall_left:
-			if self.wall_top <= other_room.wall_bottom and self.wall_bottom >= other_room.wall_top:
+	def intercepts(self, room):
+		for wall in room.walls:
+			if wall in self.tiles:
 				return True
-		else: 
-			return False
-
-	def in_this_room(self, x, y):
-		if x >= self.x1 and x <= self.x2:
-			if y >= self.y1 and y <= self.y2:
+		for wall in self.walls:
+			if wall in room.tiles:
 				return True
-		else:
-			return False
+		return False
 
-	def is_wall(self, x, y):
-		if not self.in_this_room(x, y):
-			if x >= self.wall_left and x <= self.wall_right:
-				if y >= self.wall_top and y <= self.wall_bottom:
-					return True
-		else:
-			return False
+	def fill(self, x, y):
+		if not (x, y) in self.walls and not (x, y) in self.tiles:
+			self.tiles.add((x, y))
+		for i in range(3):
+			for j in range(3):
+				if not (x + i - 1, y + j -1) in self.tiles and not (x + i - 1, y + j -1) in self.walls:
+					self.fill(x + i - 1, y + j -1)
+
+	def tile(self):
+		self.tiles = set()
+		self.fill(*self.midpoint)
+		return None
 
 	def tile_map(self, level_map):
-		for y in range(self.wall_top, self.wall_bottom+1):
-			for x in range(self.wall_left, self.wall_right+1):
-				level_map[y][x] = Tile(2, False)
-		for y in range(self.y1, self.y2+1):
-			for x in range(self.x1, self.x2+1):
-				level_map[y][x] = Tile(1, False)
+		for x, y in self.walls:
+			level_map[y][x] = Tile(2, False)
+		for x, y in self.tiles:
+			level_map[y][x] = Tile(1, False)
 
-	def discover(self):
-		self.discovered = True
+	def trim_walls(self, walls):
+		good_walls = set()
+		for wall in walls:
+			if self.near_room(wall):
+				good_walls.add(wall)		
+		return good_walls
 
-def carve_map(x, y, level_map):
-	for row in range(y-1, y+2):
-		for column in range(x-1, x+2):
-			if level_map[row][column].type == 0:
-				level_map[row][column] = Tile(2, False)
-	else:
-		level_map[y][x] = Tile(3, False)
+	def near_room(self, p):
+		for x in range(3):
+			for y in range(3):
+				if (p[0] + x - 1, p[1] + y -1) in self.tiles:
+					return True
+		return False
 
-def tile_rooms():
-	for x in range(128):
-		for y in range(128):
-			for room in rooms:
-				if room.in_this_room(x, y):
-					map_list[y][x] = Tile(1, False)
+	def in_bounds(self, lbound, hbound):
+		if max(max(self.p2), max(self.p3), max(self.p4)) >= hbound or min(min(self.p1), min(self.p2), min(self.p4)) < lbound:
+			return False
+		return True
 
-def fill(x, y):
-	if map_list[y][x].type == 1 or map_list[y][x].type == 3:
-		if map_list[y][x].water == False:
-			map_list[y][x].water = True
-			screen.blit(water_tile, (x, y))
-			# time.sleep(0.01)
-			fill(x-1, y)
-			fill(x+1, y)
-			fill(x, y-1)
-			fill(x, y+1)
-	else:
-		return
+	def in_this_room(self, p):
+		return tuple(p) in self.tiles		
 
-def unfill():
-	for x in range(128):
-		for y in range(128):
-			map_list[y][x].water = False
+class Game():
+	def __init__(self, tutorial=False):
+		self.dungeon = Dungeon(1)
+		self.initialise_screen()
+		self.KEYPAD_BINDS = {brlb.TK_KP_8: self.up, brlb.TK_KP_2: self.down, brlb.TK_KP_4: self.left, brlb.TK_KP_6: self.right, brlb.TK_KP_5: self.stay}
+		self.ARROW_BINDS = {brlb.TK_UP: self.up, brlb.TK_DOWN: self.down, brlb.TK_LEFT: self.left, brlb.TK_RIGHT: self.right, brlb.TK_SPACE: self.stay}
+		self.WASD_BINDS = {brlb.TK_W: self.up, brlb.TK_S: self.down, brlb.TK_A: self.left, brlb.TK_D: self.right, brlb.TK_SPACE: self.stay}
+		self.MOVEMENT_BINDS = {0: self.WASD_BINDS, 1: self.ARROW_BINDS, 2: self.KEYPAD_BINDS}
+		if tutorial:
+			run = self.tutorial()
+		if not run:
+			return
+		char_room = self.dungeon.rooms[0]
+		enemy_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
+		self.god = God(self.dungeon)
+		self.character = self.god.get_char_by_id(0)
+		print(self.character)
+		end_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
+		self.destination = random.choice(tuple(end_room.tiles))
+		self.log = Log('Welcome to ' + self.dungeon.name)
+		self.inventory = Inventory()
+		self.character.inventory.set_dims(self.screen_x, self.screen_y)
+		self.state = "game"
+		print('finished setup')
+		self.circle = False
+		self.current_room = False
+		self.run()
 
-corridors_made = 0
+	def tutorial(self):
+		title = "Choose controls:"
+		a_choice = 4*' ' + "1) WASD"
+		b_choice = 4*' ' + "2) Arrow keys"
+		c_choice = 4*' ' + "3) Numpad"
+		choices = (a_choice, b_choice, c_choice)
+		start_x = self.screen_x//2 - len(b_choice)//2
+		start_y = self.screen_y//2 - 2
+		brlb.printf(start_x, start_y, title)
+		brlb.printf(start_x, start_y + 1, a_choice)
+		brlb.printf(start_x, start_y + 2, b_choice)
+		brlb.printf(start_x, start_y + 3, c_choice)
+		brlb.refresh()
+		key = False
+		self.controls = -1
+		while key != brlb.TK_ENTER or self.controls == -1:
+			if brlb.has_input():
+				key = brlb.read()
+				if key == brlb.TK_CLOSE:
+					return False
+				elif key == brlb.TK_1:
+					self.controls = 0
+				elif key == brlb.TK_2:
+					self.controls = 1
+				elif key == brlb.TK_3:
+					self.controls = 2
+				start_x = self.screen_x//2 - len(b_choice)//2
+				start_y = self.screen_y//2 - 2
+				brlb.color(4294967295)
+				brlb.printf(start_x, start_y, title)
+				for i in range(len(choices)):
+					if i == self.controls:
+						brlb.color(4294950481)
+					else:
+						brlb.color(4294967295)
+					brlb.printf(start_x, start_y + i + 1, choices[i])
+				brlb.refresh()
+		self.MOVEMENT_BINDS = self.MOVEMENT_BINDS[self.controls]
+		return True
 
-def make_corridors():
-	global rooms
-	global corridors_made
-	global map_list
-	unfill()
-	fill_start = random.choice(rooms)
-	fill(fill_start.x1, fill_start.y1)
-	start_room = fill_start
-	destination = random.choice(rooms)
-	fill_start_pos = [fill_start.x1, fill_start.y1]
-	destination_pos = [destination.x1, destination.y1]
-	# print_map_dots(fill_start_pos, destination_pos)
-	if not map_list[destination.y1][destination.x1].water:
-		if not destination.intercepts(start_room):
-			seed = random.randrange(2)
-			corridors_made += 1
-			if seed == 1:
-				y_choices = [start_room.wall_top, start_room.wall_bottom]
-				x = random.randrange(start_room.x1, start_room.x2+1)
-				y = random.randrange(start_room.y1, start_room.y2+1)
-				destination_y = random.randrange(destination.height) + destination.y1
-				while y < destination_y:
-					carve_map(x, y, map_list)
-					y += 1
-				while y > destination_y:
-					carve_map(x, y, map_list)
-					y += -1
-				while x < destination.x1:
-					carve_map(x, y, map_list)
-					x += 1
-				while x > destination.x2:
-					carve_map(x, y, map_list)
-					x += -1
-			if seed == 0:
-				x_choices = [start_room.wall_left, start_room.wall_right]
-				x = random.randrange(start_room.x1, start_room.x2+1)
-				y = random.randrange(start_room.y1, start_room.y2+1)
-				destination_x = random.randrange(destination.width) + destination.x1
-				while x < destination_x:
-					carve_map(x, y, map_list)
-					x += 1
-				while x > destination_x:
-					carve_map(x, y, map_list)
-					x += -1
-				while y < destination.y1:
-					carve_map(x, y, map_list)
-					y += 1
-				while y > destination.y2:
-					carve_map(x, y, map_list)
-					y += -1
-			print('Successfully created corridor %(corridor)i' % {'corridor' : corridors_made})
+	def unobstructed(self, coords, dest):
+		coords.remove(dest)
+		for x, y in coords:
+			if self.dungeon.map_list[y][x].type in WALL_TILES:
+				return False
+		return True
+
+	def initialise_screen(self):
+		brlb.open()
+		print('opened')
+		monitors = screeninfo.get_monitors()
+		monitor = sorted(monitors, key=lambda x: x.height * x.width, reverse=True)[0]
+		print(monitor.width, monitor.height)
+		self.screen_y = int(monitor.height*0.61803398875//16)
+		self.screen_x = int(monitor.width*0.61803398875//8)
+		print('calculated screen size')		
+		print(self.screen_x, self.screen_y)
+		brlb.set('window.title="{d}"; font: unifont-8.0.01.ttf, size=12; window.size={w}x{h};'.format(d=self.dungeon.name, w=self.screen_x, h=self.screen_y))
+		print('configured')
+		brlb.composition(brlb.TK_OFF)
+		# brlb.refresh()
+
+
+	def run(self):
+		closed = False
+		self.update_light()
+		self.draw()
+		while closed == False:
+			# brlb.refresh()
+			if brlb.has_input():
+				closed = self.on_move_events()
+
+		return 0
+	
+	def draw_fullcircle(self, center, r):
+		x = r
+		y = 0
+		err = 0
+		indices = []
+		while x >= y:
+			# indices.extend(Line((self.character.pos[0] + x, self.character.pos[1] + y), (self.character.pos[0] - x, self.character.pos[1] + y)).plot_line())
+			# indices.extend(Line((self.character.pos[0] + y, self.character.pos[1] + x), (self.character.pos[0] - y, self.character.pos[1] + x)).plot_line())
+			# indices.extend(Line((self.character.pos[0] + y, self.character.pos[1] - x), (self.character.pos[0] - y, self.character.pos[1] - x)).plot_line())
+			# indices.extend(Line((self.character.pos[0] + x, self.character.pos[1] - y), (self.character.pos[0] - x, self.character.pos[1] - y)).plot_line())
+			indices.append((center[0] + x, center[1] + y))
+			indices.append((center[0] + y, center[1] + x))
+			indices.append((center[0] + y, center[1] - x))
+			indices.append((center[0] + x, center[1] - y))
+			indices.append((center[0] - x, center[1] + y))
+			indices.append((center[0] - y, center[1] + x))
+			indices.append((center[0] - y, center[1] - x))
+			indices.append((center[0] - x, center[1] - y))
+			y += 1
+			err += 1 + 2*y
+			if 2*(err - x) + 1 > 0:
+				x -= 1
+				err += 1 - 2*x
+		indices.extend(self.fill(center[0], center[1], indices))
+		# print('finished filling')
+		return indices
+
+	def fill(self, x, y, bounds):
+		# print('filling')
+		potential_pos = set()
+		potential_pos.add((x, y))
+		new_pos = set()
+		filled_pos = []
+		tried_pos = set()
+		while len(potential_pos) > 0:
+			potential_pos.update(new_pos)
+			potential_pos.difference_update(tried_pos)
+			for x, y in potential_pos:
+				if not (x, y) in bounds:
+					new_pos.add((x-1, y))
+					new_pos.add((x+1, y))
+					new_pos.add((x, y-1))
+					new_pos.add((x, y+1))
+					filled_pos.append((x, y))
+				tried_pos.add((x, y))
+		return filled_pos
+
+	def stay(self, x, y):
+		self.player_action = True
+		return x, y
+
+	def up(self, x, y):
+		y -= 1
+		if self.dungeon.map_list[y][x].type in WALL_TILES:
+			return (x, y + 1)
+		self.player_action = True
+		self.log.update()
+		if self.dungeon.map_list[y][x].occupant:
+			enemy = self.dungeon.map_list[y][x].occupant
+			damage = self.character.attack(enemy)
+			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
+			if enemy.hp <= 0:
+				self.log.log(enemy.name + ' died')
+				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
+				self.god.kill(enemy.id)
+			return (x, y + 1)
+		self.dungeon.map_list[y][x].occupant = self.character
+		self.dungeon.map_list[y + 1][x].occupant = False
+		return (x, y)
+
+	def down(self, x, y):
+		y += 1
+		if self.dungeon.map_list[y][x].type in WALL_TILES:	
+			return (x, y - 1)
+		self.player_action = True
+		self.log.update()
+		if self.dungeon.map_list[y][x].occupant:
+			enemy = self.dungeon.map_list[y][x].occupant
+			damage = self.character.attack(enemy)
+			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
+			if enemy.hp <= 0:
+				self.log.log(enemy.name + ' died')
+				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
+				self.god.kill(enemy.id)			
+			return (x, y - 1)
+		self.dungeon.map_list[y][x].occupant = self.character
+		self.dungeon.map_list[y - 1][x].occupant = False
+		return (x, y)
+
+	def right(self, x, y):
+		x += 1
+		if self.dungeon.map_list[y][x].type in WALL_TILES:
+			return (x - 1, y)
+		self.player_action = True
+		self.log.update()
+		if self.dungeon.map_list[y][x].occupant:
+			enemy = self.dungeon.map_list[y][x].occupant
+			damage = self.character.attack(enemy)
+			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
+			if enemy.hp <= 0:
+				self.log.log(enemy.name + ' died')
+				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
+				self.god.kill(enemy.id)			
+			return (x - 1, y)
+		self.dungeon.map_list[y][x].occupant = self.character
+		self.dungeon.map_list[y][x - 1].occupant = False
+		return (x, y)
+
+	def left(self, x, y):
+		x -= 1
+		if self.dungeon.map_list[y][x].type in WALL_TILES:
+			return (x + 1, y)
+		self.player_action = True
+		self.log.update()
+		if self.dungeon.map_list[y][x].occupant:
+			enemy = self.dungeon.map_list[y][x].occupant
+			damage = self.character.attack(enemy)
+			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
+			if enemy.hp <= 0:
+				self.log.log(enemy.name + ' died')
+				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
+				self.god.kill(enemy.id)
+			return (x + 1, y)
+		self.dungeon.map_list[y][x].occupant = self.character
+		self.dungeon.map_list[y][x + 1].occupant = False
+		return (x, y)
+
+	def move(self, key):
+		return self.MOVEMENT_BINDS[key](self.character.pos[0], self.character.pos[1])
+
+	def translate_to_screen(self, x, y):
+		return (x - self.character.pos[0] + self.screen_x//2, y - self.character.pos[1] + self.screen_y//2)
+
+	def distance(self, p1, p2):
+		return sum([abs(p1[i] - p2[i])**2 for i in range(2)])**(1/2)
+
+	def update_light(self):
+		if self.circle:
+			for x, y in self.circle:
+				if self.dungeon.in_bounds(x, y):
+					self.dungeon.map_list[y][x].visible = False
+					self.dungeon.map_list[y][x].light = 0
+		if self.current_room:
+			if self.current_room.in_this_room(self.character.pos):
+				self.dungeon.discover(self.current_room)
+			else:
+				self.dungeon.darken(self.current_room)
+				self.current_room = False
+		if not self.current_room:
+			for room in self.dungeon.rooms:
+				if room.in_this_room(self.character.pos):
+					self.dungeon.discover(room)
+					self.current_room = room
+					break
+		self.circle = self.draw_fullcircle(self.character.pos, 16)
+		# print('drew the circle!')
+		for x, y in self.circle:
+			if self.dungeon.in_bounds(x, y):
+				if not self.dungeon.map_list[y][x].type == 0:			
+					if not self.dungeon.map_list[y][x].visible:
+						line = Line(self.character.pos, (x, y))
+						points = line.plot_line()
+						# points.append((x, y))
+						tile = self.dungeon.map_list[y][x]
+						if self.unobstructed(points, (x, y)):
+							tile.seen = True
+							tile.visible = True
+							tile.light += 1
+							if line.length > 12:
+								tile.light += 1
+							elif line.length > 8:
+								tile.light += 2
+							elif line.length > 4:
+								tile.light += 3
+							elif line.length <= 4:
+								tile.light += 4
+							for index in range(len(points)):
+								i, j = points[len(points) - index - 1]
+								# i, j = points[index]
+								tile = self.dungeon.map_list[j][i]
+								if not tile.visible:
+									tile.seen = True
+									tile.visible = True
+									tile.light += 1
+									if line.length - index > 12:
+										tile.light += 1
+									elif line.length - index > 8:
+										tile.light += 2
+									elif line.length - index > 4:
+										tile.light += 3
+									elif line.length - index <= 4:
+										tile.light += 4
+								else:
+									break
+
+	def on_move_events(self):
+		# brlb.refresh()
+		self.draw()
+		self.player_action = False
+		key = brlb.read()
+		if key == brlb.TK_CLOSE:
+			return True
+		if self.state == "game":
+			if key in list(self.MOVEMENT_BINDS.keys()):
+				self.character.pos = self.move(key)
+				self.update_light()
+		if self.state == "inventory":
+			pass
+		if key == brlb.TK_I:
+			self.character.inventory.show = not self.character.inventory.show
+			if self.character.inventory.show:
+				self.state = "inventory"
+			else:
+				self.state = "game"
+			# print(self.character.inventory.show)
+		# for x, y in circle:
+		# 	if self.dungeon.in_bounds(x, y):
+		# 		if self.dungeon.map_list[y][x].visible:
+		# 			for i, j in SIDES:
+		# 					if self.dungeon.in_bounds(x + i, y + j):
+		# 						if self.dungeon.map_list[y + j][x + i].visible:
+		# 							self.dungeon.map_list[y][x].light += 1
+		
+		if self.player_action:
+			if self.god.turn():
+				pass
+				# print(len(self.god.characters))
+				# print('\n'.join([str(character) for character in self.god.characters]))
+			character_turn = self.character.turn()
+			if character_turn:
+				self.log.log(self.character.name + character_turn)
+			
+			# print(len(self.god.characters))
+			
+			for character in self.god.characters:
+				if character.hp <= 0:
+					self.log.log(character.name + ' died')
+					self.god.kill(character.id)
+				# elif self.distance(character.pos, self.character.pos) <= 10 and self.distance(character.pos, self.character.pos) > 1:
+				elif self.dungeon.map_list[character.pos[1]][character.pos[0]].visible and self.distance(character.pos, self.character.pos) > 1:
+					trail = self.pathfind(character.pos, self.character.pos)
+					if not self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant:
+						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+						character.pos = trail[1]
+						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+				elif self.distance(character.pos, self.character.pos) == 1:
+					damage = character.attack(self.character)
+					self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
+			if self.character.hp <= 0:
+				self.log.log(self.character.name.capitalize() + ' died')
+				self.log.log(self.character.name.capitalize() + ' killed ' + str(len(self.god.killed_ids)) + ' enemies')
+				self.end_game() 
+			moved_ids = []
+			for item in self.inventory.items:
+				# print(item.info["location"], self.character.pos)
+				if item.info["location"] == self.character.pos:
+					# print(item.info["name"])
+					self.log.log(self.character.name + ' picked up ' + item.info["name"])
+					self.inventory.move(self.character.inventory, item.id)
+					moved_ids.append(item.id)
+			for item_id in moved_ids:
+				self.inventory.remove(item_id)
+		return False
+
+	def draw(self):	
+		brlb.clear()
+		self.log.show(self.screen_x - 40, 0)
+		self.character.inventory.refresh()
+		brlb.layer(0)
+		for y in range(len(self.dungeon.map_list)):
+			for x in range(len(self.dungeon.map_list[y])):
+				if self.dungeon.map_list[y][x].type == BG_TILE:
+					pass
+				elif self.dungeon.map_list[y][x].type in WALL_TILES and self.dungeon.map_list[y][x].visible:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], 9608)
+				elif self.dungeon.map_list[y][x].type in FLOOR_TILE and self.dungeon.map_list[y][x].visible:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], '.')					
+				elif self.dungeon.map_list[y][x].type in HALL_TILE and self.dungeon.map_list[y][x].visible:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], '.')
+				elif self.dungeon.map_list[y][x].type in DOOR_TILE and self.dungeon.map_list[y][x].visible:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], 'X')
+				elif self.dungeon.map_list[y][x].type in WALL_TILES and self.dungeon.map_list[y][x].seen:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], 9608)
+				elif self.dungeon.map_list[y][x].type in FLOOR_TILE and self.dungeon.map_list[y][x].seen:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], '.')					
+				elif self.dungeon.map_list[y][x].type in HALL_TILE and self.dungeon.map_list[y][x].seen:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], '.')
+				elif self.dungeon.map_list[y][x].type in DOOR_TILE and self.dungeon.map_list[y][x].seen:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(self.dungeon.map_list[y][x].luminosity())
+					brlb.put(pos[0], pos[1], 'X')
+		brlb.composition(brlb.TK_ON)
+		for item in self.inventory.items:
+			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
+				pos = self.translate_to_screen(*item.info["location"])
+				brlb.clear_area(pos[0], pos[1], 1, 1)
+		for item in self.inventory.items:
+			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
+				pos = self.translate_to_screen(*item.info["location"])
+				brlb.color(brlb.color_from_argb(255, 200, 100, 0))
+				brlb.put(pos[0], pos[1], item.info["key"])
+		brlb.composition(brlb.TK_OFF)
+		for character in self.god.characters[1:]:
+			if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible:
+				pos = self.translate_to_screen(*character.pos)
+				# brlb.clear_area(pos[0], pos[1], 1, 1)
+				brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+				brlb.put(pos[0], pos[1], character.attributes['key'])	
+		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
+		brlb.printf(0, 0, 'HP: ' + str(int(self.character.hp)))
+		# brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
+		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+		brlb.refresh()
+		return 0
+
+	def get_path(self, path_dict, end, start):
+		path = [end]
+		point = end
+		while point != start:
+			path.append(path_dict[point])
+			point = path_dict[point]
+		return path[::-1]
+
+	def end_game(self):
+		self.MOVEMENT_BINDS = {}
+		print(self.character.inventory)
+
+
+	def pathfind(self, a, b):
+		a = tuple(a)
+		b = tuple(b)
+		# print(a, b)
+		frontier = [(a, 0)]
+		came_from = {}
+		cost_so_far = {a: 0}
+		for i in range(8192):
+			current = frontier.pop(0)[0]
+			if current == b:
+				break
+			for side in SIDES:
+				side = tuple([side[i] + current[i] for i in range(2)])
+				if not self.dungeon.map_list[side[1]][side[0]].type in WALL_TILES:
+					new_cost = cost_so_far[current] + 1
+					if self.dungeon.map_list[side[1]][side[0]].occupant:
+						new_cost += 6
+					if side not in list(cost_so_far.keys()) or new_cost < cost_so_far[side]:
+						cost_so_far[side] = new_cost
+						priority = new_cost + abs(side[0] - b[0]) + abs(side[1] - b[1])
+						frontier.append((side, priority))
+						frontier = sorted(frontier, key=lambda x: x[1])
+						came_from[side] = current
+		return self.get_path(came_from, b, a)
+
+class Item():
+	def __init__(self, item_id, item_info):
+		self.id = item_id
+		self.info = item_info
+
+	def __str__(self):
+		item_string = ''
+		item_string += self.info['name']
+		item_string += ': ' + str(self.info)
+		return item_string
+
+	def __repr__(self):
+		return self.__str__()
+
+class Handler():
+	def __init__(self):
+		self.used_ids = set()
+		self.last_id = -1
+
+	def get_id(self):
+		self.last_id += 1
+		self.used_ids.add(self.last_id)
+		return self.last_id
+
+
+class Inventory(Handler):
+	def __init__(self, width=False, height=False):
+		super().__init__()
+		self.item_source = json.load(open('items.json', encoding='utf-8'))
+		self.materials = json.load(open('materials.json', encoding='utf-8'))
+		self.mat_abbr = {'m': 'metallic', 'w':'wooden', 'f': 'flexible', 'p':'precious'}
+		self.items = []
+		self.show = False
+		self.width = width
+		self.height = height
+
+	def set_dims(self, w, h):
+		self.width = w
+		self.height = h
+		self.start_x = int(self.width*0.125)
+		self.start_y = int(self.height*0.125)
+
+	def refresh(self, width=False, height=False):
+		# print(self.show)
+		self.page = 1
+		self.pages = max(int(ceiling(len(self.items) / (int(self.height*0.875) - self.start_y - 3), 0)), 1)
+		if width:
+			self.width = width
+			self.start_x = int(self.width*0.125)
+		if height:
+			self.height = height
+			self.start_y = int(self.height*0.125)
+		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
+		if self.show:
+			print(self.pages)
+			# print('displaying')
+			brlb.layer(2)
+			for x in range(self.start_x, int(self.width*0.875)):
+				for y in range(self.start_y, int(self.height*0.875)):
+					brlb.put(x, y, 9608)
+			brlb.layer(3)
+			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+			for index in range(min(len(self.items) - (self.page - 1) * (int(self.height*0.875) - self.start_y - 3), int(self.height*0.875) - self.start_y - 3)):
+				for c in range(len(self.items[index].info["name"])):
+					brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * (int(self.height*0.875) - self.start_y - 3)].info["name"][c])
+			page_numbers = ' '.join([str(i + 1) for i in range(self.pages)])
+			for c in range(len(page_numbers)):
+				if page_numbers[c] == str(self.page):
+					brlb.color(4294950481)
+				else:
+					brlb.color(4294967295)
+				brlb.put(self.width//2 - len(page_numbers)//2 + c, int(self.height*0.875) - 2, page_numbers[c])
+
+	def get_item_by_id(self, item_id):
+		if item_id in self.used_ids:
+			for item in self.items:
+				if item.id == item_id:
+					return item
+		return False
+
+	def material_roll(self):
+		if random.random() > 0.25:
+			return round_rand((random.random()*5 + 1 + random.random()*5 + 1)/2)
 		else:
-			print('Start and destination were the same, regenerating')
-			return make_corridors()
-	else:
-		print('Invalid room pair, regenerating')
-		return make_corridors()
-	unfill()
-	fill_start = random.choice(rooms)
-	fill(fill_start.x1, fill_start.y1)
-	# print_map()
-	if corridors_made > 12:
-		map_list = [[Tile(0, False) for y in range(128)] for x in range(128)]
-		rooms = make_rooms()
-		tile_rooms()
-		print('Dungeon was too complex, regenerating')
-		corridors_made = 0
-		return make_corridors()
-	for y in map_list:
-		for x in y:
-			if x.type == 1 and x.water == False:
-				return make_corridors()
+			return random.randint(1, 6)
 
-def random_room(rooms):
-	x = random.randrange(1, 127)
-	y = random.randrange(1, 127)
-	w = random.randrange(1, 15)
-	h = random.randrange(1, 15)
-	x2 = x + w
-	y2 = y + h
-	room = Room(x, x2, y, y2)
-	if x2 >= 127 or y2 >= 127:
-		return random_room(rooms)
-	for x in rooms:
-		if room.intercepts(x):
-			print('Room conflicted with existing room, regenerating')
-			return random_room(rooms)
-	else:
-		print('Made room dimensions')
-		return room
+	def choose(self, group):
+		hierarchy = r_key_search(group, self.item_source)	
+		while random.randrange(10) == 0 and len(hierarchy) > 1:
+			hierarchy.pop()
+		choices = get_from_path(json.load(open('items.json', encoding='utf-8')), hierarchy)
+		# print(choices)
+		# while "name" not in list(choices.keys()):
+		# 		choices = choices[random.choice(list(choices.keys()))]
+		try:
+			while "name" not in list(choices.keys()):
+				choices = choices[random.choice(list(choices.keys()))]
+		except (ValueError, IndexError) as e:
+			print('WTF!!!!', choices, hierarchy, e)
+		return choices
 
-def make_rooms():
-	rooms = []
-	for x in range(random.randrange(4, 15)):
-		room = random_room(rooms)
-		print('Made room %(counter)i' % {'counter' : x + 1})
-		room.tile_map(map_list)
-		# print_map()
-		rooms.append(room)
-	tile_rooms()
-	return rooms
+	def roll_stat(self, base, level, material_tier):
+		roll = random.uniform(round_up(level / 2), round_up(level * 1.5))
+		return round_up(roll + (base - random.uniform(0, base))/2 + material_tier - 3.5)
 
-class Enemy():
-	def __init__(self, monster_type, hp):
-		self.type = monster_type
-		self.hp = hp
-		self.alive = True
-		self.turns_dead = 0
-	def damage(self, value):
-		self.hp -= value
-		if self.hp <= 0:
-			self.alive = False
+	def item_smith(self, item_info, level, location):
+		
+		try:
+			if "mat" in list(item_info.keys()):
+				if item_info["mat"]:
+					# print(item_info)
+					material_tier = self.material_roll()
+					material = random.choice(self.materials[self.mat_abbr[item_info["mat"]]][str(material_tier)])
+					item_info["mat"] = material
+					item_info["name"] = material + " " + item_info["name"]
+					item_info["mat_tier"] = material_tier
+				else:
+					item_info["mat_tier"] = 3.5
+		except (ValueError, IndexError) as e:
+			print('WTF!!!!', item_info, e)
+		item_info["name"] += " [" + str(level) + "]"
+		item_info["level"] = level
+		for stat in list(item_info["stats"].keys()):
+			if stat in ["skl", "wgt"]:
+				item_info["stats"][stat] = ceiling(random.uniform(0.75*item_info["stats"][stat], 1.25*item_info["stats"][stat]))
+			else:
+				item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
+		item_info["location"] = location
+		item = Item(self.get_id(), item_info)
+		self.items.append(item)
+		return item
 
-def make_enemy():
-	enemy_room = random.choice(rooms)
-	enemy_pos = [enemy_room.x1 + random.randrange(0, enemy_room.width), enemy_room.y1 + random.randrange(0, enemy_room.height)]
-	if enemy_pos != character_pos:
-		if not enemy_pos in enemy_locations:
-			return [enemy_pos,Enemy('monster', 5)]
-	return make_enemy()
+	def drop(self, drop_table, level, location):
+		drops = []
+		for drop in drop_table:
+			# print(drop)
+			chance = drop["chance"]
+			chance *= 2
+			if chance >= 100:
+				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
+				chance /= 1.5
+			while random.randrange(100) < chance:
+				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
+				chance /= 1.5
+		return drops
 
-rooms = make_rooms()
-make_corridors()
-unfill()
-tile_rooms()
-char_room = rooms[0]
-character_pos = [char_room.x1 + random.randrange(0, char_room.width), char_room.y1 + random.randrange(0, char_room.height)]
-end_room = rooms[random.randrange(1, len(rooms))]
-end_pos = [end_room.x1 + random.randrange(0, end_room.width), end_room.y1 + random.randrange(0, end_room.height)]
-enemy_locations = []
-enemies = []
-for enemy in range(random.randrange(2,len(rooms))):
-	enemy_info = make_enemy()
-	enemy_locations.append(enemy_info[0])
-	enemies.append(enemy_info[1])
-print(enemy_locations)
-print(enemies)
-print_map_game(end_pos)
+	def remove(self, item_id):
+		for item in self.items:
+			if item.id == item_id:
+				return self.items.pop(self.items.index(item))
+
+	def move(self, inventory, item_id):
+		inventory.items.append(self.get_item_by_id(item_id))
+
+
+	def __str__(self):
+		return ',\n'.join([str(item) for item in self.items])
+
+class Character():
+	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
+		self.id = char_id
+		self.pos = (x, y)
+		self.stats = stats
+		self.attributes = attributes
+		self.type = char_type
+		self.level = level
+		self.hp = self.stats['hp']
+		self.name = name.capitalize()
+		self.inventory = Inventory()
+
+	def attack(self, target):
+		basedamage = 30
+		print(target.name, 'def:', target.stats['def'])
+		print(self.name, 'str:', self.stats['str'])
+		damage = ceiling(((2*self.level + 10)*self.stats['str']*basedamage/(250*target.stats['def']) + 2) * random.uniform(0.85, 1))
+		target.hp -= damage
+		return damage
+
+	# def attack(self, target):
+	# 	min_damage = max(self.level/10, round(random.random()*self.level/5, 1))
+	# 	roll = (random.random() + random.random())/2
+	# 	mult = ((self.stats['str'] + target.stats['def'])/8)
+	# 	print('roll:', roll)
+	# 	damage = roll*mult
+	# 	mitigation = (self.stats['str'] - target.stats['def'])/2
+	# 	damage = damage + mitigation
+	# 	print('raw damage:', damage)
+	# 	print('min damage:', min_damage)
+	# 	while damage < 0:
+	# 		damage += min_damage
+	# 	print('damage:', damage)
+	# 	print('target def:', target.stats['def'])
+	# 	print('self str:', self.stats['str'])
+		
+	# 	target.hp -=  max(0.1, round(damage, 1))
+	# 	return max(0.1, round(damage, 1))
+
+	def __str__(self):
+		objdict = {'ID': hex(self.id), 'type': str(self.type), 'level': self.level, 'location': self.pos, 'name': self.name}
+		return ', '.join([key + ': ' + str(self.stats[key]) for key in list(self.stats.keys())] + [key + ': ' + str(objdict[key]) for key in list(objdict.keys())])
+
+	def turn(self):
+		roll = random.randrange(self.stats['end'])
+		oldhp = self.hp
+		self.hp += roll/100
+		self.hp = min(self.stats['hp'], self.hp)
+		if oldhp != self.hp and self.hp == self.stats['hp']:
+			return ' have returned to normal health'
+		return False
+
+class Player(Character):
+	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
+		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
+
+class Enemy(Character):
+	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
+		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
+
+
+class God(Handler):
+	def __init__(self, dungeon):
+		super().__init__()
+		self.killed_ids = set()
+		self.dungeon = dungeon
+		self.keys = {'e': 'enders', 'v': 'vowels', 'c': 'consonants', 'o': 'connectors'}
+		self.names = json.load(open('names.json', encoding='utf-8'))
+		self.sums = {key:sum([self.names[self.keys[key]][k] for k in list(self.names[self.keys[key]].keys())]) for key in list(self.keys.keys())}
+		self.enemy_types = json.load(open('enemies.json', encoding='utf-8'))
+		self.stats = ["def", "dex", "end", "eva", "hp", "int", "mag", "spd", "str", "wis"]
+		self.player_level = 3
+		self.characters = []
+		self.populate()
+
+	def get_char_by_id(self, char_id):
+		if char_id in self.used_ids:
+			for character in self.characters:
+				if character.id == char_id:
+					return character
+		return False
+
+	def roll_stat(self, base, level):
+		roll = random.randrange(1, round_up(level) + 7)
+		return int(roll + (base + level*2 + 10) // 2)
+
+	def random_name(self):
+		structures = [random.choice(self.names['structures']) for i in range(random.randrange(1, 5))]
+		name = ''
+		structures = ''.join(structures)
+		structures = structures.replace('ec', 'eoc')
+		for c in structures:
+			name += p_choice(self.names[self.keys[c]], self.sums[c])
+		print(name)
+		return name
+
+	def generate_stats(self, enemy_type, level):
+		stats = {}
+		for stat in self.stats:
+			stats[stat] = self.roll_stat(self.enemy_types[enemy_type][stat] , level)
+		return stats
+
+	def spawn(self, user=False):
+		room = random.choice(self.dungeon.rooms)
+		point = random.choice(list(room.tiles))
+		if not user:
+			if not self.dungeon.map_list[point[1]][point[0]].visible:
+				level = round_up((randint(round_up(self.dungeon.level*0.9),round_up(self.dungeon.level*1.1)) + randint(round_up(self.dungeon.level*0.9),round_up(self.dungeon.level*1.1)))/2)
+				enemy_type = random.choice(list(self.enemy_types.keys()))
+				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), *point)
+				self.characters.append(enemy)
+				self.dungeon.map_list[point[1]][point[0]].occupant = enemy
+			else:
+				return self.spawn()
+		else:
+			player = Player(self.get_id(), 10, 'player', self.generate_stats('player', 10), self.enemy_types['player']['attributes'], 'you', *point)
+			del self.enemy_types['player']
+			self.characters.append(player)
+			self.dungeon.map_list[point[1]][point[0]].occupant = player
+
+	def kill(self, char_id):
+		character = self.get_char_by_id(char_id)
+		self.killed_ids.add(character)
+		self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+		self.characters.remove(character)
+
+	def turn(self):
+		attempts = max(1, len(self.dungeon.rooms) - len(self.characters))
+		for i in range(attempts):
+			if random.randrange(50) == 0:
+				self.spawn()
+				return True
+		return False
+
+	def populate(self):
+		self.spawn(user=True)
+		for i in range(random.randrange(6, 21)):
+			self.turn()
+
+class Log():
+	def __init__(self, starting_info):
+		self.history = []
+		self.new_info = 0
+		self.log(starting_info)
+
+	def update(self):
+		self.new_info = 0	
+
+	def log(self, info):
+		self.new_info += 1
+		if len(info) > 40:
+			split = info.rfind(' ', 0, 40)
+			overflow = info[split:]
+			info = info[:split]
+			self.history.append(info)
+			self.log(overflow)
+		else:
+			self.history.append(info)
+		if len(self.history) > 7:
+			self.history.pop(0)
+		
+
+	def show(self, x, y):
+		brlb.layer(1)
+		# print('showing log')
+		for i in range(len(self.history)):
+			if len(self.history) - i <= self.new_info:
+				brlb.color(4294950481)
+			else:
+				brlb.color(4294967295)
+			for c in range(len(self.history[i])):
+				brlb.put(x+c, y+i, self.history[i][c])
+
+
+BG_TILE = 0
+FLOOR_TILE = set([1])
+WALL_TILES = set([2, 4])
+HALL_TILE = set([3])
+DOOR_TILE = set([5])
+# print(brlb.color_from_argb(255, 204, 204, 204))
+SIDES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+LUMINOSITY = [0, 4281545523, 4284900966, 4288256409, 4291611852, 4294967295]
+# with PyCallGraph(output=GraphvizOutput()):
+# 	Game()
+# inv = Inventory()
+# my_god = God(Dungeon(1))
+# for i in range(100):
+# 	enemy_type = random.choice(list(my_god.enemy_types.keys()))
+# 	print(enemy_type, ':', inv.drop(my_god.enemy_types[enemy_type]["attributes"]["drops"], 1))
+Game(tutorial=True)

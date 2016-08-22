@@ -1,0 +1,393 @@
+{
+    "droppable": {
+        "equipment": {
+            "armor": {
+                "body": {
+                    "coats": {
+                        "cagoule": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "cagoule",
+                            "stats": {
+                                "def": 7,
+                                "mob": 2,
+                                "skl": 6,
+                                "wgt": 5
+                            }
+                        },
+                        "cloak": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "cloak",
+                            "stats": {
+                                "def": 8,
+                                "mob": 2,
+                                "skl": 4,
+                                "wgt": 5
+                            }
+                        },
+                        "coat": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "coat",
+                            "stats": {
+                                "def": 6,
+                                "mob": 4,
+                                "skl": 3,
+                                "wgt": 4
+                            }
+                        },
+                        "hauberk": {
+                            "key": "(",
+                            "mat": "m",
+                            "name": "hauberk",
+                            "stats": {
+                                "def": 8,
+                                "mob": 4,
+                                "skl": 8,
+                                "wgt": 7
+                            }
+                        },
+                        "jacket": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "jacket",
+                            "stats": {
+                                "def": 5,
+                                "mob": 5,
+                                "skl": 3,
+                                "wgt": 4
+                            }
+                        },
+                        "parka": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "parka",
+                            "stats": {
+                                "def": 7,
+                                "mob": 3,
+                                "skl": 5,
+                                "wgt": 4
+                            }
+                        },
+                        "poncho": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "poncho",
+                            "stats": {
+                                "def": 4,
+                                "mob": 6,
+                                "skl": 7,
+                                "wgt": 3
+                            }
+                        }
+                    },
+                    "dresses": {
+                        "apron": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "apron",
+                            "stats": {
+                                "def": 4,
+                                "mob": 7,
+                                "skl": 3,
+                                "wgt": 2
+                            }
+                        },
+                        "dress": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "dress",
+                            "stats": {
+                                "def": 5,
+                                "mob": 2,
+                                "skl": 7,
+                                "wgt": 2
+                            }
+                        },
+                        "gown": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "gown",
+                            "stats": {
+                                "def": 4,
+                                "mob": 4,
+                                "skl": 5,
+                                "wgt": 2
+                            }
+                        }
+                    },
+                    "platebodies": {
+                        "breastplate": {
+                            "key": "[",
+                            "mat": "m",
+                            "name": "breastplate",
+                            "stats": {
+                                "def": 9,
+                                "mob": 2,
+                                "skl": 7,
+                                "wgt": 9
+                            }
+                        },
+                        "cuirass": {
+                            "key": "[",
+                            "mat": "m",
+                            "name": "cuirass",
+                            "stats": {
+                                "def": 8,
+                                "mob": 2,
+                                "skl": 8,
+                                "wgt": 9
+                            }
+                        },
+                        "platebody": {
+                            "key": "[",
+                            "mat": "m",
+                            "name": "platebody",
+                            "stats": {
+                                "def": 10,
+                                "mob": 1,
+                                "skl": 8,
+                                "wgt": 10
+                            }
+                        }
+                    },
+                    "shirts": {
+                        "blouse": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "shirt",
+                            "stats": {
+                                "def": 1,
+                                "mob": 9,
+                                "skl": 1,
+                                "wgt": 1
+                            }
+                        },
+                        "shirt": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "shirt",
+                            "stats": {
+                                "def": 2,
+                                "mob": 9,
+                                "skl": 1,
+                                "wgt": 1
+                            }
+                        },
+                        "tunic": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "tunic",
+                            "stats": {
+                                "def": 3,
+                                "mob": 9,
+                                "skl": 1,
+                                "wgt": 2
+                            }
+                        },
+                        "vest": {
+                            "key": "(",
+                            "mat": "f",
+                            "name": "vest",
+                            "stats": {
+                                "def": 1,
+                                "mob": 10,
+                                "skl": 2,
+                                "wgt": 1
+                            }
+                        }
+                    }
+                }
+            },
+            "weapons": {
+                "bashing": {
+                    "clubs": {
+                        "improvised clubs": {
+                            "bone": {
+                                "hnd": 1,
+                                "key": "|",
+                                "mat": false,
+                                "name": "bone",
+                                "stats": {
+                                    "pen": 1,
+                                    "skl": 2,
+                                    "spd": 5,
+                                    "str": 3
+                                }
+                            },
+                            "stick": {
+                                "hnd": 1,
+                                "key": "|",
+                                "mat": "w",
+                                "name": "stick",
+                                "stats": {
+                                    "pen": 1,
+                                    "skl": 1,
+                                    "spd": 7,
+                                    "str": 2
+                                }
+                            }
+                        },
+                        "non-improvised clubs": {
+                            "bat": {
+                                "hnd": 2,
+                                "key": "|",
+                                "mat": "w",
+                                "name": "bat",
+                                "stats": {
+                                    "pen": 4,
+                                    "skl": 2,
+                                    "spd": 4,
+                                    "str": 7
+                                }
+                            },
+                            "club": {
+                                "hnd": 1,
+                                "key": "|",
+                                "mat": "w",
+                                "name": "club",
+                                "stats": {
+                                    "pen": 2,
+                                    "skl": 2,
+                                    "spd": 4,
+                                    "str": 6
+                                }
+                            }
+                        }
+                    }
+                },
+                "cutting": {
+                    "knives": {
+                        "cleaver": {
+                            "hnd": 1,
+                            "key": "ϯ",
+                            "mat": "m",
+                            "name": "cleaver",
+                            "stats": {
+                                "pen": 5,
+                                "skl": 3,
+                                "spd": 6,
+                                "str": 3
+                            }
+                        },
+                        "deer horn knife": {
+                            "hnd": 1,
+                            "key": "ϯ",
+                            "mat": "m",
+                            "name": "deer horn knife",
+                            "stats": {
+                                "pen": 4,
+                                "skl": 7,
+                                "spd": 9,
+                                "str": 2
+                            }
+                        },
+                        "kitchen knife": {
+                            "hnd": 1,
+                            "key": "ϯ",
+                            "mat": "m",
+                            "name": "kitchen knife",
+                            "stats": {
+                                "pen": 3,
+                                "skl": 2,
+                                "spd": 6,
+                                "str": 1
+                            }
+                        },
+                        "knife": {
+                            "hnd": 1,
+                            "key": "ϯ",
+                            "mat": "m",
+                            "name": "knife",
+                            "stats": {
+                                "pen": 4,
+                                "skl": 3,
+                                "spd": 9,
+                                "str": 2
+                            }
+                        },
+                        "wind and fire wheel": {
+                            "hnd": 1,
+                            "key": "ϯ",
+                            "mat": "m",
+                            "name": "wind and fire wheel",
+                            "stats": {
+                                "pen": 2,
+                                "skl": 6,
+                                "spd": 9,
+                                "str": 2
+                            }
+                        }
+                    },
+                    "swords": {
+                        "katana": {
+                            "hnd": 2,
+                            "key": "Ϯ",
+                            "mat": "m",
+                            "name": "katana",
+                            "stats": {
+                                "pen": 2,
+                                "skl": 4,
+                                "spd": 7,
+                                "str": 7
+                            }
+                        },
+                        "longsword": {
+                            "hnd": 2,
+                            "key": "Ϯ",
+                            "mat": "m",
+                            "name": "longsword",
+                            "stats": {
+                                "pen": 4,
+                                "skl": 2,
+                                "spd": 3,
+                                "str": 7
+                            }
+                        },
+                        "scimitar": {
+                            "hnd": 1,
+                            "key": "Ϯ",
+                            "mat": "m",
+                            "name": "scimitar",
+                            "stats": {
+                                "pen": 4,
+                                "skl": 4,
+                                "spd": 4,
+                                "str": 7
+                            }
+                        },
+                        "sword": {
+                            "hnd": 2,
+                            "key": "Ϯ",
+                            "mat": "m",
+                            "name": "sword",
+                            "stats": {
+                                "pen": 3,
+                                "skl": 2,
+                                "spd": 5,
+                                "str": 5
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "undroppable": {
+        "armor": {},
+        "weapons": {
+            "fist": {
+                "hnd": 1,
+                "mat": false,
+                "name": "fist",
+                "stats": {
+                    "pen": 1,
+                    "skl": 1,
+                    "spd": 2,
+                    "str": 1
+                }
+            }
+        }
+    }
+}

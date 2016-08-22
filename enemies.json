@@ -1,0 +1,293 @@
+{
+    "banshee": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 5,
+                    "type": "knives"
+                },
+                {
+                    "chance": 10,
+                    "type": "dresses"
+                }
+            ],
+            "key": "b"
+        },
+        "def": -6,
+        "dex": -3,
+        "end": 0,
+        "eva": 10,
+        "hp": -5,
+        "int": -2,
+        "mag": 5,
+        "spd": 4,
+        "str": -6,
+        "wis": 6
+    },
+    "dog": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 15,
+                    "type": "improvised clubs"
+                }
+            ],
+            "key": "d"
+        },
+        "def": -5,
+        "dex": -10,
+        "end": 6,
+        "eva": 9,
+        "hp": -6,
+        "int": -5,
+        "mag": -4,
+        "spd": 9,
+        "str": 1,
+        "wis": -2
+    },
+    "dragon": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 100,
+                    "type": "droppable"
+                },
+                {
+                    "chance": 100,
+                    "type": "equipment"
+                },
+                {
+                    "chance": 50,
+                    "type": "droppable"
+                }
+            ],
+            "key": "D"
+        },
+        "def": 8,
+        "dex": -10,
+        "end": 4,
+        "eva": -6,
+        "hp": 10,
+        "int": 7,
+        "mag": 6,
+        "spd": 3,
+        "str": 8,
+        "wis": 8
+    },
+    "ghost": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 20,
+                    "type": "equipment"
+                }
+            ],
+            "key": "G"
+        },
+        "def": -6,
+        "dex": -3,
+        "end": 1,
+        "eva": 10,
+        "hp": -5,
+        "int": 3,
+        "mag": 4,
+        "spd": 5,
+        "str": -6,
+        "wis": 5
+    },
+    "ghoul": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 10,
+                    "type": "equipment"
+                },
+                {
+                    "chance": 25,
+                    "type": "scimitar"
+                }
+            ],
+            "key": "غ"
+        },
+        "def": 5,
+        "dex": -3,
+        "end": 1,
+        "eva": 0,
+        "hp": 8,
+        "int": 3,
+        "mag": 8,
+        "spd": -5,
+        "str": 1,
+        "wis": -2
+    },
+    "player": {
+        "attributes": {
+            "key": "@"
+        },
+        "def": 5,
+        "dex": 5,
+        "end": 5,
+        "eva": 5,
+        "hp": 5,
+        "int": 5,
+        "mag": 5,
+        "spd": 5,
+        "str": 5,
+        "wis": 5
+    },
+    "poltergeist": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 15,
+                    "type": "equipment"
+                }
+            ],
+            "key": "p"
+        },
+        "def": -4,
+        "dex": 7,
+        "end": -5,
+        "eva": 10,
+        "hp": -6,
+        "int": 8,
+        "mag": 7,
+        "spd": 3,
+        "str": -6,
+        "wis": -2
+    },
+    "rat": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 5,
+                    "type": "shirt"
+                }
+            ],
+            "key": "r"
+        },
+        "def": -6,
+        "dex": -10,
+        "end": 4,
+        "eva": 10,
+        "hp": -10,
+        "int": -8,
+        "mag": -4,
+        "spd": 10,
+        "str": -10,
+        "wis": -8
+    },
+    "skeleton": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 100,
+                    "type": "bone"
+                },
+                {
+                    "chance": 35,
+                    "type": "bone"
+                }
+            ],
+            "key": "s"
+        },
+        "def": -2,
+        "dex": 3,
+        "end": 1,
+        "eva": 3,
+        "hp": 2,
+        "int": -8,
+        "mag": -5,
+        "spd": -1,
+        "str": 2,
+        "wis": -7
+    },
+    "vampire": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 100,
+                    "type": "cloak"
+                },
+                {
+                    "chance": 10,
+                    "type": "equipment"
+                }
+            ],
+            "key": "V"
+        },
+        "def": 2,
+        "dex": 0,
+        "end": -1,
+        "eva": 8,
+        "hp": -4,
+        "int": 6,
+        "mag": 6,
+        "spd": 2,
+        "str": 0,
+        "wis": 1
+    },
+    "werewolf": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 20,
+                    "type": "shirts"
+                }
+            ],
+            "key": "W"
+        },
+        "def": 2,
+        "dex": -6,
+        "end": 2,
+        "eva": 7,
+        "hp": -1,
+        "int": -1,
+        "mag": -4,
+        "spd": 7,
+        "str": 2,
+        "wis": 0
+    },
+    "wolf": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 15,
+                    "type": "bone"
+                }
+            ],
+            "key": "w"
+        },
+        "def": -4,
+        "dex": -10,
+        "end": 6,
+        "eva": 9,
+        "hp": -5,
+        "int": -7,
+        "mag": -4,
+        "spd": 9,
+        "str": 2,
+        "wis": -2
+    },
+    "zombie": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 15,
+                    "type": "equipment"
+                }
+            ],
+            "key": "z"
+        },
+        "def": 7,
+        "dex": -10,
+        "end": 10,
+        "eva": -5,
+        "hp": 8,
+        "int": -10,
+        "mag": -10,
+        "spd": -9,
+        "str": 3,
+        "wis": -7
+    }
+}
