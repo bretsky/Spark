@@ -821,9 +821,10 @@ class Game():
 	def __init__(self, tutorial=False):
 		self.dungeon = Dungeon(1)
 		self.initialise_screen()
-		self.KEYPAD_BINDS = {brlb.TK_KP_8: self.up, brlb.TK_KP_2: self.down, brlb.TK_KP_4: self.left, brlb.TK_KP_6: self.right, brlb.TK_KP_5: self.stay}
-		self.ARROW_BINDS = {brlb.TK_UP: self.up, brlb.TK_DOWN: self.down, brlb.TK_LEFT: self.left, brlb.TK_RIGHT: self.right, brlb.TK_SPACE: self.stay}
-		self.WASD_BINDS = {brlb.TK_W: self.up, brlb.TK_S: self.down, brlb.TK_A: self.left, brlb.TK_D: self.right, brlb.TK_SPACE: self.stay}
+		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
+		self.ARROW_BINDS = {brlb.TK_UP: "up", brlb.TK_DOWN: "down", brlb.TK_LEFT: "left", brlb.TK_RIGHT: "right", brlb.TK_SPACE: "stay"}		
+		self.WASD_BINDS = {brlb.TK_W: "up", brlb.TK_S: "down", brlb.TK_A: "left", brlb.TK_D: "right", brlb.TK_SPACE: "stay"}
+		self.MOVEMENTS = {"up": self.up, "down": self.down, "left": self.left, "right": self.right, "stay": self.stay}
 		self.MOVEMENT_BINDS = {0: self.WASD_BINDS, 1: self.ARROW_BINDS, 2: self.KEYPAD_BINDS}
 		if tutorial:
 			run = self.tutorial()
@@ -1047,7 +1048,7 @@ class Game():
 		return (x, y)
 
 	def move(self, key):
-		return self.MOVEMENT_BINDS[key](self.character.pos[0], self.character.pos[1])
+		return self.MOVEMENTS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1])
 
 	def translate_to_screen(self, x, y):
 		return (x - self.character.pos[0] + self.screen_x//2, y - self.character.pos[1] + self.screen_y//2)
@@ -1126,7 +1127,12 @@ class Game():
 				self.character.pos = self.move(key)
 				self.update_light()
 		if self.state == "inventory":
-			pass
+			if key in list(self.MOVEMENT_BINDS.keys()):
+				if self.MOVEMENT_BINDS[key] == "left":
+					self.character.inventory.page = max(1, self.character.inventory.page - 1)
+				elif self.MOVEMENT_BINDS[key] == "right":
+					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
+				print(self.character.inventory.page)
 		if key == brlb.TK_I:
 			self.character.inventory.show = not self.character.inventory.show
 			if self.character.inventory.show:
@@ -1322,16 +1328,17 @@ class Inventory(Handler):
 		self.show = False
 		self.width = width
 		self.height = height
+		self.page = 1
 
 	def set_dims(self, w, h):
 		self.width = w
 		self.height = h
 		self.start_x = int(self.width*0.125)
 		self.start_y = int(self.height*0.125)
+		self.list_height = int(self.height*0.875) - self.start_y - 3
 
 	def refresh(self, width=False, height=False):
-		# print(self.show)
-		self.page = 1
+		# print(self.show)	
 		self.pages = max(int(ceiling(len(self.items) / (int(self.height*0.875) - self.start_y - 3), 0)), 1)
 		if width:
 			self.width = width
@@ -1339,9 +1346,10 @@ class Inventory(Handler):
 		if height:
 			self.height = height
 			self.start_y = int(self.height*0.125)
+			self.list_height = int(self.height*0.875) - self.start_y - 3
 		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
 		if self.show:
-			print(self.pages)
+			# print(self.pages)
 			# print('displaying')
 			brlb.layer(2)
 			for x in range(self.start_x, int(self.width*0.875)):
@@ -1349,9 +1357,9 @@ class Inventory(Handler):
 					brlb.put(x, y, 9608)
 			brlb.layer(3)
 			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
-			for index in range(min(len(self.items) - (self.page - 1) * (int(self.height*0.875) - self.start_y - 3), int(self.height*0.875) - self.start_y - 3)):
-				for c in range(len(self.items[index].info["name"])):
-					brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * (int(self.height*0.875) - self.start_y - 3)].info["name"][c])
+			for index in range(min(len(self.items) - (self.page - 1) * self.list_height, self.list_height)):
+				for c in range(len(self.items[index + (self.page - 1) * self.list_height].info["name"])):
+					brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * self.list_height].info["name"][c])
 			page_numbers = ' '.join([str(i + 1) for i in range(self.pages)])
 			for c in range(len(page_numbers)):
 				if page_numbers[c] == str(self.page):
@@ -1427,7 +1435,7 @@ class Inventory(Handler):
 			chance *= 2
 			if chance >= 100:
 				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
-				chance /= 1.5
+				chance /= 2
 			while random.randrange(100) < chance:
 				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
 				chance /= 1.5
