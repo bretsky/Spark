@@ -22,6 +22,7 @@ jungle
 thicket
 mount
 alp
+alps
 pinnacle
 sierra
 mesa
