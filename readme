@@ -6,20 +6,13 @@ Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final
 Programmed in Python using the Pygame module.
 
 --Instructions--
--You are the white dot
--WASD or arrow keys for movement
--W=UP
--A=LEFT
--S=DOWN
--D=RIGHT
--Hold shift, then press on a movement key to jump two spaces in that direction
--After jumping, you must wait a turn to recover
--Hold a movement key, then hold shift, to sprint at double speed in that direction
+-You are the white '@' symbol
+-Choose your movement method at the start of the game
+-If you choose numpad, press 5 to stand still for a turn, otherwise use space to not move
 -The dungeon is dark until you explore it
 -The bright area around you is your vision
 -If enemies are outside of your vision, you can't see them, but they can't see you
--Enemy dots are yellow
--Click them to attack them
--They will turn orange and fade away when dead
--The red bar at the top is your health, if it reaches 0, you lose
--The red dot is your destination, if you find it, you win
+-Enemies are red
+-If you are directly beside an enemy, moving towards them will attack them
+-They may drop orange items when they die
+-If your HP drops below zero, you will die
