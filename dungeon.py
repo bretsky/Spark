@@ -1338,7 +1338,8 @@ class Inventory(Handler):
 		self.list_height = int(self.height*0.875) - self.start_y - 3
 
 	def refresh(self, width=False, height=False):
-		# print(self.show)	
+		# print(self.show)
+		self.items = sorted(self.items, key=lambda x: x.info["name"])	
 		self.pages = max(int(ceiling(len(self.items) / (int(self.height*0.875) - self.start_y - 3), 0)), 1)
 		if width:
 			self.width = width
@@ -1432,7 +1433,7 @@ class Inventory(Handler):
 		for drop in drop_table:
 			# print(drop)
 			chance = drop["chance"]
-			chance *= 2
+			chance *= 4
 			if chance >= 100:
 				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
 				chance /= 2
