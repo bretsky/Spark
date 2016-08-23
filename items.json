@@ -215,6 +215,110 @@
                             }
                         }
                     }
+                },
+                "head": {
+                    "hats": {
+                        "cap": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "f",
+                            "name": "cap",
+                            "stats": {
+                                "def": 1,
+                                "mob": 10,
+                                "skl": 3,
+                                "wgt": 1
+                            }
+                        },
+                        "hat": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "f",
+                            "name": "hat",
+                            "stats": {
+                                "def": 1,
+                                "mob": 9,
+                                "skl": 2,
+                                "wgt": 1
+                            }
+                        },
+                        "toque": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "f",
+                            "name": "toque",
+                            "stats": {
+                                "def": 2,
+                                "mob": 9,
+                                "skl": 3,
+                                "wgt": 1
+                            }
+                        }
+                    },
+                    "helmets": {
+                        "great helm": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "m",
+                            "name": "great helm",
+                            "stats": {
+                                "def": 8,
+                                "mob": 2,
+                                "skl": 3,
+                                "wgt": 7
+                            }
+                        },
+                        "helmet": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "m",
+                            "name": "helmet",
+                            "stats": {
+                                "def": 7,
+                                "mob": 2,
+                                "skl": 3,
+                                "wgt": 6
+                            }
+                        }
+                    },
+                    "hoods": {
+                        "coif": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "m",
+                            "name": "coif",
+                            "stats": {
+                                "def": 7,
+                                "mob": 3,
+                                "skl": 5,
+                                "wgt": 6
+                            }
+                        },
+                        "cowl": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "f",
+                            "name": "cowl",
+                            "stats": {
+                                "def": 4,
+                                "mob": 4,
+                                "skl": 4,
+                                "wgt": 3
+                            }
+                        },
+                        "hood": {
+                            "equip": "head",
+                            "key": "^",
+                            "mat": "f",
+                            "name": "hood",
+                            "stats": {
+                                "def": 3,
+                                "mob": 5,
+                                "skl": 4,
+                                "wgt": 2
+                            }
+                        }
+                    }
                 }
             },
             "weapons": {
