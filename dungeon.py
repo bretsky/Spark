@@ -1625,7 +1625,7 @@ class Character():
 					print(self.equipment[key].info["stats"][stat])
 					total += self.equipment[key].info["stats"][stat]
 		total += self.stats[stat]
-		return total
+		return round(total, 2)
 
 	# def attack(self, target):
 	# 	min_damage = max(self.level/10, round(random.random()*self.level/5, 1))
