@@ -5,6 +5,7 @@
                 "body": {
                     "coats": {
                         "cagoule": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "cagoule",
@@ -16,6 +17,7 @@
                             }
                         },
                         "cloak": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "cloak",
@@ -27,6 +29,7 @@
                             }
                         },
                         "coat": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "coat",
@@ -38,6 +41,7 @@
                             }
                         },
                         "hauberk": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "m",
                             "name": "hauberk",
@@ -49,6 +53,7 @@
                             }
                         },
                         "jacket": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "jacket",
@@ -60,6 +65,7 @@
                             }
                         },
                         "parka": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "parka",
@@ -71,6 +77,7 @@
                             }
                         },
                         "poncho": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "poncho",
@@ -84,6 +91,7 @@
                     },
                     "dresses": {
                         "apron": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "apron",
@@ -95,6 +103,7 @@
                             }
                         },
                         "dress": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "dress",
@@ -106,6 +115,7 @@
                             }
                         },
                         "gown": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "gown",
@@ -119,6 +129,7 @@
                     },
                     "platebodies": {
                         "breastplate": {
+                            "equip": "body",
                             "key": "[",
                             "mat": "m",
                             "name": "breastplate",
@@ -130,6 +141,7 @@
                             }
                         },
                         "cuirass": {
+                            "equip": "body",
                             "key": "[",
                             "mat": "m",
                             "name": "cuirass",
@@ -141,6 +153,7 @@
                             }
                         },
                         "platebody": {
+                            "equip": "body",
                             "key": "[",
                             "mat": "m",
                             "name": "platebody",
@@ -154,6 +167,7 @@
                     },
                     "shirts": {
                         "blouse": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "shirt",
@@ -165,6 +179,7 @@
                             }
                         },
                         "shirt": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "shirt",
@@ -176,6 +191,7 @@
                             }
                         },
                         "tunic": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "tunic",
@@ -187,6 +203,7 @@
                             }
                         },
                         "vest": {
+                            "equip": "body",
                             "key": "(",
                             "mat": "f",
                             "name": "vest",
@@ -205,7 +222,7 @@
                     "clubs": {
                         "improvised clubs": {
                             "bone": {
-                                "hnd": 1,
+                                "equip": "1hand",
                                 "key": "|",
                                 "mat": false,
                                 "name": "bone",
@@ -217,7 +234,7 @@
                                 }
                             },
                             "stick": {
-                                "hnd": 1,
+                                "equip": "1hand",
                                 "key": "|",
                                 "mat": "w",
                                 "name": "stick",
@@ -231,7 +248,7 @@
                         },
                         "non-improvised clubs": {
                             "bat": {
-                                "hnd": 2,
+                                "equip": "2hand",
                                 "key": "|",
                                 "mat": "w",
                                 "name": "bat",
@@ -243,7 +260,7 @@
                                 }
                             },
                             "club": {
-                                "hnd": 1,
+                                "equip": "1hand",
                                 "key": "|",
                                 "mat": "w",
                                 "name": "club",
@@ -260,7 +277,7 @@
                 "cutting": {
                     "knives": {
                         "cleaver": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "ϯ",
                             "mat": "m",
                             "name": "cleaver",
@@ -272,7 +289,7 @@
                             }
                         },
                         "deer horn knife": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "ϯ",
                             "mat": "m",
                             "name": "deer horn knife",
@@ -284,7 +301,7 @@
                             }
                         },
                         "kitchen knife": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "ϯ",
                             "mat": "m",
                             "name": "kitchen knife",
@@ -296,7 +313,7 @@
                             }
                         },
                         "knife": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "ϯ",
                             "mat": "m",
                             "name": "knife",
@@ -308,7 +325,7 @@
                             }
                         },
                         "wind and fire wheel": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "ϯ",
                             "mat": "m",
                             "name": "wind and fire wheel",
@@ -322,7 +339,7 @@
                     },
                     "swords": {
                         "katana": {
-                            "hnd": 2,
+                            "equip": "2hand",
                             "key": "Ϯ",
                             "mat": "m",
                             "name": "katana",
@@ -334,7 +351,7 @@
                             }
                         },
                         "longsword": {
-                            "hnd": 2,
+                            "equip": "2hand",
                             "key": "Ϯ",
                             "mat": "m",
                             "name": "longsword",
@@ -346,7 +363,7 @@
                             }
                         },
                         "scimitar": {
-                            "hnd": 1,
+                            "equip": "1hand",
                             "key": "Ϯ",
                             "mat": "m",
                             "name": "scimitar",
@@ -358,7 +375,7 @@
                             }
                         },
                         "sword": {
-                            "hnd": 2,
+                            "equip": "2hand",
                             "key": "Ϯ",
                             "mat": "m",
                             "name": "sword",
@@ -378,7 +395,7 @@
         "armor": {},
         "weapons": {
             "fist": {
-                "hnd": 1,
+                "equip": "1hand",
                 "mat": false,
                 "name": "fist",
                 "stats": {
