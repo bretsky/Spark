@@ -840,6 +840,7 @@ class Game():
 		self.log = Log('Welcome to ' + self.dungeon.name)
 		self.inventory = Inventory()
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
+		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
 		print('finished setup')
 		self.circle = False
@@ -1115,6 +1116,56 @@ class Game():
 								else:
 									break
 
+	def unequip(self, item, character):
+		for equipment in self.character.equipment_keys:
+			if character.equipment[equipment] == item:
+				character.equipment[equipment] = False
+		item.equipped = False
+
+
+
+	def equip(self, item, character, location=False):
+		if item.equipped:
+			self.unequip(item, character)
+		elif location:
+			if character.equipment[location].info["equip"] == "2hand":
+				character.equipment["lhand"].equipped = False
+				character.equipment["rhand"].equipped = False
+				character.equipment["lhand"] = False
+				character.equipment["rhand"] = False
+			else:
+				character.equipment[location].equipped = False
+			character.equipment[location] = item
+			item.equipped = True
+		elif item.info["equip"] == "2hand":
+			if character.equipment["lhand"]:
+				character.equipment["lhand"].equipped = False
+			if character.equipment["rhand"]:
+				character.equipment["rhand"].equipped = False
+			character.equipment["lhand"] = item
+			character.equipment["rhand"] = item
+			item.equipped = True
+		elif item.info["equip"] == "1hand":
+			if not character.equipment["rhand"]:
+				character.equipment["rhand"] = item
+				item.equipped = True
+			elif not character.equipment["lhand"]:
+				character.equipment["lhand"] = item
+				item.equipped = True
+			else:
+				character.inventory.choose_equip = True
+				character.inventory.equip_choices = ["lhand", "rhand"]
+		elif item.info["equip"] == "body":
+			if character.equipment["body"]:
+				character.equipment["body"].equipped = False
+			character.equipment["body"] = item
+			item.equipped = True
+		elif item.info["equip"] == "head":
+			if character.equipment["head"]:
+				character.equipment["head"].equipped = False
+			character.equipment["head"] = item
+			item.equipped = True
+
 	def on_move_events(self):
 		# brlb.refresh()
 		self.draw()
@@ -1127,21 +1178,53 @@ class Game():
 				self.character.pos = self.move(key)
 				self.update_light()
 		if self.state == "inventory":
-			if key in list(self.MOVEMENT_BINDS.keys()):
+			if self.character.inventory.choose_equip:
+				if key in list(self.MOVEMENT_BINDS.keys()):
+					if self.MOVEMENT_BINDS[key] == "left":
+						self.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height], self.character, location=self.character.inventory.equip_choices[0])
+						self.character.inventory.choose_equip = False
+					elif self.MOVEMENT_BINDS[key] == "right":
+						self.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height], self.character, location=self.character.inventory.equip_choices[1])
+						self.character.inventory.choose_equip = False
+			elif key in list(self.MOVEMENT_BINDS.keys()):
+				self.character.inventory.select_menu = False
 				if self.MOVEMENT_BINDS[key] == "left":
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
+					self.character.inventory.item = 1
 				elif self.MOVEMENT_BINDS[key] == "right":
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
+					self.character.inventory.item
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
 				elif self.MOVEMENT_BINDS[key] == "down":
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
+			elif len(self.character.inventory.items) > 0:
+				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
+					self.character.inventory.select_menu = not self.character.inventory.select_menu
+					# self.character.inventory.menu_x, self.character.inventory.menu_y = brlb.state(brlb.TK_MOUSE_X), brlb.state(brlb.TK_MOUSE_Y)
+				elif key == brlb.TK_ENTER and self.character.inventory.select_menu:
+					self.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height], self.character)
+					self.character.inventory.select_menu = not self.character.inventory.select_menu
 		if key == brlb.TK_I:
+			self.character.inventory.select_menu = False
 			self.character.inventory.show = not self.character.inventory.show
+			self.character.show_equipment = False
 			if self.character.inventory.show:
 				self.state = "inventory"
 			else:
 				self.state = "game"
+		if key == brlb.TK_E:
+			self.character.show_equipment = not self.character.show_equipment
+			self.character.inventory.show = False
+			if self.character.show_equipment:
+				self.state = "equipment"
+			else:
+				self.state = "game"
+		if key == brlb.TK_ESCAPE:
+			self.character.inventory.show = False
+			self.character.show_equipment = False
+			self.character.inventory.select_menu = False
+			self.state = "game"
 			# print(self.character.inventory.show)
 		# for x, y in circle:
 		# 	if self.dungeon.in_bounds(x, y):
@@ -1196,6 +1279,7 @@ class Game():
 		brlb.clear()
 		self.log.show(self.screen_x - 40, 0)
 		self.character.inventory.refresh()
+		self.character.refresh()
 		brlb.layer(0)
 		for y in range(len(self.dungeon.map_list)):
 			for x in range(len(self.dungeon.map_list[y])):
@@ -1300,6 +1384,7 @@ class Item():
 	def __init__(self, item_id, item_info):
 		self.id = item_id
 		self.info = item_info
+		self.equipped = False
 
 	def __str__(self):
 		item_string = ''
@@ -1329,10 +1414,16 @@ class Inventory(Handler):
 		self.mat_abbr = {'m': 'metallic', 'w':'wooden', 'f': 'flexible', 'p':'precious'}
 		self.display_keys = {"name": "Name", "key": "Key", "mat": "Material"}
 		self.key_order = ["name", "key", "mat"]
+		self.equip_names = {"head": "Head", "body": "Body", "lhand": "Left Hand", "rhand": "Right Hand"}
 		self.items = []
 		self.show = False
+		self.select_menu = False
+		self.choose_equip = False
+		self.selection = 0
 		self.width = width
 		self.height = height
+		self.menu_x = 0
+		self.menu_y = 0
 		self.page = 1
 		self.item = 1	
 
@@ -1341,15 +1432,17 @@ class Inventory(Handler):
 		self.height = h
 		self.start_x = int(self.width*0.125)
 		self.start_y = int(self.height*0.125)
+		self.menu_x = self.width // 2
 		self.list_height = int(self.height*0.875) - self.start_y - 3
 
 	def refresh(self, width=False, height=False):
 		# print(self.show)
-		self.items = sorted(self.items, key=lambda x: x.info["name"])
+		# self.items = sorted(self.items, key=lambda x: x.info["name"])
 		self.pages = max(int(ceiling(len(self.items) / (int(self.height*0.875) - self.start_y - 3), 0)), 1)
 		if width:
 			self.width = width
 			self.start_x = int(self.width*0.125)
+			self.menu_x = self.width // 2
 		if height:
 			self.height = height
 			self.start_y = int(self.height*0.125)
@@ -1362,26 +1455,58 @@ class Inventory(Handler):
 			for x in range(self.start_x, int(self.width*0.875)):
 				for y in range(self.start_y, int(self.height*0.875)):
 					brlb.put(x, y, 9608)
-			brlb.layer(3)
-			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
-			for index in range(min(len(self.items) - (self.page - 1) * self.list_height, self.list_height)):
-				if index + 1 == self.item:
-					for key_index in range(len(self.key_order)):
-						attribute = self.display_keys[self.key_order[key_index]] + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
-						for c in range(len(attribute)):
-							brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
-					brlb.color(4294950481)
-				else:
-					brlb.color(4294967295)
-				for c in range(len(self.items[index + (self.page - 1) * self.list_height].info["name"])):
-					brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * self.list_height].info["name"][c])
-			page_numbers = ' '.join([str(i + 1) for i in range(self.pages)])
-			for c in range(len(page_numbers)):
-				if page_numbers[c] == str(self.page):
-					brlb.color(4294950481)
-				else:
-					brlb.color(4294967295)
-				brlb.put(self.width//2 - len(page_numbers)//2 + c, int(self.height*0.875) - 2, page_numbers[c])
+			if len(self.items) > 0:
+				brlb.layer(3)
+				brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+				for index in range(min(len(self.items) - (self.page - 1) * self.list_height, self.list_height)):
+					if index + 1 == self.item:
+						for key_index in range(len(self.key_order)):
+							attribute = self.display_keys[self.key_order[key_index]] + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
+							for c in range(len(attribute)):
+								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
+						key_index = len(self.key_order)
+						for key in sorted(list(self.items[index + (self.page - 1) * self.list_height].info["stats"].keys())):
+							attribute = key + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info["stats"][key])
+							for c in range(len(attribute)):
+								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
+							key_index += 1
+						self.menu_x = self.width // 2
+						self.menu_y = self.start_y + 1 + key_index
+						brlb.color(4294967295)
+						brlb.put(self.menu_x, self.menu_y, 9484)
+						for i in range(5):
+							brlb.put(self.menu_x + 1 + i, self.menu_y, 9472)
+						brlb.put(self.menu_x + 6, self.menu_y, 9488)
+						brlb.put(self.menu_x, self.menu_y + 1, 9474)
+						if self.selection == 0 and self.select_menu:
+							brlb.color(4294950481)
+						brlb.printf(self.menu_x + 1, self.menu_y + 1, 'Equip')
+						brlb.color(4294967295)
+						brlb.put(self.menu_x + 6, self.menu_y + 1, 9474)
+						brlb.put(self.menu_x, self.menu_y + 2, 9492)
+						for i in range(5):
+							brlb.put(self.menu_x + 1 + i, self.menu_y + 2, 9472)
+						brlb.put(self.menu_x + 6, self.menu_y + 2, 9496)
+						if self.choose_equip:
+							brlb.printf(self.menu_x, self.menu_y + 4, '(LEFT) ' + self.equip_names[self.equip_choices[0]] + ' | (RIGHT) ' + self.equip_names[self.equip_choices[1]])
+						brlb.color(4294950481)
+					else:
+						brlb.color(4294967295)
+					if self.items[index + (self.page - 1) * self.list_height].equipped:
+						brlb.put(self.start_x, self.start_y + 1 + index, 'E')
+					for c in range(len(self.items[index + (self.page - 1) * self.list_height].info["name"])):
+						brlb.put(self.start_x + 2 + c, self.start_y + 1 + index, self.items[index + (self.page - 1) * self.list_height].info["name"][c])
+				page_numbers = ' '.join([str(i + 1) for i in range(self.pages)])
+				for c in range(len(page_numbers)):
+					if page_numbers[c] == str(self.page):
+						brlb.color(4294950481)
+					else:
+						brlb.color(4294967295)
+					brlb.put(self.width//2 - len(page_numbers)//2 + c, int(self.height*0.875) - 2, page_numbers[c])
+				# if self.show_menu:
+
+
+
 
 	def get_item_by_id(self, item_id):
 		if item_id in self.used_ids:
@@ -1412,8 +1537,8 @@ class Inventory(Handler):
 		return choices
 
 	def roll_stat(self, base, level, material_tier):
-		roll = random.uniform(round_up(level / 2), round_up(level * 1.5))
-		return round_up(roll + (base - random.uniform(0, base))/2 + material_tier - 3.5)
+		roll = random.uniform((level / 2), (level * 1.5))
+		return round(roll + (base + level * (material_tier - 3.5)), 2)
 
 	def item_smith(self, item_info, level, location):
 		
@@ -1447,7 +1572,7 @@ class Inventory(Handler):
 		for drop in drop_table:
 			# print(drop)
 			chance = drop["chance"]
-			chance *= 4
+			# chance *= 4
 			if chance >= 100:
 				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
 				chance /= 2
@@ -1479,14 +1604,28 @@ class Character():
 		self.hp = self.stats['hp']
 		self.name = name.capitalize()
 		self.inventory = Inventory()
+		self.equipment = {"head": False, "body": False, "lhand": False, "rhand": False}
+		self.equipment_keys = ["head", "body", "lhand", "rhand"]
+		self.current_equipment = 0
+		self.show_equipment = False
 
 	def attack(self, target):
 		basedamage = 30
-		print(target.name, 'def:', target.stats['def'])
-		print(self.name, 'str:', self.stats['str'])
-		damage = ceiling(((2*self.level + 10)*self.stats['str']*basedamage/(250*target.stats['def']) + 2) * random.uniform(0.85, 1))
+		print(target.name, 'def:', target.get_stat('def'))
+		print(self.name, 'str:', self.get_stat('str'))
+		damage = ceiling(((2*self.level + 10)* self.get_stat('str')*basedamage/(250*target.get_stat('def')) + 2) * random.uniform(0.85, 1))
 		target.hp -= damage
 		return damage
+
+	def get_stat(self, stat):
+		total = 0
+		for key in self.equipment_keys:
+			if self.equipment[key]:
+				if stat in list(self.equipment[key].info["stats"].keys()):
+					print(self.equipment[key].info["stats"][stat])
+					total += self.equipment[key].info["stats"][stat]
+		total += self.stats[stat]
+		return total
 
 	# def attack(self, target):
 	# 	min_damage = max(self.level/10, round(random.random()*self.level/5, 1))
@@ -1523,6 +1662,51 @@ class Character():
 class Player(Character):
 	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
 		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
+
+
+	def set_dims(self, w, h):
+		self.width = w
+		self.height = h
+		self.start_x = int(self.width*0.125)
+		self.start_y = int(self.height*0.125)
+		self.list_height = int(self.height*0.875) - self.start_y - 3
+
+
+	def refresh(self, width=False, height=False):
+		# print(self.show)
+		if width:
+			self.width = width
+			self.start_x = int(self.width*0.125)
+		if height:
+			self.height = height
+			self.start_y = int(self.height*0.125)
+			self.list_height = int(self.height*0.875) - self.start_y - 3
+		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
+		if self.show_equipment:
+			# print(self.pages)
+			# print('displaying')
+			brlb.layer(2)
+			for x in range(self.start_x, int(self.width*0.875)):
+				for y in range(self.start_y, int(self.height*0.875)):
+					brlb.put(x, y, 9608)
+			brlb.layer(3)
+			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+			brlb.printf(self.width // 2 - 6, self.start_y + 1, "Head: ")
+			if self.equipment["head"]:
+				for c in range(len(self.equipment["head"].info["name"])):
+					brlb.put(self.width // 2 + c, self.start_y + 1, self.equipment["head"].info["name"][c])
+			brlb.printf(self.width // 2 - 6, self.start_y + 2, "Body: ")
+			if self.equipment["body"]:
+				for c in range(len(self.equipment["body"].info["name"])):
+					brlb.put(self.width // 2 + c, self.start_y + 2, self.equipment["body"].info["name"][c])
+			brlb.printf(self.width // 2 - 11, self.start_y + 3, "Left Hand: ")
+			if self.equipment["lhand"]:
+				for c in range(len(self.equipment["lhand"].info["name"])):
+					brlb.put(self.width // 2 + c, self.start_y + 3, self.equipment["lhand"].info["name"][c])
+			brlb.printf(self.width // 2 - 12, self.start_y + 4, "Right Hand: ")
+			if self.equipment["rhand"]:
+				for c in range(len(self.equipment["rhand"].info["name"])):
+					brlb.put(self.width // 2 + c, self.start_y + 4, self.equipment["rhand"].info["name"][c])
 
 class Enemy(Character):
 	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
@@ -1583,7 +1767,7 @@ class God(Handler):
 			else:
 				return self.spawn()
 		else:
-			player = Player(self.get_id(), 10, 'player', self.generate_stats('player', 10), self.enemy_types['player']['attributes'], 'you', *point)
+			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'you', *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
 			self.dungeon.map_list[point[1]][point[0]].occupant = player
