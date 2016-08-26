@@ -1,88 +1,88 @@
 {
     "flexible": {
-        "1": [
-            "paper",
-            "straw",
-            "cardboard"
-        ],
-        "2": [
-            "cotton",
-            "wool",
-            "cashmere",
-            "gossamer",
-            "flax"
-        ],
-        "3": [
+        "1": {
+            "paper":"#FCF9EC",
+            "straw":"#E4D96F",
+            "cardboard":"#A58855"
+        },
+        "2": {
+            "cotton":"#F1EDE2",
+            "wool":"#FFFFE3",
+            "cashmere":"#FDE9D9",
+            "gossamer":"#F9EDE6",
+            "flax":"#FAEAB1"
+        },
+        "3": {
             "silk",
             "snake skin",
             "rawhide",
             "fish leather",
             "suede",
             "fur"
-        ],
-        "4": [
+        },
+        "4": {
             "leather",
             "spider silk",
             "deer skin",
             "bear skin"
-        ],
-        "5": [
+        },
+        "5": {
             "crocodile leather",
             "studded leather",
             "lion hide"
-        ],
-        "6": [
+        },
+        "6": {
             "dragon scale",
             "troll leather",
             "shark leather"
-        ]
+        }
     },
     "metallic": {
-        "1": [
+        "1": {
             "paper",
             "clay",
             "glass",
             "cardboard"
-        ],
-        "2": [
+        },
+        "2": {
             "bone",
             "aluminum",
             "nickel",
             "silicon",
             "stone",
             "flint"
-        ],
-        "3": [
+        },
+        "3": {
             "chrome",
             "tin",
             "copper",
             "brass",
             "lead",
             "tungsten"
-        ],
-        "4": [
+        },
+        "4": {
             "bronze",
             "cobalt",
             "iron",
             "marble"
-        ],
-        "5": [
+        },
+        "5": {
             "granite",
             "obsidian",
             "steel",
             "silver",
             "mithril"
-        ],
-        "6": [
+        },
+        "6": {
             "meteorite",
             "platinum",
             "titanium",
             "folded steel",
             "adamantium"
-        ]
+        }
     },
     "precious": {
-        "1": [
+        "1": {
             "carnelian",
             "silver",
             "agate",
@@ -98,8 +98,8 @@
             "malachite",
             "tortoise shell",
             "mother of pearl"
-        ],
-        "2": [
+        },
+        "2": {
             "amethyst",
             "obsidian",
             "onyx",
@@ -111,45 +111,45 @@
             "aquamarine",
             "turquoise",
             "lapis lazuli"
-        ],
-        "3": [
+        },
+        "3": {
             "ruby",
             "sapphire",
             "emerald",
             "platinum",
             "diamond",
             "dragon scale"
-        ]
+        }
     },
     "wooden": {
-        "1": [
+        "1": {
             "cardboard",
             "paper"
-        ],
-        "2": [
+        },
+        "2": {
             "ash",
             "bamboo",
             "birch",
             "poplar",
             "spruce"
-        ],
-        "3": [
+        },
+        "3": {
             "aspen",
             "driftwood",
             "elm",
             "fir",
             "pine",
             "redwood"
-        ],
-        "4": [
+        },
+        "4": {
             "cedar",
             "cherry",
             "willow",
             "cypress",
             "eucalyptus",
             "hickory"
-        ],
-        "5": [
+        },
+        "5": {
             "alder",
             "chestnut",
             "ebony",
@@ -157,12 +157,12 @@
             "maple",
             "oak",
             "teak"
-        ],
-        "6": [
+        },
+        "6": {
             "bone",
             "ent",
             "mahogany",
             "yew"
-        ]
+        }
     }
 }
