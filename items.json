@@ -326,10 +326,10 @@
                     "clubs": {
                         "improvised clubs": {
                             "bone": {
+                                "colour": "FFFFFF",
                                 "equip": "1hand",
                                 "key": "|",
                                 "mat": false,
-                                "colour":"FFFFFF"
                                 "name": "bone",
                                 "stats": {
                                     "pen": 1,
