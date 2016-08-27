@@ -6,7 +6,7 @@
                     "coats": {
                         "cagoule": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "cagoule",
                             "stats": {
@@ -18,7 +18,7 @@
                         },
                         "cloak": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "cloak",
                             "stats": {
@@ -30,7 +30,7 @@
                         },
                         "coat": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "coat",
                             "stats": {
@@ -42,7 +42,7 @@
                         },
                         "hauberk": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "m",
                             "name": "hauberk",
                             "stats": {
@@ -54,7 +54,7 @@
                         },
                         "jacket": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "jacket",
                             "stats": {
@@ -66,7 +66,7 @@
                         },
                         "parka": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "parka",
                             "stats": {
@@ -78,7 +78,7 @@
                         },
                         "poncho": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "poncho",
                             "stats": {
@@ -92,7 +92,7 @@
                     "dresses": {
                         "apron": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "apron",
                             "stats": {
@@ -104,7 +104,7 @@
                         },
                         "dress": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "dress",
                             "stats": {
@@ -116,7 +116,7 @@
                         },
                         "gown": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "gown",
                             "stats": {
@@ -130,7 +130,7 @@
                     "platebodies": {
                         "breastplate": {
                             "equip": "body",
-                            "key": "[",
+                            "key": "Ͳ",
                             "mat": "m",
                             "name": "breastplate",
                             "stats": {
@@ -142,7 +142,7 @@
                         },
                         "cuirass": {
                             "equip": "body",
-                            "key": "[",
+                            "key": "Ͳ",
                             "mat": "m",
                             "name": "cuirass",
                             "stats": {
@@ -154,7 +154,7 @@
                         },
                         "platebody": {
                             "equip": "body",
-                            "key": "[",
+                            "key": "Ͳ",
                             "mat": "m",
                             "name": "platebody",
                             "stats": {
@@ -168,7 +168,7 @@
                     "shirts": {
                         "blouse": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "shirt",
                             "stats": {
@@ -180,7 +180,7 @@
                         },
                         "shirt": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "shirt",
                             "stats": {
@@ -192,7 +192,7 @@
                         },
                         "tunic": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "tunic",
                             "stats": {
@@ -204,7 +204,7 @@
                         },
                         "vest": {
                             "equip": "body",
-                            "key": "(",
+                            "key": "Ͳ",
                             "mat": "f",
                             "name": "vest",
                             "stats": {
