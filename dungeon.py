@@ -1325,7 +1325,7 @@ class Game():
 		for item in self.inventory.items:
 			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
 				pos = self.translate_to_screen(*item.info["location"])
-				brlb.color(brlb.color_from_argb(255, 200, 100, 0))
+				brlb.color(item.info["colour"])
 				brlb.put(pos[0], pos[1], item.info["key"])
 		brlb.composition(brlb.TK_OFF)
 		for character in self.god.characters[1:]:
@@ -1461,9 +1461,17 @@ class Inventory(Handler):
 				for index in range(min(len(self.items) - (self.page - 1) * self.list_height, self.list_height)):
 					if index + 1 == self.item:
 						for key_index in range(len(self.key_order)):
-							attribute = self.display_keys[self.key_order[key_index]] + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
+							brlb.color(4294967295)
+							attribute = self.display_keys[self.key_order[key_index]] + ': '
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
+							if self.key_order[key_index] == "key":
+								brlb.color(self.items[index + (self.page - 1) * self.list_height].info["colour"])
+							key_length = len(attribute) - 1
+							attribute = str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
+							for c in range(len(attribute)):
+								brlb.put(self.width // 2 + key_length + c, self.start_y + 1 + key_index, attribute[c])
+						brlb.color(4294967295)
 						key_index = len(self.key_order)
 						for key in sorted(list(self.items[index + (self.page - 1) * self.list_height].info["stats"].keys())):
 							attribute = key + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info["stats"][key])
@@ -1538,7 +1546,7 @@ class Inventory(Handler):
 
 	def roll_stat(self, base, level, material_tier):
 		roll = random.uniform((level / 2), (level * 1.5))
-		return round(roll + (base + level * (material_tier - 3.5)), 2)
+		return max(0, round(roll + (base + level * (material_tier - 3.5)), 2))
 
 	def item_smith(self, item_info, level, location):
 		
@@ -1547,12 +1555,15 @@ class Inventory(Handler):
 				if item_info["mat"]:
 					# print(item_info)
 					material_tier = self.material_roll()
-					material = random.choice(self.materials[self.mat_abbr[item_info["mat"]]][str(material_tier)])
+					mat_type = item_info["mat"]
+					material = random.choice(list(self.materials[self.mat_abbr[mat_type]][str(material_tier)].keys()))
 					item_info["mat"] = material
 					item_info["name"] = material + " " + item_info["name"]
 					item_info["mat_tier"] = material_tier
+					item_info["colour"] = int("FF" + self.materials[self.mat_abbr[mat_type]][str(material_tier)][material], 16)
 				else:
 					item_info["mat_tier"] = 3.5
+					item_info["colour"] = int("FF" + item_info["colour"], 16)
 		except (ValueError, IndexError) as e:
 			print('WTF!!!!', item_info, e)
 		item_info["name"] += " [" + str(level) + "]"
@@ -1614,6 +1625,9 @@ class Character():
 		print(target.name, 'def:', target.get_stat('def'))
 		print(self.name, 'str:', self.get_stat('str'))
 		damage = ceiling(((2*self.level + 10)* self.get_stat('str')*basedamage/(250*target.get_stat('def')) + 2) * random.uniform(0.85, 1))
+		damage_no_items = ceiling(((2*self.level + 10)* self.stats['str']*basedamage/(250*target.stats['def']) + 2) * random.uniform(0.85, 1))
+		print('Items:', damage)
+		print('No items:', damage_no_items, '\n')
 		target.hp -= damage
 		return damage
 
@@ -1622,7 +1636,7 @@ class Character():
 		for key in self.equipment_keys:
 			if self.equipment[key]:
 				if stat in list(self.equipment[key].info["stats"].keys()):
-					print(self.equipment[key].info["stats"][stat])
+					# print(self.equipment[key].info["stats"][stat])
 					total += self.equipment[key].info["stats"][stat]
 		total += self.stats[stat]
 		return round(total, 2)
@@ -1788,7 +1802,7 @@ class God(Handler):
 
 	def populate(self):
 		self.spawn(user=True)
-		for i in range(random.randrange(6, 21)):
+		for i in range(random.randrange(12, 42)):
 			self.turn()
 
 class Log():
