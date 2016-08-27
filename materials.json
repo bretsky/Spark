@@ -1,168 +1,169 @@
 {
     "flexible": {
         "1": {
-            "paper":"#FCF9EC",
-            "straw":"#E4D96F",
-            "cardboard":"#A58855"
+            "paper":"FCF9EC",
+            "straw":"E4D96F",
+            "cardboard":"A58855"
         },
         "2": {
-            "cotton":"#F1EDE2",
-            "wool":"#FFFFE3",
-            "cashmere":"#FDE9D9",
-            "gossamer":"#F9EDE6",
-            "flax":"#FAEAB1"
+            "cotton":"F1EDE2",
+            "wool":"FFFFE3",
+            "cashmere":"FDE9D9",
+            "gossamer":"F9EDE6",
+            "flax":"FAEAB1"
         },
         "3": {
-            "silk",
-            "snake skin",
-            "rawhide",
-            "fish leather",
-            "suede",
-            "fur"
+            "silk":"F02727",
+            "snake skin":"B6B428",
+            "rawhide":"61554E",
+            "fish leather":"388586",
+            "suede":"40677E",
+            "fur":"7F6244"
         },
         "4": {
-            "leather",
-            "spider silk",
-            "deer skin",
-            "bear skin"
+            "leather":"9C6B08",
+            "spider silk":"EFEFDE",
+            "deer skin":"958772",
+            "bear skin":"5B4A44"
         },
         "5": {
-            "crocodile leather",
-            "studded leather",
-            "lion hide"
+            "crocodile leather":"898E58",
+            "studded leather":"9C6B08",
+            "lion hide":"E8AF49"
         },
         "6": {
-            "dragon scale",
-            "troll leather",
-            "shark leather"
+            "dragon scale":"914145",
+            "troll leather":"346932",
+            "shark leather":"CADCDE"
         }
     },
     "metallic": {
         "1": {
-            "paper",
-            "clay",
-            "glass",
-            "cardboard"
+            "paper":"FCF9EC",
+            "clay":"AF6049",
+            "glass":"D1EBEC",
+            "cardboard":"A58855"
         },
         "2": {
-            "bone",
-            "aluminum",
-            "nickel",
-            "silicon",
-            "stone",
-            "flint"
+            "bone":"F9F4EF",
+            "aluminum":"BBBEC0",
+            "nickel":"CCD3D8",
+            "silicon":"9599A5",
+            "stone":"787466",
+            "flint":"455355"
         },
         "3": {
-            "chrome",
-            "tin",
-            "copper",
-            "brass",
-            "lead",
-            "tungsten"
+            "chrome":"C8CECD",
+            "tin":"8F8B96",
+            "copper":"73372D",
+            "brass":"735A21",
+            "lead":"5C6274",
+            "tungsten":"767980"
         },
         "4": {
-            "bronze",
-            "cobalt",
-            "iron",
-            "marble"
+            "bronze":"9C5221",
+            "cobalt":"0047AB",
+            "iron":"4D504B",
+            "marble":"F9E0CC"
         },
         "5": {
-            "granite",
-            "obsidian",
-            "steel",
-            "silver",
-            "mithril"
+            "granite":"948E85",
+            "obsidian":"132019",
+            "steel":"9AA3A3",
+            "silver":"B5B5BD",
+            "mithril":"AEBBDB"
         },
         "6": {
-            "meteorite",
-            "platinum",
-            "titanium",
-            "folded steel",
-            "adamantium"
+            "meteorite":"4A3B6A",
+            "gold":"E7BD42",
+            "platinum":"B8B7B2",
+            "titanium":"565F6B",
+            "folded steel":"9AA3A3",
+            "adamantium":"324435"
         }
     },
     "precious": {
         "1": {
-            "carnelian",
-            "silver",
-            "agate",
-            "serpentine",
-            "jet",
-            "beryl",
-            "chalcedony",
-            "zircon",
-            "tanzanite",
-            "tourmaline",
-            "pearl",
-            "peridot",
-            "malachite",
-            "tortoise shell",
-            "mother of pearl"
+            "carnelian":"B31B1B",
+            "silver":"B5B5BD",
+            "agate":"96A69F",
+            "serpentine":"9B8E54",
+            "jet":"010101",
+            "beryl":"1A4B68",
+            "chalcedony":"ACCAEC",
+            "zircon":"A3928F",
+            "tanzanite":"3C346D",
+            "tourmaline":"142D36",
+            "pearl":"F3EDC8",
+            "peridot":"B4BB8D",
+            "malachite":"1FA055",
+            "tortoise shell":"47523B",
+            "mother of pearl":"EDE2E0"
         },
         "2": {
-            "amethyst",
-            "obsidian",
-            "onyx",
-            "gold",
-            "jade",
-            "amber",
-            "tiger's eye",
-            "garnet",
-            "aquamarine",
-            "turquoise",
-            "lapis lazuli"
+            "amethyst":"A6839C",
+            "obsidian":"132019",
+            "onyx":"1A181A",
+            "gold":"E7BD42",
+            "jade":"386A4C",
+            "amber":"E99D56",
+            "tiger's eye":"9F3600",
+            "garnet":"651E1A",
+            "aquamarine":"7FFFD4",
+            "turquoise":"006B5A",
+            "lapis lazuli":"26619C"
         },
         "3": {
-            "ruby",
-            "sapphire",
-            "emerald",
-            "platinum",
-            "diamond",
-            "dragon scale"
+            "ruby":"9B111E",
+            "sapphire":"297BC1",
+            "emerald":"00A283",
+            "platinum":"B8B7B2",
+            "diamond":"CEE4EE",
+            "dragon scale":"914145"
         }
     },
     "wooden": {
         "1": {
-            "cardboard",
-            "paper"
+            "cardboard":"A58855",
+            "paper":"FCF9EC"
         },
         "2": {
-            "ash",
-            "bamboo",
-            "birch",
-            "poplar",
-            "spruce"
+            "ash":"CDB084",
+            "bamboo":"F1DB8E",
+            "birch":"C8BEB5",
+            "poplar":"CBAB81",
+            "spruce":"F4D3B0"
         },
         "3": {
-            "aspen",
-            "driftwood",
-            "elm",
-            "fir",
-            "pine",
-            "redwood"
+            "aspen":"DEBA87",
+            "driftwood":"827870",
+            "elm":"CC956E",
+            "fir":"F0CC9F",
+            "pine":"E0C18E",
+            "redwood":"9B775D"
         },
         "4": {
-            "cedar",
-            "cherry",
-            "willow",
-            "cypress",
-            "eucalyptus",
-            "hickory"
+            "cedar":"E0C697",
+            "cherry":"B48058",
+            "willow":"CEB282",
+            "cypress":"E4CEAB",
+            "eucalyptus":"C08F6F",
+            "hickory":"D1A673"
         },
         "5": {
-            "alder",
-            "chestnut",
-            "ebony",
-            "hemlock",
-            "maple",
-            "oak",
-            "teak"
+            "alder":"B27642",
+            "chestnut":"91704D",
+            "ebony":"261D14",
+            "hemlock":"BE9D75",
+            "maple":"AC9066",
+            "oak":"DAAE7A",
+            "teak":"6D5336"
         },
         "6": {
-            "bone",
-            "ent",
-            "mahogany",
-            "yew"
+            "bone":"F9F4EF",
+            "ent":"80772D",
+            "mahogany":"712C0B",
+            "yew":"BE7F50"
         }
     }
 }
