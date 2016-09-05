@@ -24,11 +24,32 @@
         "str": -6,
         "wis": 6
     },
+        "sphinx": {
+        "attributes": {
+            "drops": [
+                {
+                    "chance": 75,
+                    "type": "equipment"
+                }
+            ],
+            "key": "Σ"
+        },
+        "def": 8,
+        "dex": 6,
+        "end": 0,
+        "eva": -3,
+        "hp": 8,
+        "int": 10,
+        "mag": 7,
+        "spd": -2,
+        "str": 3,
+        "wis": 10
+    },
     "dog": {
         "attributes": {
             "drops": [
                 {
-                    "chance": 15,
+                    "chance": 20,
                     "type": "improvised clubs"
                 }
             ],
@@ -78,7 +99,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 20,
+                    "chance": 25,
                     "type": "equipment"
                 }
             ],
@@ -139,7 +160,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 15,
+                    "chance": 25,
                     "type": "equipment"
                 }
             ],
@@ -160,7 +181,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 5,
+                    "chance": 15,
                     "type": "shirt"
                 }
             ],
@@ -185,7 +206,7 @@
                     "type": "bone"
                 },
                 {
-                    "chance": 35,
+                    "chance": 15,
                     "type": "bone"
                 }
             ],
@@ -210,7 +231,7 @@
                     "type": "cloak"
                 },
                 {
-                    "chance": 10,
+                    "chance": 15,
                     "type": "equipment"
                 }
             ],
@@ -231,7 +252,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 20,
+                    "chance": 25,
                     "type": "shirts"
                 }
             ],
@@ -252,7 +273,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 15,
+                    "chance": 25,
                     "type": "bone"
                 }
             ],
@@ -273,7 +294,7 @@
         "attributes": {
             "drops": [
                 {
-                    "chance": 15,
+                    "chance": 25,
                     "type": "equipment"
                 }
             ],
