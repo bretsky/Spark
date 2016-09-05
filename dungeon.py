@@ -885,6 +885,20 @@ class Game():
 					brlb.printf(start_x, start_y + i + 1, choices[i])
 				brlb.refresh()
 		self.MOVEMENT_BINDS = self.MOVEMENT_BINDS[self.controls]
+		brlb.clear()
+		brlb.color(4294967295)
+		intro = "This is you"
+		intro_running = True
+		brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
+		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+		while intro_running:
+			if brlb.has_input():
+				key = brlb.read()
+				if key == brlb.TK_CLOSE:
+					intro_running = False
+				brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
+				brlb.put(self.screen_x//2, self.screen_y//2, '@')
+				brlb.refresh()
 		return True
 
 	def unobstructed(self, coords, dest):
