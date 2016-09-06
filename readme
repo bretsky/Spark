@@ -5,6 +5,11 @@ Spark is an indie RPG with roguelike dungeons.
 Spark takes influences from games like Brogue, Pixel Dungeon (on Android), Final Fantasy, and Pokemon Mystery Dungeon.
 Programmed in Python using Pybearlib terminal.
 
+--Installation--
+-Install Python version 3.x
+-Run dungeon.py
+-Profit!
+
 --Instructions--
 -You are the white '@' symbol
 -Choose your movement method at the start of the game
@@ -14,5 +19,5 @@ Programmed in Python using Pybearlib terminal.
 -If enemies are outside of your vision, you can't see them, but they can't see you
 -Enemies are red
 -If you are directly beside an enemy, moving towards them will attack them
--They may drop orange items when they die
+-They may drop items when they die
 -If your HP drops below zero, you will die
