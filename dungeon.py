@@ -112,8 +112,7 @@ class Dungeon():
 		# 	self.debug = True
 		# 	print('RuntimeError occurred')
 		print('made corridors in', get_time()-start)
-		if self.debug:
-			self.persistent_draw()
+		self.persistent_draw()
 		self.unfill()
 		self.tile_rooms()
 
@@ -819,7 +818,7 @@ class Room():
 
 class Game():
 	def __init__(self, tutorial=False):
-		self.dungeon = Dungeon(1)
+		self.dungeon = Dungeon(1, True)
 		self.initialise_screen()
 		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
 		self.ARROW_BINDS = {brlb.TK_UP: "up", brlb.TK_DOWN: "down", brlb.TK_LEFT: "left", brlb.TK_RIGHT: "right", brlb.TK_SPACE: "stay"}		
@@ -848,6 +847,7 @@ class Game():
 		self.run()
 
 	def tutorial(self):
+		control_names = ['WASD', 'the arrow keys', 'the numpad']
 		title = "Choose controls:"
 		a_choice = 4*' ' + "1) WASD"
 		b_choice = 4*' ' + "2) Arrow keys"
@@ -888,17 +888,87 @@ class Game():
 		brlb.clear()
 		brlb.color(4294967295)
 		intro = "This is you"
+		continue_prompt = "press any key to continue"
 		intro_running = True
 		brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
 		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+		brlb.printf(self.screen_x//2 - len(continue_prompt)//2, self.screen_y//2 + 2, continue_prompt)
+		brlb.refresh()
+		while intro_running:
+			brlb.set("input.filter = [keyboard, close]")
+			if brlb.has_input():
+				key = brlb.read()
+				if key == brlb.TK_CLOSE:
+					return False
+				else:
+					print(key)
+					intro_running = False
+				brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
+				brlb.put(self.screen_x//2, self.screen_y//2, '@')
+				brlb.printf(self.screen_x//2 - len(continue_prompt)//2, self.screen_y//2 + 2, continue_prompt)
+				brlb.refresh()
+		brlb.set("input.filter = []")
+		brlb.clear()
+		if self.controls == 2:
+			still = "Press 5 to stand still for a turn."
+		elif self.controls < 2:
+			still = "Press space to stand still for a turn."
+		intro = "Use " + control_names[self.controls] + ' to move. ' + still
+		continue_prompt = "press escape to continue"
+		intro_running = True
+		pos = [self.screen_x//2, self.screen_y//2]
+		brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
+		brlb.printf(self.screen_x//2 - len(continue_prompt)//2, self.screen_y//2 + 2, continue_prompt)
+		brlb.put(pos[0], pos[1], '@')
+		brlb.refresh()
+		while intro_running:
+			if brlb.has_input():
+				brlb.clear()
+				key = brlb.read()
+				if key == brlb.TK_CLOSE:
+					return False
+				if key == brlb.TK_ESCAPE:
+					intro_running = False
+				if key in list(self.MOVEMENT_BINDS.keys()):
+					if self.MOVEMENT_BINDS[key] == "up":
+						pos[1] -= 1
+					if self.MOVEMENT_BINDS[key] == "down":
+						pos[1] += 1
+					if self.MOVEMENT_BINDS[key] == "left":
+						pos[0] -= 1
+					if self.MOVEMENT_BINDS[key] == "right":
+						pos[0] += 1
+				brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
+				brlb.printf(self.screen_x//2 - len(continue_prompt)//2, self.screen_y//2 + 2, continue_prompt)
+				brlb.put(pos[0], pos[1], '@')
+				brlb.refresh()
+		brlb.clear()
+		intro = "You are trapped in {d}. You must fight to stay alive. Survive as long as you can and try to escape.".format(d=self.dungeon.name)
+		intro_lines = []
+		length = int(self.screen_x*0.61803398875)
+		while len(intro) > length:
+			intro_lines.append(intro[:intro.rfind(' ', 0, length)])
+			intro = intro[intro.rfind(' ', 0, length) + 1:]
+		intro_lines.append(intro)
+		continue_prompt = "press escape to continue"
+		intro_running = True
+		pos = [self.screen_x//2 - length//2, self.screen_y//2 - len(intro_lines)//2]
+		for line_index in range(len(intro_lines)):
+			brlb.printf(pos[0], pos[1] + line_index, intro_lines[line_index])
+		brlb.printf(self.screen_x//2 - len(continue_prompt)//2, pos[1] + len(intro_lines) + 1, continue_prompt)
+		brlb.refresh()
 		while intro_running:
 			if brlb.has_input():
 				key = brlb.read()
 				if key == brlb.TK_CLOSE:
+					return False
+				if key == brlb.TK_ESCAPE:
 					intro_running = False
-				brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
-				brlb.put(self.screen_x//2, self.screen_y//2, '@')
+				for line_index in range(len(intro_lines)):
+					brlb.printf(pos[0], pos[1] + line_index, intro_lines[line_index])
+				brlb.printf(self.screen_x//2 - len(continue_prompt)//2, pos[1] + len(intro_lines) + 1, continue_prompt)
 				brlb.refresh()
+		brlb.set("input.filter = []")
 		return True
 
 	def unobstructed(self, coords, dest):
