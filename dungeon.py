@@ -102,6 +102,10 @@ class Dungeon():
 		self.corridors_made = 0
 		start = get_time()
 		self.rooms = self.make_rooms()
+		self.destination = random.choice(tuple(random.choice(self.rooms).tiles))
+		self.start = False
+		while self.start == self.destination or self.start == False:
+			self.start = random.choice(tuple(random.choice(self.rooms).tiles))
 		print('made rooms in', get_time()-start)
 		self.debug = False
 		start = get_time()
@@ -112,7 +116,8 @@ class Dungeon():
 		# 	self.debug = True
 		# 	print('RuntimeError occurred')
 		print('made corridors in', get_time()-start)
-		self.persistent_draw()
+		if self.animate:
+			self.persistent_draw()
 		self.unfill()
 		self.tile_rooms()
 
@@ -737,10 +742,13 @@ class Tile:
 		self.connector = False
 		self.occupant = False
 
+	def light_level(self):
+		return min(self.light, 5)
+
 	def luminosity(self):
 		if not self.visible:
 			return 4278203136
-		return LUMINOSITY[min(self.light, 5)]
+		return LUMINOSITY[self.light_level()]
 
 
 class Room():
@@ -818,7 +826,7 @@ class Room():
 
 class Game():
 	def __init__(self, tutorial=False):
-		self.dungeon = Dungeon(1, True)
+		self.dungeon = Dungeon(1)
 		self.initialise_screen()
 		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
 		self.ARROW_BINDS = {brlb.TK_UP: "up", brlb.TK_DOWN: "down", brlb.TK_LEFT: "left", brlb.TK_RIGHT: "right", brlb.TK_SPACE: "stay"}		
@@ -829,13 +837,9 @@ class Game():
 			run = self.tutorial()
 		if not run:
 			return
-		char_room = self.dungeon.rooms[0]
-		enemy_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
 		self.god = God(self.dungeon)
 		self.character = self.god.get_char_by_id(0)
 		print(self.character)
-		end_room = self.dungeon.rooms[random.randrange(1, len(self.dungeon.rooms))]
-		self.destination = random.choice(tuple(end_room.tiles))
 		self.log = Log('Welcome to ' + self.dungeon.name)
 		self.inventory = Inventory()
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
@@ -1260,7 +1264,8 @@ class Game():
 		if self.state == "game":
 			if key in list(self.MOVEMENT_BINDS.keys()):
 				self.character.pos = self.move(key)
-				self.update_light()
+				if self.MOVEMENT_BINDS[key] != "stay":
+					self.update_light()
 		if self.state == "inventory":
 			if self.character.inventory.choose_equip:
 				if key in list(self.MOVEMENT_BINDS.keys()):
@@ -1401,6 +1406,13 @@ class Game():
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
 					brlb.put(pos[0], pos[1], 'X')
+		pos = self.translate_to_screen(*self.dungeon.start)
+		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
+		brlb.put(pos[0], pos[1], '↑')
+		print(self.distance(self.character.pos, self.dungeon.destination))
+		pos = self.translate_to_screen(*self.dungeon.destination)
+		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
+		brlb.put(pos[0], pos[1], '↓')
 		brlb.composition(brlb.TK_ON)
 		for item in self.inventory.items:
 			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
@@ -1409,14 +1421,14 @@ class Game():
 		for item in self.inventory.items:
 			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
 				pos = self.translate_to_screen(*item.info["location"])
-				brlb.color(item.info["colour"])
+				brlb.color(item.info["colour"] + self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255^3)
 				brlb.put(pos[0], pos[1], item.info["key"])
 		brlb.composition(brlb.TK_OFF)
 		for character in self.god.characters[1:]:
 			if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible:
 				pos = self.translate_to_screen(*character.pos)
 				# brlb.clear_area(pos[0], pos[1], 1, 1)
-				brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+				brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
 				brlb.put(pos[0], pos[1], character.attributes['key'])	
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
@@ -1644,10 +1656,10 @@ class Inventory(Handler):
 					item_info["mat"] = material
 					item_info["name"] = material + " " + item_info["name"]
 					item_info["mat_tier"] = material_tier
-					item_info["colour"] = int("FF" + self.materials[self.mat_abbr[mat_type]][str(material_tier)][material], 16)
+					item_info["colour"] = int(self.materials[self.mat_abbr[mat_type]][str(material_tier)][material], 16)
 				else:
 					item_info["mat_tier"] = 3.5
-					item_info["colour"] = int("FF" + item_info["colour"], 16)
+					item_info["colour"] = int(item_info["colour"], 16)
 		except (ValueError, IndexError) as e:
 			print('WTF!!!!', item_info, e)
 		item_info["name"] += " [" + str(level) + "]"
@@ -1853,9 +1865,9 @@ class God(Handler):
 		return stats
 
 	def spawn(self, user=False):
-		room = random.choice(self.dungeon.rooms)
-		point = random.choice(list(room.tiles))
 		if not user:
+			room = random.choice(self.dungeon.rooms)
+			point = random.choice(list(room.tiles))
 			if not self.dungeon.map_list[point[1]][point[0]].visible:
 				level = round_up((randint(round_up(self.dungeon.level*0.9),round_up(self.dungeon.level*1.1)) + randint(round_up(self.dungeon.level*0.9),round_up(self.dungeon.level*1.1)))/2)
 				enemy_type = random.choice(list(self.enemy_types.keys()))
@@ -1865,6 +1877,7 @@ class God(Handler):
 			else:
 				return self.spawn()
 		else:
+			point = self.dungeon.start
 			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'you', *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
@@ -1931,7 +1944,8 @@ HALL_TILE = set([3])
 DOOR_TILE = set([5])
 # print(brlb.color_from_argb(255, 204, 204, 204))
 SIDES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
-LUMINOSITY = [0, 4281545523, 4284900966, 4288256409, 4291611852, 4294967295]
+LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 4294967295]
+
 # with PyCallGraph(output=GraphvizOutput()):
 # 	Game()
 # inv = Inventory()
@@ -1940,3 +1954,5 @@ LUMINOSITY = [0, 4281545523, 4284900966, 4288256409, 4291611852, 4294967295]
 # 	enemy_type = random.choice(list(my_god.enemy_types.keys()))
 # 	print(enemy_type, ':', inv.drop(my_god.enemy_types[enemy_type]["attributes"]["drops"], 1))
 Game(tutorial=True)
+for i in range(6):
+	print(brlb.color_from_argb(i*51, 255, 255, 255))
