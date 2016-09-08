@@ -84,11 +84,14 @@ def get_from_path(d, path):
 	return deepcopy(d)
 
 class Dungeon():
-	def __init__(self, level, animate=False):
+	def __init__(self, level, animate=False, name=False):
 		self.animate = animate
 		self.level = level
 		self.import_files()
-		self.name = self.random_dungeon_name()
+		if name:
+			self.name = name
+		else:
+			self.name = self.random_dungeon_name()
 		self.map_list = [[Tile(BG_TILE, False) for y in range(64)] for x in range(64)]
 		for y in range(len(self.map_list)):
 			for x in range(len(self.map_list)):
@@ -826,7 +829,11 @@ class Room():
 
 class Game():
 	def __init__(self, tutorial=False):
-		self.dungeon = Dungeon(1)
+		self.log = Log()	
+		self.dungeons = []
+		self.gods = []
+		self.inventories = []
+		self.descend(game_start=True)
 		self.initialise_screen()
 		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
 		self.ARROW_BINDS = {brlb.TK_UP: "up", brlb.TK_DOWN: "down", brlb.TK_LEFT: "left", brlb.TK_RIGHT: "right", brlb.TK_SPACE: "stay"}		
@@ -837,18 +844,61 @@ class Game():
 			run = self.tutorial()
 		if not run:
 			return
-		self.god = God(self.dungeon)
-		self.character = self.god.get_char_by_id(0)
-		print(self.character)
-		self.log = Log('Welcome to ' + self.dungeon.name)
-		self.inventory = Inventory()
+		print(self.character)	
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
 		print('finished setup')
+		self.run()
+
+	def descend(self, game_start=False):
+		self.log.update()
+		if game_start:
+			new_floor = True
+		else:
+			new_floor = self.dungeons.index(self.dungeon) == len(self.dungeons) - 1
+		if not game_start and new_floor:
+			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon.name))
+			self.dungeon = self.dungeons[-1]
+		elif not game_start:
+			self.dungeon = self.dungeons[self.dungeons.index(self.dungeon) + 1]
+		else:
+			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=False))
+			self.dungeon = self.dungeons[-1]
+		self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
+		if not game_start and new_floor:
+			self.gods.append(God(self.dungeon, self.character))
+			self.god = self.gods[-1]
+		elif not game_start:
+			self.god = self.gods[self.gods.index(self.god) + 1]
+			self.character.pos = self.dungeon.start
+			self.god.characters[0] = self.character
+		else:
+			self.gods.append(God(self.dungeon))
+			self.god = self.gods[-1]
+			self.character = self.god.get_char_by_id(0)
+		if new_floor:
+			self.inventories.append(Inventory())
+			self.inventory = self.inventories[-1]
+		else:
+			self.inventory = self.inventories[self.inventories.index(self.inventory)]
 		self.circle = False
 		self.current_room = False
-		self.run()
+		self.update_light()
+
+	def ascend(self):
+		self.log.update()
+		if not self.dungeons.index(self.dungeon) == 0:
+			self.dungeon = self.dungeons[self.dungeons.index(self.dungeon) - 1]
+			self.character.pos = self.dungeon.destination
+			self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
+			self.god = self.gods[self.gods.index(self.god) - 1]
+			self.inventory = self.inventories[self.inventories.index(self.inventory) - 1]
+			self.circle = False
+			self.current_room = False
+			self.update_light()
+		else:
+			self.log.log('You are already on the top floor')
 
 	def tutorial(self):
 		control_names = ['WASD', 'the arrow keys', 'the numpad']
@@ -1266,6 +1316,14 @@ class Game():
 				self.character.pos = self.move(key)
 				if self.MOVEMENT_BINDS[key] != "stay":
 					self.update_light()
+			elif self.character.pos == self.dungeon.destination:
+				if brlb.state(brlb.TK_SHIFT):
+					if key == brlb.TK_PERIOD:
+						self.descend()
+			elif self.character.pos == self.dungeon.start:
+				if brlb.state(brlb.TK_SHIFT):
+					if key == brlb.TK_COMMA:
+						self.ascend()
 		if self.state == "inventory":
 			if self.character.inventory.choose_equip:
 				if key in list(self.MOVEMENT_BINDS.keys()):
@@ -1282,7 +1340,7 @@ class Game():
 					self.character.inventory.item = 1
 				elif self.MOVEMENT_BINDS[key] == "right":
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
-					self.character.inventory.item
+					self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
 				elif self.MOVEMENT_BINDS[key] == "down":
@@ -1350,7 +1408,7 @@ class Game():
 					self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
-				self.log.log(self.character.name.capitalize() + ' killed ' + str(len(self.god.killed_ids)) + ' enemies')
+				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
 				self.end_game() 
 			moved_ids = []
 			for item in self.inventory.items:
@@ -1421,7 +1479,9 @@ class Game():
 		for item in self.inventory.items:
 			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
 				pos = self.translate_to_screen(*item.info["location"])
-				brlb.color(item.info["colour"] + self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255^3)
+				print(item.info["colour"])
+				brlb.color(item.info["colour"] + self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*256**3)
+				# print(self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255**3)
 				brlb.put(pos[0], pos[1], item.info["key"])
 		brlb.composition(brlb.TK_OFF)
 		for character in self.god.characters[1:]:
@@ -1824,7 +1884,7 @@ class Enemy(Character):
 
 
 class God(Handler):
-	def __init__(self, dungeon):
+	def __init__(self, dungeon, character=False):
 		super().__init__()
 		self.killed_ids = set()
 		self.dungeon = dungeon
@@ -1835,6 +1895,13 @@ class God(Handler):
 		self.stats = ["def", "dex", "end", "eva", "hp", "int", "mag", "spd", "str", "wis"]
 		self.player_level = 3
 		self.characters = []
+		if not character:
+			self.spawn(user=True)
+		else:
+			self.characters.append(character)
+			self.dungeon.map_list[self.dungeon.start[1]][self.dungeon.start[0]].occupant = character
+			character.pos = self.dungeon.start
+			del self.enemy_types['player'] 
 		self.populate()
 
 	def get_char_by_id(self, char_id):
@@ -1898,15 +1965,15 @@ class God(Handler):
 		return False
 
 	def populate(self):
-		self.spawn(user=True)
 		for i in range(random.randrange(12, 42)):
 			self.turn()
 
 class Log():
-	def __init__(self, starting_info):
+	def __init__(self, starting_info=False):
 		self.history = []
 		self.new_info = 0
-		self.log(starting_info)
+		if starting_info:
+			self.log(starting_info)
 
 	def update(self):
 		self.new_info = 0	
@@ -1954,5 +2021,3 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 # 	enemy_type = random.choice(list(my_god.enemy_types.keys()))
 # 	print(enemy_type, ':', inv.drop(my_god.enemy_types[enemy_type]["attributes"]["drops"], 1))
 Game(tutorial=True)
-for i in range(6):
-	print(brlb.color_from_argb(i*51, 255, 255, 255))
