@@ -41,8 +41,8 @@ def round_rand(n):
 def ceiling(n, p=-1):
 	return float(decimal.Decimal(n).quantize(decimal.Decimal(str(10**p)), rounding=decimal.ROUND_CEILING))
 
-def round_up(n):
-	return int(decimal.Decimal(n).quantize(decimal.Decimal(1), rounding=decimal.ROUND_HALF_UP))
+def round_up(n, p=1):
+	return int(decimal.Decimal(n).quantize(decimal.Decimal(p), rounding=decimal.ROUND_HALF_UP))
 
 def randint(start, stop):
 	if start != stop:
@@ -829,6 +829,7 @@ class Room():
 
 class Game():
 	def __init__(self, tutorial=False):
+
 		self.log = Log()	
 		self.dungeons = []
 		self.gods = []
@@ -844,7 +845,9 @@ class Game():
 			run = self.tutorial()
 		if not run:
 			return
-		print(self.character)	
+		print(self.character)
+		for i in range(25):
+			print(self.character.xp_for_level(i+1))
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
@@ -920,7 +923,7 @@ class Game():
 			if brlb.has_input():
 				key = brlb.read()
 				if key == brlb.TK_CLOSE:
-					return False
+					return False 
 				elif key == brlb.TK_1:
 					self.controls = 0
 				elif key == brlb.TK_2:
@@ -1011,6 +1014,17 @@ class Game():
 			brlb.printf(pos[0], pos[1] + line_index, intro_lines[line_index])
 		brlb.printf(self.screen_x//2 - len(continue_prompt)//2, pos[1] + len(intro_lines) + 1, continue_prompt)
 		brlb.refresh()
+		while intro_running:
+			if brlb.has_input():
+				key = brlb.read()
+				if key == brlb.TK_CLOSE:
+					return False
+				if key == brlb.TK_ESCAPE:
+					intro_running = False
+				for line_index in range(len(intro_lines)):
+					brlb.printf(pos[0], pos[1] + line_index, intro_lines[line_index])
+				brlb.printf(self.screen_x//2 - len(continue_prompt)//2, pos[1] + len(intro_lines) + 1, continue_prompt)
+				brlb.refresh()
 		while intro_running:
 			if brlb.has_input():
 				key = brlb.read()
@@ -1122,6 +1136,8 @@ class Game():
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
 				self.log.log(enemy.name + ' died')
+				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
+				self.character.xp += enemy.xp_worth
 				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
 				self.god.kill(enemy.id)
 			return (x, y + 1)
@@ -1141,6 +1157,8 @@ class Game():
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
 				self.log.log(enemy.name + ' died')
+				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
+				self.character.xp += enemy.xp_worth
 				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
 				self.god.kill(enemy.id)			
 			return (x, y - 1)
@@ -1160,6 +1178,8 @@ class Game():
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
 				self.log.log(enemy.name + ' died')
+				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
+				self.character.xp += enemy.xp_worth
 				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
 				self.god.kill(enemy.id)			
 			return (x - 1, y)
@@ -1179,6 +1199,8 @@ class Game():
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
 				self.log.log(enemy.name + ' died')
+				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
+				self.character.xp += enemy.xp_worth
 				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
 				self.god.kill(enemy.id)
 			return (x + 1, y)
@@ -1389,7 +1411,10 @@ class Game():
 			character_turn = self.character.turn()
 			if character_turn:
 				self.log.log(self.character.name + character_turn)
-			
+			while self.character.xp > self.character.next_level:
+				self.character.level += 1
+				self.log.log(self.character.name + ' are now level ' + str(self.character.level))
+				self.character.next_level = self.character.xp_for_level(self.character.level)
 			# print(len(self.god.characters))
 			
 			for character in self.god.characters:
@@ -1467,7 +1492,7 @@ class Game():
 		pos = self.translate_to_screen(*self.dungeon.start)
 		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
 		brlb.put(pos[0], pos[1], '↑')
-		print(self.distance(self.character.pos, self.dungeon.destination))
+		# print(self.distance(self.character.pos, self.dungeon.destination))
 		pos = self.translate_to_screen(*self.dungeon.destination)
 		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
 		brlb.put(pos[0], pos[1], '↓')
@@ -1479,7 +1504,7 @@ class Game():
 		for item in self.inventory.items:
 			if self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].visible:
 				pos = self.translate_to_screen(*item.info["location"])
-				print(item.info["colour"])
+				# print(item.info["colour"])
 				brlb.color(item.info["colour"] + self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*256**3)
 				# print(self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255**3)
 				brlb.put(pos[0], pos[1], item.info["key"])
@@ -1622,7 +1647,7 @@ class Inventory(Handler):
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
 							if self.key_order[key_index] == "key":
-								brlb.color(self.items[index + (self.page - 1) * self.list_height].info["colour"])
+								brlb.color(self.items[index + (self.page - 1) * self.list_height].info["colour"] + 255*256**3)
 							key_length = len(attribute) - 1
 							attribute = str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
 							for c in range(len(attribute)):
@@ -1775,6 +1800,20 @@ class Character():
 		self.equipment_keys = ["head", "body", "lhand", "rhand"]
 		self.current_equipment = 0
 		self.show_equipment = False
+		print('xp:', (sum(list(self.stats.values()))/33 + self.level)/3)
+		self.xp_worth = ceiling((sum(list(self.stats.values()))/33 + self.level)/3, -2)
+		print('xp rounded:', self.xp_worth)
+		self.xp = 0
+		self.next_level = self.xp_for_level(self.level)
+
+	def xp_for_level(self, level):
+		if level == 1:
+			return 7
+		xp = 0
+		x = 0
+		for i in range(level):
+			x += i**1.05*5.4 - i**0.5 + 3
+		return int(7 + x)
 
 	def attack(self, target):
 		basedamage = 30
@@ -1912,8 +1951,8 @@ class God(Handler):
 		return False
 
 	def roll_stat(self, base, level):
-		roll = random.randrange(1, round_up(level) + 7)
-		return int(roll + (base + level*2 + 10) // 2)
+		roll = random.randrange(1, 4)
+		return int(roll + (base + 10) // 2 + level * 3)
 
 	def random_name(self):
 		structures = [random.choice(self.names['structures']) for i in range(random.randrange(1, 5))]
@@ -1922,7 +1961,7 @@ class God(Handler):
 		structures = structures.replace('ec', 'eoc')
 		for c in structures:
 			name += p_choice(self.names[self.keys[c]], self.sums[c])
-		print(name)
+		# print(name)
 		return name
 
 	def generate_stats(self, enemy_type, level):
@@ -1940,6 +1979,9 @@ class God(Handler):
 				enemy_type = random.choice(list(self.enemy_types.keys()))
 				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), *point)
 				self.characters.append(enemy)
+				print(enemy.stats)
+				print(enemy.type)
+				print(enemy.level, '\n')
 				self.dungeon.map_list[point[1]][point[0]].occupant = enemy
 			else:
 				return self.spawn()
