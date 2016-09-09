@@ -1,6 +1,6 @@
 import random
 import PyBearLibTerminal as brlb
-import screeninfo
+from screeninfo import screeninfo
 # from pycallgraph import PyCallGraph
 # from pycallgraph.output import GraphvizOutput
 import decimal 
