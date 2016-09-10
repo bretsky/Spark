@@ -1424,6 +1424,10 @@ class Game():
 				# elif self.distance(character.pos, self.character.pos) <= 10 and self.distance(character.pos, self.character.pos) > 1:
 				elif self.dungeon.map_list[character.pos[1]][character.pos[0]].visible and self.distance(character.pos, self.character.pos) > 1:
 					trail = self.pathfind(character.pos, self.character.pos)
+					character.memory = self.character.pos
+					character.memory_trail = trail[2:]
+					# print(character.pos)
+					# print(character.memory_trail)
 					if not self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant:
 						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 						character.pos = trail[1]
@@ -1431,6 +1435,19 @@ class Game():
 				elif self.distance(character.pos, self.character.pos) == 1:
 					damage = character.attack(self.character)
 					self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
+				elif character.memory != None:
+					print('moving')
+					print(character.pos)
+					print(character.memory_trail)
+					if not self.dungeon.map_list[character.memory_trail[0][1]][character.memory_trail[0][0]].occupant:
+						print('here we go')
+						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+						character.pos = character.memory_trail[0]
+						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+						del character.memory_trail[0]
+						if len(character.memory_trail) == 0:
+							character.memory_trail = None
+							character.memory = None
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
 				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
@@ -1805,6 +1822,8 @@ class Character():
 		print('xp rounded:', self.xp_worth)
 		self.xp = 0
 		self.next_level = self.xp_for_level(self.level)
+		self.memory = None
+		self.memory_trail = None
 
 	def xp_for_level(self, level):
 		if level == 1:
@@ -1920,7 +1939,6 @@ class Player(Character):
 class Enemy(Character):
 	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
 		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
-
 
 class God(Handler):
 	def __init__(self, dungeon, character=False):
