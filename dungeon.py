@@ -31,6 +31,20 @@ def explode(l):
 			break
 	return val
 
+def contrast(n):
+	n = hex(n)[2:]
+	if int(n[:2], 16) + int(n[2:4], 16) + int(n[4:6], 16) > 381:
+		return 0
+	else:
+		return int('ffffff', 16)
+
+def invert_colour(n):
+	hex_code = list(hex(n))[2:]
+	print(hex_code)
+	for bit in range(len(hex_code)):
+		hex_code[bit] = hex(int(hex_code[bit], 16) ^ 15)[2:]
+	return int(''.join(hex_code), 16)
+
 def round_rand(n):
 	r = random.choice([True, False])
 	if r:
@@ -1363,10 +1377,13 @@ class Game():
 				elif self.MOVEMENT_BINDS[key] == "right":
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
 					self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
+					print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
+					print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "down":
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
+					print(self.character.inventory.item)
 			elif len(self.character.inventory.items) > 0:
 				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
 					self.character.inventory.select_menu = not self.character.inventory.select_menu
@@ -1414,6 +1431,7 @@ class Game():
 			while self.character.xp > self.character.next_level:
 				self.character.level += 1
 				self.log.log(self.character.name + ' are now level ' + str(self.character.level))
+				self.character.level_up()
 				self.character.next_level = self.character.xp_for_level(self.character.level)
 			# print(len(self.god.characters))
 			
@@ -1533,10 +1551,14 @@ class Game():
 				brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
 				brlb.put(pos[0], pos[1], character.attributes['key'])	
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+		brlb.layer(1)
 		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
 		brlb.printf(0, 0, 'HP: ' + str(int(self.character.hp)))
+		brlb.printf(0, 1, 'LV: ' + str(int(self.character.level)))
+		brlb.printf(0, 2, 'NL: ' + str(int(self.character.next_level - self.character.xp)))
 		# brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
-		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+
 		brlb.refresh()
 		return 0
 
@@ -1664,11 +1686,15 @@ class Inventory(Handler):
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
 							if self.key_order[key_index] == "key":
+								brlb.composition(brlb.TK_ON)
+								brlb.color(contrast(self.items[index + (self.page - 1) * self.list_height].info["colour"]) + 255*256**3)
+								brlb.put(self.width // 2 + 5, self.start_y + 1 + key_index, 9608)
 								brlb.color(self.items[index + (self.page - 1) * self.list_height].info["colour"] + 255*256**3)
-							key_length = len(attribute) - 1
+							key_length = len(attribute)
 							attribute = str(self.items[index + (self.page - 1) * self.list_height].info[self.key_order[key_index]])
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + key_length + c, self.start_y + 1 + key_index, attribute[c])
+							brlb.composition(brlb.TK_OFF)
 						brlb.color(4294967295)
 						key_index = len(self.key_order)
 						for key in sorted(list(self.items[index + (self.page - 1) * self.list_height].info["stats"].keys())):
@@ -1834,6 +1860,11 @@ class Character():
 			x += i**1.05*5.4 - i**0.5 + 3
 		return int(7 + x)
 
+	def level_up(self):
+		for stat in list(self.stats.keys()):
+			self.stats[stat] += 2
+		self.hp += 2
+
 	def attack(self, target):
 		basedamage = 30
 		print(target.name, 'def:', target.get_stat('def'))
@@ -1970,7 +2001,7 @@ class God(Handler):
 
 	def roll_stat(self, base, level):
 		roll = random.randrange(1, 4)
-		return int(roll + (base + 10) // 2 + level * 3)
+		return int(roll + (base + 10) // 2 + level**1.1 * 3)
 
 	def random_name(self):
 		structures = [random.choice(self.names['structures']) for i in range(random.randrange(1, 5))]
