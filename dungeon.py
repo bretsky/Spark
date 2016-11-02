@@ -1851,6 +1851,9 @@ class Character():
 		self.memory = None
 		self.memory_trail = None
 
+	def get_equipment_stat(self, stat):
+		# get just equipment stat (without character stat)
+
 	def xp_for_level(self, level):
 		if level == 1:
 			return 7
