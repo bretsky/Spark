@@ -1623,6 +1623,7 @@ class Handler():
 	def get_id(self):
 		self.last_id += 1
 		self.used_ids.add(self.last_id)
+		# print(self.used_ids)
 		return self.last_id
 
 
@@ -1695,12 +1696,31 @@ class Inventory(Handler):
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + key_length + c, self.start_y + 1 + key_index, attribute[c])
 							brlb.composition(brlb.TK_OFF)
-						brlb.color(4294967295)
 						key_index = len(self.key_order)
 						for key in sorted(list(self.items[index + (self.page - 1) * self.list_height].info["stats"].keys())):
+							brlb.color(4294967295)
 							attribute = key + ': ' + str(self.items[index + (self.page - 1) * self.list_height].info["stats"][key])
 							for c in range(len(attribute)):
 								brlb.put(self.width // 2 + c, self.start_y + 1 + key_index, attribute[c])
+							length = len(attribute)
+							equipped = self.find_equipped_item(self.items[index + (self.page - 1) * self.list_height].info["equip"])
+							print(equipped)
+							curr = 0
+							if equipped != None:
+								print("getting stats:", equipped)
+								curr = self.get_item_by_id(equipped).info["stats"][key]
+							diff = self.items[index + (self.page - 1) * self.list_height].info["stats"][key] - curr
+							if diff < 0:
+								diff = str(diff)
+								brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+							elif diff > 0:
+								diff = '+' + str(diff)
+								brlb.color(brlb.color_from_argb(255, 0, 255, 0))
+							else:
+								diff = '=='
+								brlb.color(brlb.color_from_argb(255, 255, 255, 0))
+							for c in range(len(diff)):
+								brlb.put(self.width // 2 + length + c + 1, self.start_y + 1 + key_index, diff[c])
 							key_index += 1
 						self.menu_x = self.width // 2
 						self.menu_y = self.start_y + 1 + key_index
@@ -1741,6 +1761,7 @@ class Inventory(Handler):
 
 
 	def get_item_by_id(self, item_id):
+		print("used_ids:", self.used_ids)
 		if item_id in self.used_ids:
 			for item in self.items:
 				if item.id == item_id:
@@ -1799,6 +1820,7 @@ class Inventory(Handler):
 				item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
 		item_info["location"] = location
 		item = Item(self.get_id(), item_info)
+		print(self.get_id())
 		self.items.append(item)
 		return item
 
@@ -1823,6 +1845,14 @@ class Inventory(Handler):
 
 	def move(self, inventory, item_id):
 		inventory.items.append(self.get_item_by_id(item_id))
+		inventory.used_ids.add(item_id)
+
+	def find_equipped_item(self, equip):
+		for item in self.items:
+			if item.equipped:
+				if item.info["equip"] == equip:
+					return item.id
+		return None
 
 
 	def __str__(self):
@@ -1853,6 +1883,13 @@ class Character():
 
 	def get_equipment_stat(self, stat):
 		# get just equipment stat (without character stat)
+		total = 0
+		for key in self.equipment_keys:
+			if self.equipment[key]:
+				if stat in list(self.equipment[key].info["stats"].keys()):
+					# print(self.equipment[key].info["stats"][stat])
+					total += self.equipment[key].info["stats"][stat]
+		return round(total, 2)
 
 	def xp_for_level(self, level):
 		if level == 1:
