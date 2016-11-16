@@ -30,6 +30,10 @@
                 {
                     "chance": 75,
                     "type": "equipment"
+                },
+                {
+                    "chance":35,
+                    "type":"scimitar"
                 }
             ],
             "key": "Σ"
@@ -74,7 +78,7 @@
                     "type": "droppable"
                 },
                 {
-                    "chance": 100,
+                    "chance": 50,
                     "type": "equipment"
                 },
                 {
