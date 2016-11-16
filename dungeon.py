@@ -2171,4 +2171,7 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 # for i in range(100):
 # 	enemy_type = random.choice(list(my_god.enemy_types.keys()))
 # 	print(enemy_type, ':', inv.drop(my_god.enemy_types[enemy_type]["attributes"]["drops"], 1))
-Game(tutorial=True)
+game = Game(tutorial=True)
+names = [game.dungeon.random_dungeon_name() for i in range(100)]
+for name in names:
+	print(name)
