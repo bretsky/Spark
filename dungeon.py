@@ -8,6 +8,7 @@ from time import perf_counter as get_time
 from copy import deepcopy
 import json
 import time
+import base64
 
 def signed_pow(i, n):
 	return abs(i)/i * abs(i)**n
@@ -97,6 +98,42 @@ def get_from_path(d, path):
 			d = d[s]
 	return deepcopy(d)
 
+class Map():
+	def __init__(self, map_list, goals):
+		self.map_list = map_list
+		self.goals = goals
+		self.map = [[0 for x in range(len(map_list[0]))] for y in range(len(map_list))]
+		for x in range(len(self.map_list)):
+			for y in range(len(self.map_list[0])):
+				if self.map_list[y][x].type in WALKABLE_TILES:
+					self.map[x][y] = self.distance_from_goal([x, y])
+
+	def distance_from_goal(self, a):
+		a = tuple(a)
+		if a in self.goals:
+			return 0
+		# print(a, b)
+		frontier = [(a, 0)]
+		cost_so_far = {a: 0}
+		for i in range(8192):
+			current = frontier.pop(0)[0]
+			# print(i)
+			if current in self.goals:
+				return cost_so_far[current]
+			for side in SIDES:
+				side = tuple([side[i] + current[i] for i in range(2)])
+				if not self.map_list[side[1]][side[0]].type in WALL_TILES:
+					new_cost = cost_so_far[current] + 1
+					# if self.dungeon.map_list[side[1]][side[0]].occupant:
+					# 	new_cost += 6
+					if side not in list(cost_so_far.keys()) or new_cost < cost_so_far[side]:
+						cost_so_far[side] = new_cost
+						priority = new_cost + min((abs(side[0] - goal[0]) + abs(side[1] - goal[1]) for goal in self.goals))
+						frontier.append((side, priority))
+						frontier = sorted(frontier, key=lambda x: x[1])
+		
+
+
 class Dungeon():
 	def __init__(self, level, animate=False, name=False):
 		self.animate = animate
@@ -116,6 +153,7 @@ class Dungeon():
 						self.map_list[y][x].type = 2
 		if self.animate:
 			self.debug_draw() #animate
+		self.doors = []
 		self.corridors_made = 0
 		start = get_time()
 		self.rooms = self.make_rooms()
@@ -137,6 +175,7 @@ class Dungeon():
 			self.persistent_draw()
 		self.unfill()
 		self.tile_rooms()
+		self.maps = {"doors": Map(self.map_list, self.doors)}
 
 	def import_files(self):
 		geo_file = open('data/dungeon/geographical_features.txt')
@@ -334,6 +373,7 @@ class Dungeon():
 		for i in range(len(self.connectors)):
 			if random.randrange(50) == 0:
 				for x, y in self.connectors[i]:
+					self.doors.append((x, y))
 					self.map_list[y][x].type = 5
 			for x, y in self.connectors[i]:
 				self.map_list[y][x].connector = False
@@ -348,6 +388,7 @@ class Dungeon():
 			if potential_connectors:
 				connection = random.choice(potential_connectors)
 				for connector in connection:
+					self.doors.append((connector[0], connector[1]))
 					self.map_list[connector[1]][connector[0]].type = 5
 					if self.animate:
 						self.debug_refresh() #animate
@@ -841,6 +882,45 @@ class Room():
 	def in_this_room(self, p):
 		return tuple(p) in self.tiles		
 
+class Heatmap():
+	def __init__(self, minval, maxval):
+		self.min = minval
+		self.max = maxval
+		self.range = maxval - minval
+
+	def rgb(self, x):
+		x = (x - self.min)/self.range
+		return [self.r(x), self.g(x), self.b(x)]
+
+	def r(self, x):
+		if x < 0.375:
+			return 0
+		if x < 0.625:
+			return int((4*x - 1.5)*255)
+		if x > 0.875:
+			return int((-4*x + 4.5)*255)
+		return 255
+
+	def g(self, x):
+		if x < 0.125:
+			return 0
+		if x > 0.875:
+			return 0
+		if x < 0.375:
+			return int((4*x - 0.5)*255)
+		if x > 0.625:
+			return int((-4*x + 3.5)*255)
+		return 255
+
+	def b(self, x):
+		if x > 0.625:
+			return 0
+		if x < 0.125:
+			return int((4*x + 0.5)*255)
+		if x > 0.375:
+			return int((-4*x + 2.5)*255)
+		return 255
+
 class Game():
 	def __init__(self, tutorial=False):
 
@@ -865,6 +945,10 @@ class Game():
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
+		self.modifiers = ["map"]
+		print(min(min(self.dungeon.maps["doors"].map, key=lambda x: min(x))))
+		print(max(max(self.dungeon.maps["doors"].map, key=lambda x: max(x))))
+		self.doors_heatmap = Heatmap(min(min(self.dungeon.maps["doors"].map, key=lambda x: min(x))), max(max(self.dungeon.maps["doors"].map, key=lambda x: max(x))))
 		print('finished setup')
 		self.run()
 
@@ -1430,10 +1514,16 @@ class Game():
 		if self.state == "inventory":
 			self.show_inventory(self.character.inventory)
 		if self.state == "equipment":
-			self.character.refresh()
-		brlb.layer(0)
+			self.character.refresh()	
 		for y in range(len(self.dungeon.map_list)):
 			for x in range(len(self.dungeon.map_list[y])):
+				if self.dungeon.map_list[y][x].type in WALKABLE_TILES and self.dungeon.map_list[y][x].seen:
+					pos = self.translate_to_screen(x, y)
+					brlb.layer(3)
+					brlb.color(brlb.color_from_argb(127, *self.doors_heatmap.rgb(self.dungeon.maps["doors"].map[x][y])))
+					# print(self.dungeon.maps["doors"].map[x][y])
+					brlb.put(pos[0], pos[1], BASE64[self.dungeon.maps["doors"].map[x][y]])	
+				brlb.layer(0)
 				if self.dungeon.map_list[y][x].type == BG_TILE:
 					pass
 				elif self.dungeon.map_list[y][x].type in WALL_TILES and self.dungeon.map_list[y][x].visible:
@@ -1443,7 +1533,8 @@ class Game():
 				elif self.dungeon.map_list[y][x].type in FLOOR_TILE and self.dungeon.map_list[y][x].visible:
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
-					brlb.put(pos[0], pos[1], '.')					
+					brlb.put(pos[0], pos[1], '.')
+
 				elif self.dungeon.map_list[y][x].type in HALL_TILE and self.dungeon.map_list[y][x].visible:
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
@@ -1515,16 +1606,16 @@ class Game():
 		height = self.screen_y
 		start_y = int(height*0.125)
 		list_height = int(height*0.875) - start_y - 3
-		pages = max(int(ceiling(len(inventory.items) / (int(height*0.875) - start_y - 3), 0)), 1)
+		inventory.pages = max(int(ceiling(len(inventory.items) / (int(height*0.875) - start_y - 3), 0)), 1)
 		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
 		# print(self.pages)
 		# print('displaying')
-		brlb.layer(2)
+		brlb.layer(7)
 		for x in range(start_x, int(width*0.875)):
 			for y in range(start_y, int(height*0.875)):
 				brlb.put(x, y, 9608)
 		if len(inventory.items) > 0:
-			brlb.layer(3)
+			brlb.layer(8)
 			brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 			for index in range(min(len(inventory.items) - (inventory.page - 1) * list_height, list_height)):
 				if index + 1 == inventory.item:
@@ -1610,7 +1701,7 @@ class Game():
 					brlb.put(start_x, start_y + 1 + index, 'E')
 				for c in range(len(inventory.items[index + (inventory.page - 1) * list_height].info["name"])):
 					brlb.put(start_x + 2 + c, start_y + 1 + index, inventory.items[index + (inventory.page - 1) * list_height].info["name"][c])
-			page_numbers = ' '.join([str(i + 1) for i in range(pages)])
+			page_numbers = ' '.join([str(i + 1) for i in range(inventory.pages)])
 			for c in range(len(page_numbers)):
 				if page_numbers[c] == str(inventory.page):
 					brlb.color(4294950481)
@@ -2004,11 +2095,11 @@ class Player(Character):
 		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
 		# print(self.pages)
 		# print('displaying')
-		brlb.layer(2)
+		brlb.layer(7)
 		for x in range(self.start_x, int(self.width*0.875)):
 			for y in range(self.start_y, int(self.height*0.875)):
 				brlb.put(x, y, 9608)
-		brlb.layer(3)
+		brlb.layer(8)
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 		brlb.printf(self.width // 2 - 6, self.start_y + 1, "Head: ")
 		if self.equipment["head"]:
@@ -2160,10 +2251,11 @@ FLOOR_TILE = set([1])
 WALL_TILES = set([2, 4])
 HALL_TILE = set([3])
 DOOR_TILE = set([5])
+WALKABLE_TILES = set([1, 3, 5])
 # print(brlb.color_from_argb(255, 204, 204, 204))
 SIDES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 4294967295]
-
+BASE64 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '?']
 # with PyCallGraph(output=GraphvizOutput()):
 # 	Game()
 # inv = Inventory()
