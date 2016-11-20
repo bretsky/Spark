@@ -940,8 +940,8 @@ class Game():
 		if not run:
 			return
 		print(self.character)
-		for i in range(25):
-			print(self.character.xp_for_level(i+1))
+		# for i in range(25):
+		# 	print(self.character.xp_for_level(i+1))
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
@@ -1161,13 +1161,14 @@ class Game():
 
 
 	def run(self):
-		closed = False
+		self.closed = False
 		self.update_light()
 		self.draw()
-		while closed == False:
+		self.kill = False
+		while self.closed == False and not self.kill:
 			# brlb.refresh()
 			if brlb.has_input():
-				closed = self.on_move_events()
+				self.closed = self.on_move_events()
 
 		return 0
 	
@@ -1430,13 +1431,20 @@ class Game():
 				self.state = "inventory"
 			else:
 				self.state = "game"
-		if key == brlb.TK_E:
+		elif key == brlb.TK_E:
 			if self.state == "game":
 				self.state = "equipment"
 			else:
 				self.state = "game"
-		if key == brlb.TK_ESCAPE:
+		elif key == brlb.TK_ESCAPE:
 			self.state = "game"
+		elif key == brlb.TK_GRAVE:
+			if brlb.state(brlb.TK_SHIFT):
+				if self.state == "game":
+					self.state = "console"
+				else:
+					self.state = "game" 
+
 			# print(self.character.inventory.show)
 		# for x, y in circle:
 		# 	if self.dungeon.in_bounds(x, y):
@@ -1593,9 +1601,38 @@ class Game():
 		brlb.printf(0, 1, 'LV: ' + str(int(self.character.level)))
 		brlb.printf(0, 2, 'NL: ' + str(int(self.character.next_level - self.character.xp)))
 		# brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
-
+		if self.state == "console":
+			self.show_console()
 		brlb.refresh()
 		return 0
+
+	def show_console(self):
+		start_x = int(self.screen_x*0.125)
+		start_y = int(self.screen_y*0.125)
+		brlb.layer(7)
+		brlb.color(brlb.color_from_argb(227, 25, 25, 25))
+		for x in range(start_x, int(self.screen_x*0.875)):
+			for y in range(start_y, int(self.screen_y*0.875)):
+				brlb.put(x, y, 9608)
+		brlb.layer(8)
+		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+		while True:
+			command = str()
+			command = brlb.read_str(start_x, int(self.screen_y*0.875) - 1 , command, int(self.screen_x*0.75))
+			print('input')
+			# print(command)
+			if command[0] == brlb.TK_INPUT_CANCELLED:
+				print('cancelled')
+				self.state = "game"
+				self.draw()
+				return
+			else:
+				print(command[1])
+				try:
+					exec(command[1])
+				except BaseException as exception:
+					print(exception)
+
 
 	def show_inventory(self, inventory):
 		# print(self.show)
@@ -1637,6 +1674,8 @@ class Game():
 					key_index = len(inventory.key_order)
 					stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
 					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys())]
+					# print(character_stats)\
+					print(inventory.items[inventory.item - 1].id)
 					character_stats_diff = self.character.get_stat_changes(inventory.items[inventory.item - 1], character_stats)
 					character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
 					for key in stats:
@@ -1755,7 +1794,7 @@ class Item():
 		self.equipped = False
 
 	def __str__(self):
-		item_string = ''
+		item_string = '(' + str(self.id) + ') '
 		item_string += self.info['name']
 		item_string += ': ' + str(self.info)
 		return item_string
@@ -1934,7 +1973,7 @@ class Character():
 	def get_stat_changes(self, new_item, stats):
 		stats_curr = [self.get_stat(stat) for stat in stats]
 		old_items = self.equip(new_item)
-		print(old_items)
+		# print(old_items)
 		diff = [self.get_stat(stats[i]) - stats_curr[i] for i in range(len(stats_curr))]
 		self.unequip(new_item)
 		if old_items:
@@ -2175,13 +2214,15 @@ class God(Handler):
 			room = random.choice(self.dungeon.rooms)
 			point = random.choice(list(room.tiles))
 			if not self.dungeon.map_list[point[1]][point[0]].visible:
-				level = int(round_up((randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1))) + randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1)))/2)))
+				level = (randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1))) + randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1))))/2
+				print(level)
+				level = int(round_up(level, 0))
 				enemy_type = random.choice(list(self.enemy_types.keys()))
 				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), *point)
 				self.characters.append(enemy)
 				print(enemy.stats)
 				print(enemy.type)
-				print(enemy.level, '\n')
+				# print(enemy.level, '\n')
 				self.dungeon.map_list[point[1]][point[0]].occupant = enemy
 			else:
 				return self.spawn()
