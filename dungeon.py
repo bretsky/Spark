@@ -8,7 +8,6 @@ from time import perf_counter as get_time
 from copy import deepcopy
 import json
 import time
-import base64
 
 def signed_pow(i, n):
 	return abs(i)/i * abs(i)**n
@@ -102,11 +101,37 @@ class Map():
 	def __init__(self, map_list, goals):
 		self.map_list = map_list
 		self.goals = goals
-		self.map = [[0 for x in range(len(map_list[0]))] for y in range(len(map_list))]
-		for x in range(len(self.map_list)):
-			for y in range(len(self.map_list[0])):
-				if self.map_list[y][x].type in WALKABLE_TILES:
-					self.map[x][y] = self.distance_from_goal([x, y])
+		# print(goals)
+		self.map = [[None for x in range(len(map_list[0]))] for y in range(len(map_list))]
+		self.dijkstra()
+		self.flatmap = [item for sublist in self.map for item in sublist]
+		self.min = min(filter(lambda n: n is not None, self.flatmap))
+		self.max = max(filter(lambda n: n is not None, self.flatmap))
+		print(self.max)
+
+
+	def dijkstra(self):
+		frontier = [(goal, 0) for goal in self.goals]
+		seen_tiles = set()
+		for i in range(8192):
+			if len(frontier) == 0:
+				break
+			current = frontier.pop(0)
+			seen_tiles.add(current)
+			self.map[current[0][0]][current[0][1]] = current[1]
+			for side in SIDES:
+				side = tuple([side[i] + current[0][i] for i in range(2)])
+				# print(side)
+				if not self.map_list[side[1]][side[0]].type in WALL_TILES and not side in seen_tiles:
+					seen_tiles.add(side)
+					if not (side, current[1] + 1) in frontier:
+						frontier.append((side, current[1] + 1))
+			frontier = sorted(frontier, key=lambda x: x[1])
+			x = i
+		print(x)
+
+
+
 
 	def distance_from_goal(self, a):
 		a = tuple(a)
@@ -923,6 +948,7 @@ class Heatmap():
 
 class Game():
 	def __init__(self, tutorial=False):
+		
 
 		self.log = Log()	
 		self.dungeons = []
@@ -946,9 +972,7 @@ class Game():
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
 		self.modifiers = ["map"]
-		print(min(min(self.dungeon.maps["doors"].map, key=lambda x: min(x))))
-		print(max(max(self.dungeon.maps["doors"].map, key=lambda x: max(x))))
-		self.doors_heatmap = Heatmap(min(min(self.dungeon.maps["doors"].map, key=lambda x: min(x))), max(max(self.dungeon.maps["doors"].map, key=lambda x: max(x))))
+		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
 		print('finished setup')
 		self.run()
 
@@ -1407,11 +1431,15 @@ class Game():
 			elif key in list(self.MOVEMENT_BINDS.keys()):
 				self.character.inventory.select_menu = False
 				if self.MOVEMENT_BINDS[key] == "left":
+					page = self.character.inventory.page
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
-					self.character.inventory.item = 1
+					if page != self.character.inventory.page:
+						self.character.inventory.item = 1
 				elif self.MOVEMENT_BINDS[key] == "right":
+					page = self.character.inventory.page
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
-					self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
+					if page != self.character.inventory.page:
+						self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
 					print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
@@ -1522,16 +1550,18 @@ class Game():
 		if self.state == "inventory":
 			self.show_inventory(self.character.inventory)
 		if self.state == "equipment":
-			self.character.refresh()	
+			self.character.refresh()
+		brlb.layer(1)
+		brlb.composition(brlb.TK_ON)
 		for y in range(len(self.dungeon.map_list)):
 			for x in range(len(self.dungeon.map_list[y])):
 				if self.dungeon.map_list[y][x].type in WALKABLE_TILES and self.dungeon.map_list[y][x].seen:
+					brlb.layer(0)
 					pos = self.translate_to_screen(x, y)
-					brlb.layer(3)
 					brlb.color(brlb.color_from_argb(127, *self.doors_heatmap.rgb(self.dungeon.maps["doors"].map[x][y])))
 					# print(self.dungeon.maps["doors"].map[x][y])
-					brlb.put(pos[0], pos[1], BASE64[self.dungeon.maps["doors"].map[x][y]])	
-				brlb.layer(0)
+					brlb.put(pos[0], pos[1], 9608)
+					brlb.layer(1)
 				if self.dungeon.map_list[y][x].type == BG_TILE:
 					pass
 				elif self.dungeon.map_list[y][x].type in WALL_TILES and self.dungeon.map_list[y][x].visible:
@@ -1567,6 +1597,8 @@ class Game():
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
 					brlb.put(pos[0], pos[1], 'X')
+		brlb.composition(brlb.TK_OFF)
+		brlb.layer(1)
 		pos = self.translate_to_screen(*self.dungeon.start)
 		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
 		brlb.put(pos[0], pos[1], '↑')
@@ -1586,14 +1618,19 @@ class Game():
 				brlb.color(item.info["colour"] + self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*256**3)
 				# print(self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255**3)
 				brlb.put(pos[0], pos[1], item.info["key"])
-		brlb.composition(brlb.TK_OFF)
+		brlb.composition(brlb.TK_OFF)		
+		brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
 		for character in self.god.characters[1:]:
 			if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible:
 				pos = self.translate_to_screen(*character.pos)
 				# brlb.clear_area(pos[0], pos[1], 1, 1)
+				brlb.layer(1)
+				brlb.clear_area(pos[0], pos[1], 1, 1)
+				brlb.layer(2)
 				brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
 				brlb.put(pos[0], pos[1], character.attributes['key'])	
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+
 		brlb.put(self.screen_x//2, self.screen_y//2, '@')
 		brlb.layer(1)
 		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
@@ -1700,13 +1737,10 @@ class Game():
 						diff = round(diff, 3)
 						if diff < 0:
 							diff = str(diff)
-							brlb.color(brlb.color_from_argb(255, 255, 0, 0))
 						elif diff > 0:
 							diff = '+' + str(diff)
-							brlb.color(brlb.color_from_argb(255, 0, 255, 0))
 						else:
 							diff = '=='
-							brlb.color(brlb.color_from_argb(255, 255, 255, 0))
 						for c in range(len(diff)):
 							brlb.put(width // 2 + length + c + 1, start_y + 1 + key_index, diff[c])
 						key_index += 1
@@ -1783,8 +1817,8 @@ class Game():
 						cost_so_far[side] = new_cost
 						priority = new_cost + abs(side[0] - b[0]) + abs(side[1] - b[1])
 						frontier.append((side, priority))
-						frontier = sorted(frontier, key=lambda x: x[1])
 						came_from[side] = current
+			frontier = sorted(frontier, key=lambda x: x[1])
 		return self.get_path(came_from, b, a)
 
 class Item():
@@ -2276,7 +2310,7 @@ class Log():
 		
 
 	def show(self, x, y):
-		brlb.layer(1)
+		brlb.layer(2)
 		# print('showing log')
 		for i in range(len(self.history)):
 			if len(self.history) - i <= self.new_info:
@@ -2296,7 +2330,6 @@ WALKABLE_TILES = set([1, 3, 5])
 # print(brlb.color_from_argb(255, 204, 204, 204))
 SIDES = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 4294967295]
-BASE64 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '?']
 # with PyCallGraph(output=GraphvizOutput()):
 # 	Game()
 # inv = Inventory()
