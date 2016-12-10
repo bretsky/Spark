@@ -973,6 +973,7 @@ class Game():
 		self.state = "game"
 		self.modifiers = ["map"]
 		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
+		self.visibility = False
 		print('finished setup')
 		self.run()
 
@@ -1187,7 +1188,7 @@ class Game():
 	def run(self):
 		self.closed = False
 		self.update_light()
-		self.draw()
+		self.draw(self.visibility)
 		self.kill = False
 		while self.closed == False and not self.kill:
 			# brlb.refresh()
@@ -1399,9 +1400,21 @@ class Game():
 								else:
 									break
 
+	def generate_sides(self, pos, walkable=True):
+		sides = []
+		for side in SIDES:
+			side_pos = (pos[0] + side[0], pos[1] + side[1])
+			if self.dungeon.in_bounds(*side_pos):
+				if walkable:
+					if self.dungeon.map_list[side_pos[1]][side_pos[0]].type in WALKABLE_TILES:
+						sides.append(side_pos)
+				else:
+					sides.append(side_pos)
+		return sides
+
 	def on_move_events(self):
 		# brlb.refresh()
-		self.draw()
+		self.draw(self.visibility)
 		self.player_action = False
 		key = brlb.read()
 		if key == brlb.TK_CLOSE:
@@ -1502,32 +1515,59 @@ class Game():
 					self.log.log(character.name + ' died')
 					self.god.kill(character.id)
 				# elif self.distance(character.pos, self.character.pos) <= 10 and self.distance(character.pos, self.character.pos) > 1:
-				elif self.dungeon.map_list[character.pos[1]][character.pos[0]].visible and self.distance(character.pos, self.character.pos) > 1:
-					trail = self.pathfind(character.pos, self.character.pos)
-					character.memory = self.character.pos
-					character.memory_trail = trail[2:]
-					# print(character.pos)
-					# print(character.memory_trail)
-					if not self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant:
-						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
-						character.pos = trail[1]
-						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
-				elif self.distance(character.pos, self.character.pos) == 1:
-					damage = character.attack(self.character)
-					self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
-				elif character.memory != None:
-					print('moving')
-					print(character.pos)
-					print(character.memory_trail)
-					if not self.dungeon.map_list[character.memory_trail[0][1]][character.memory_trail[0][0]].occupant:
-						print('here we go')
-						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
-						character.pos = character.memory_trail[0]
-						self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
-						del character.memory_trail[0]
-						if len(character.memory_trail) == 0:
-							character.memory_trail = None
-							character.memory = None
+				elif character.id != 0:
+					if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible and self.distance(character.pos, self.character.pos) > 1:
+						trail = self.pathfind(character.pos, self.character.pos)
+						character.memory = self.character.pos
+						character.memory_trail = trail[2:]
+						# print(character.pos)
+						# print(character.memory_trail)
+						if not self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant:
+							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+							character.pos = trail[1]
+							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+					elif self.distance(character.pos, self.character.pos) == 1:
+						damage = character.attack(self.character)
+						self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
+					elif character.memory != None:
+						print('moving')
+						print(character.pos)
+						print(character.memory_trail)
+						if not self.dungeon.map_list[character.memory_trail[0][1]][character.memory_trail[0][0]].occupant:
+							print('here we go')
+							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+							character.pos = character.memory_trail[0]
+							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+							del character.memory_trail[0]
+							if len(character.memory_trail) == 0:
+								character.memory_trail = None
+								character.memory = None
+					elif character.goals != []:
+						side_values = []
+						current_value = 0
+						print(character.pos, character.map_direction, character.type)
+						for key in list(character.goals.keys()):
+							current_value += self.dungeon.maps[key].map[character.pos[0]][character.pos[1]]
+						sides = self.generate_sides(character.pos)
+						for side in sides:
+							value = 0
+							for key in list(character.goals.keys()):
+								value += self.dungeon.maps[key].map[side[0]][side[1]]
+							side_values.append(value)
+						indices = list(range(len(sides)))
+						random.shuffle(indices)
+						if character.map_direction == "up" and max(side_values) < current_value:
+							character.map_direction = "down"
+						elif character.map_direction == "down" and min(side_values) > current_value:
+							character.map_direction = "up"
+						for i in indices:
+							if character.map_direction == "up":
+								if side_values[i] > current_value or side_values[i] == max(side_values):
+									character.pos = (sides[i][0], sides[i][1])
+							if character.map_direction == "down":
+								if side_values[i] < current_value or side_values[i] == min(side_values):
+									character.pos =(sides[i][0], sides[i][1])
+
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
 				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
@@ -1542,9 +1582,12 @@ class Game():
 					moved_ids.append(item.id)
 			for item_id in moved_ids:
 				self.inventory.remove(item_id)
+			print("\n")
 		return False
 
-	def draw(self):	
+	def draw(self, visibility=False):
+		if self.visibility:
+			return self.draw_visible()
 		brlb.clear()
 		self.log.show(self.screen_x - 40, 0)
 		if self.state == "inventory":
@@ -1572,7 +1615,6 @@ class Game():
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
 					brlb.put(pos[0], pos[1], '.')
-
 				elif self.dungeon.map_list[y][x].type in HALL_TILE and self.dungeon.map_list[y][x].visible:
 					pos = self.translate_to_screen(x, y)
 					brlb.color(self.dungeon.map_list[y][x].luminosity())
@@ -1630,7 +1672,100 @@ class Game():
 				brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
 				brlb.put(pos[0], pos[1], character.attributes['key'])	
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+		brlb.put(self.screen_x//2, self.screen_y//2, '@')
+		brlb.layer(1)
+		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
+		brlb.printf(0, 0, 'HP: ' + str(int(self.character.hp)))
+		brlb.printf(0, 1, 'LV: ' + str(int(self.character.level)))
+		brlb.printf(0, 2, 'NL: ' + str(int(self.character.next_level - self.character.xp)))
+		# brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
+		if self.state == "console":
+			self.show_console()
+		brlb.refresh()
+		return 0
 
+	def draw_visible(self, visibility=False):
+		brlb.clear()
+		self.log.show(self.screen_x - 40, 0)
+		if self.state == "inventory":
+			self.show_inventory(self.character.inventory)
+		if self.state == "equipment":
+			self.character.refresh()
+		brlb.layer(1)
+		brlb.composition(brlb.TK_ON)
+		for y in range(len(self.dungeon.map_list)):
+			for x in range(len(self.dungeon.map_list[y])):
+				if self.dungeon.map_list[y][x].type in WALKABLE_TILES:
+					brlb.layer(0)
+					pos = self.translate_to_screen(x, y)
+					brlb.color(brlb.color_from_argb(127, *self.doors_heatmap.rgb(self.dungeon.maps["doors"].map[x][y])))
+					# print(self.dungeon.maps["doors"].map[x][y])
+					brlb.put(pos[0], pos[1], 9608)
+					brlb.layer(1)
+				if self.dungeon.map_list[y][x].type == BG_TILE:
+					pass
+				elif self.dungeon.map_list[y][x].type in WALL_TILES:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], 9608)
+				elif self.dungeon.map_list[y][x].type in FLOOR_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], '.')
+				elif self.dungeon.map_list[y][x].type in HALL_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], '.')
+				elif self.dungeon.map_list[y][x].type in DOOR_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], 'X')
+				elif self.dungeon.map_list[y][x].type in WALL_TILES:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], 9608)
+				elif self.dungeon.map_list[y][x].type in FLOOR_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], '.')					
+				elif self.dungeon.map_list[y][x].type in HALL_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], '.')
+				elif self.dungeon.map_list[y][x].type in DOOR_TILE:
+					pos = self.translate_to_screen(x, y)
+					brlb.color(4294967295)
+					brlb.put(pos[0], pos[1], 'X')
+		brlb.composition(brlb.TK_OFF)
+		brlb.layer(1)
+		pos = self.translate_to_screen(*self.dungeon.start)
+		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
+		brlb.put(pos[0], pos[1], '↑')
+		# print(self.distance(self.character.pos, self.dungeon.destination))
+		pos = self.translate_to_screen(*self.dungeon.destination)
+		brlb.color(brlb.pick_color(pos[0], pos[1], 0))
+		brlb.put(pos[0], pos[1], '↓')
+		brlb.composition(brlb.TK_ON)
+		for item in self.inventory.items:
+			pos = self.translate_to_screen(*item.info["location"])
+			brlb.clear_area(pos[0], pos[1], 1, 1)
+		for item in self.inventory.items:
+			pos = self.translate_to_screen(*item.info["location"])
+			# print(item.info["colour"])
+			brlb.color(item.info["colour"] + 255*256**3)
+			# print(self.dungeon.map_list[item.info["location"][1]][item.info["location"][0]].light_level()*51*255**3)
+			brlb.put(pos[0], pos[1], item.info["key"])
+		brlb.composition(brlb.TK_OFF)		
+		brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
+		for character in self.god.characters[1:]:
+			pos = self.translate_to_screen(*character.pos)
+			# brlb.clear_area(pos[0], pos[1], 1, 1)
+			brlb.layer(1)
+			brlb.clear_area(pos[0], pos[1], 1, 1)
+			brlb.layer(2)
+			brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+			brlb.put(pos[0], pos[1], character.attributes['key'])	
+		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 		brlb.put(self.screen_x//2, self.screen_y//2, '@')
 		brlb.layer(1)
 		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
@@ -1661,7 +1796,7 @@ class Game():
 			if command[0] == brlb.TK_INPUT_CANCELLED:
 				print('cancelled')
 				self.state = "game"
-				self.draw()
+				self.draw(self.visibility)
 				return
 			else:
 				print(command[1])
@@ -1997,6 +2132,8 @@ class Character():
 		self.next_level = self.xp_for_level(self.level)
 		self.memory = None
 		self.memory_trail = None
+		self.map_direction = "up"
+		self.goals = {"doors":1}
 
 	def unequip(self, item):
 		for equipment in self.equipment_keys:
