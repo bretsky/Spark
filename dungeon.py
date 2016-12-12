@@ -963,6 +963,7 @@ class Game():
 		self.WASD_BINDS = {brlb.TK_W: "up", brlb.TK_S: "down", brlb.TK_A: "left", brlb.TK_D: "right", brlb.TK_SPACE: "stay"}
 		self.MOVEMENTS = {"up": self.up, "down": self.down, "left": self.left, "right": self.right, "stay": self.stay}
 		self.MOVEMENT_BINDS = {0: self.WASD_BINDS, 1: self.ARROW_BINDS, 2: self.KEYPAD_BINDS}
+		run = True
 		if tutorial:
 			run = self.tutorial()
 		if not run:
@@ -2423,7 +2424,11 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 # for i in range(100):
 # 	enemy_type = random.choice(list(my_god.enemy_types.keys()))
 # 	print(enemy_type, ':', inv.drop(my_god.enemy_types[enemy_type]["attributes"]["drops"], 1))
-game = Game(tutorial=True)
-names = [game.dungeon.random_dungeon_name() for i in range(100)]
-for name in names:
-	print(name)
+
+# game = Game(tutorial=True)
+# names = [game.dungeon.random_dungeon_name() for i in range(100)]
+# for name in names:
+# 	print(name)
+
+def main():
+	Game(tutorial=True)
