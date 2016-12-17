@@ -974,9 +974,9 @@ class Game():
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
 		self.state = "game"
-		self.modifiers = ["map"]
+		self.modifiers = []
 		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
-		self.visibility = True
+		self.visibility = False
 		print('finished setup')
 		self.run()
 
@@ -1626,7 +1626,7 @@ class Game():
 		brlb.composition(brlb.TK_ON)
 		for y in range(len(self.dungeon.map_list)):
 			for x in range(len(self.dungeon.map_list[y])):
-				if self.dungeon.map_list[y][x].type in WALKABLE_TILES and (self.dungeon.map_list[y][x].seen or visibility):
+				if self.dungeon.map_list[y][x].type in WALKABLE_TILES and (self.dungeon.map_list[y][x].seen or visibility) and "map" in self.modifiers:
 					brlb.layer(0)
 					pos = self.translate_to_screen(x, y)
 					brlb.color(brlb.color_from_argb(127, *self.doors_heatmap.rgb(self.dungeon.maps["doors"].map[x][y])))
