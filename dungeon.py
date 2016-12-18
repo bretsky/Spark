@@ -968,7 +968,7 @@ class Game():
 			run = self.tutorial()
 		if not run:
 			return
-		print(self.character)
+		# print(self.character)
 		# for i in range(25):
 		# 	print(self.character.xp_for_level(i+1))
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
@@ -1084,7 +1084,7 @@ class Game():
 				if key == brlb.TK_CLOSE:
 					return False
 				else:
-					print(key)
+					# print(key)
 					intro_running = False
 				brlb.printf(self.screen_x//2 - len(intro)//2, self.screen_y//2 - 2, intro)
 				brlb.put(self.screen_x//2, self.screen_y//2, '@')
@@ -2432,3 +2432,4 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 
 def main():
 	Game(tutorial=True)
+
