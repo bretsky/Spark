@@ -2354,9 +2354,10 @@ class God(Handler):
 
 	def kill(self, char_id):
 		character = self.get_char_by_id(char_id)
-		self.killed_ids.add(character)
-		self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
-		self.characters.remove(character)
+		if character:
+			self.killed_ids.add(character)
+			self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+			self.characters.remove(character)
 
 	def turn(self):
 		attempts = max(1, len(self.dungeon.rooms) - len(self.characters))
@@ -2433,3 +2434,4 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 def main():
 	Game(tutorial=True)
 
+main()
