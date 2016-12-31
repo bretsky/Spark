@@ -19,7 +19,7 @@ def smooth_explode():
 		val += roll
 		if roll < 0.95:
 			return val
-		print('exploded')
+		# print('exploded')
 	return val
 
 def explode(l):
@@ -40,7 +40,7 @@ def contrast(n):
 
 def invert_colour(n):
 	hex_code = list(hex(n))[2:]
-	print(hex_code)
+	# print(hex_code)
 	for bit in range(len(hex_code)):
 		hex_code[bit] = hex(int(hex_code[bit], 16) ^ 15)[2:]
 	return int(''.join(hex_code), 16)
@@ -107,7 +107,7 @@ class Map():
 		self.flatmap = [item for sublist in self.map for item in sublist]
 		self.min = min(filter(lambda n: n is not None, self.flatmap))
 		self.max = max(filter(lambda n: n is not None, self.flatmap))
-		print(self.max)
+		# print(self.max)
 
 
 	def dijkstra(self):
@@ -130,7 +130,7 @@ class Map():
 						frontier.append((side, current[1] + 1))
 			frontier = sorted(frontier, key=lambda x: x[1])
 			x = i
-		print(x)
+		# print(x)
 
 
 
@@ -188,7 +188,7 @@ class Dungeon():
 		self.start = False
 		while self.start == self.destination or self.start == False:
 			self.start = random.choice(tuple(random.choice(self.rooms).tiles))
-		print('made rooms in', get_time()-start)
+		# print('made rooms in', get_time()-start)
 		self.debug = False
 		start = get_time()
 		self.make_corridors()
@@ -197,7 +197,7 @@ class Dungeon():
 		# except RuntimeError:
 		# 	self.debug = True
 		# 	print('RuntimeError occurred')
-		print('made corridors in', get_time()-start)
+		# print('made corridors in', get_time()-start)
 		if self.animate:
 			self.persistent_draw()
 		self.unfill()
@@ -213,7 +213,7 @@ class Dungeon():
 		self.dungeon_attr_list = dungeon_attr_file.read().splitlines()
 		self.dungeon_adj_list = dungeon_adj_file.read().splitlines()
 		self.dungeon_word_list = dungeon_word_file.read().splitlines()
-		print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
+		# print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
 
 	def darken(self, room):
 		for wall in room.walls:
@@ -977,7 +977,7 @@ class Game():
 		self.modifiers = []
 		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
 		self.visibility = False
-		print('finished setup')
+		# print('finished setup')
 		self.run()
 
 	def descend(self, game_start=False):
@@ -1174,16 +1174,16 @@ class Game():
 
 	def initialise_screen(self):
 		brlb.open()
-		print('opened')
+		# print('opened')
 		monitors = screeninfo.get_monitors()
 		monitor = sorted(monitors, key=lambda x: x.height * x.width, reverse=True)[0]
-		print(monitor.width, monitor.height)
+		# print(monitor.width, monitor.height)
 		self.screen_y = int(monitor.height*0.61803398875//16)
 		self.screen_x = int(monitor.width*0.61803398875//8)
-		print('calculated screen size')		
-		print(self.screen_x, self.screen_y)
+		# print('calculated screen size')		
+		# print(self.screen_x, self.screen_y)
 		brlb.set('window.title="{d}"; font: unifont-8.0.01.ttf, size=12; window.size={w}x{h};'.format(d=self.dungeon.name, w=self.screen_x, h=self.screen_y))
-		print('configured')
+		# print('configured')
 		brlb.composition(brlb.TK_OFF)
 		# brlb.refresh()
 
@@ -1413,7 +1413,7 @@ class Game():
 					if self.dungeon.map_list[side_pos[1]][side_pos[0]].type in WALKABLE_TILES:
 						sides.append(side_pos)
 					else:
-						print("type:", self.dungeon.map_list[side_pos[1]][side_pos[0]].type)
+						# print("type:", self.dungeon.map_list[side_pos[1]][side_pos[0]].type)
 				else:
 					sides.append(side_pos)
 		return sides
@@ -1459,13 +1459,13 @@ class Game():
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
 					if page != self.character.inventory.page:
 						self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
-					print(self.character.inventory.item)
+					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
-					print(self.character.inventory.item)
+					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "down":
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
-					print(self.character.inventory.item)
+					# print(self.character.inventory.item)
 			elif len(self.character.inventory.items) > 0:
 				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
 					self.character.inventory.select_menu = not self.character.inventory.select_menu
@@ -1543,7 +1543,7 @@ class Game():
 						# print(character.pos)
 						# print(character.memory_trail)
 						if not self.dungeon.map_list[character.memory_trail[0][1]][character.memory_trail[0][0]].occupant:
-							print('here we go')
+							# print('here we go')
 							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 							character.move(character.memory_trail[0])
 							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
@@ -1555,7 +1555,7 @@ class Game():
 						moved = False
 						side_values = []
 						current_value = 0
-						print(character.pos, character.map_direction, character.type)
+						# print(character.pos, character.map_direction, character.type)
 						for key in list(character.goals.keys()):
 							current_value += self.dungeon.maps[key].map[character.pos[0]][character.pos[1]]
 						sides = self.generate_sides(character.pos)
@@ -1569,15 +1569,15 @@ class Game():
 								for key in list(character.goals.keys()):
 									value += self.dungeon.maps[key].map[side[0]][side[1]]
 								side_values.append(value)
-							print(current_value, "max:", max(side_values), "min:", min(side_values))
-							print(side_values)
+							# print(current_value, "max:", max(side_values), "min:", min(side_values))
+							# print(side_values)
 							indices = list(range(len(sides)))
 							random.shuffle(indices)
 							if character.map_direction == "up" and max(side_values) < current_value:
-								print(character.type, "switching from up to down")
+								# print(character.type, "switching from up to down")
 								character.map_direction = "down"
 							elif character.map_direction == "down" and min(side_values) > current_value:
-								print(character.type, "switching from down to up")
+								# print(character.type, "switching from down to up")
 								character.map_direction = "up"
 							for i in indices:
 								if sides[i] not in character.history:
@@ -1593,10 +1593,10 @@ class Game():
 											break
 						elif not moved:
 							if character.map_direction == "up":
-								print(character.type, "switching from up to down (history)")
+								# print(character.type, "switching from up to down (history)")
 								character.map_direction = "down"
 							elif character.map_direction == "down":
-								print(character.type, "switching from down to up (history)")
+								# print(character.type, "switching from down to up (history)")
 								character.map_direction = "up"
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
@@ -1612,7 +1612,7 @@ class Game():
 					moved_ids.append(item.id)
 			for item_id in moved_ids:
 				self.inventory.remove(item_id)
-			print("\n")
+			# print("\n")
 		return False
 
 	def draw(self, visibility=False):
@@ -1731,10 +1731,10 @@ class Game():
 		while True:
 			command = str()
 			command = brlb.read_str(start_x, int(self.screen_y*0.875) - 1 , command, int(self.screen_x*0.75))
-			print('input')
+			# print('input')
 			# print(command)
 			if command[0] == brlb.TK_INPUT_CANCELLED:
-				print('cancelled')
+				# print('cancelled')
 				self.state = "game"
 				self.draw(self.visibility)
 				return
@@ -1787,7 +1787,7 @@ class Game():
 					stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
 					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys())]
 					# print(character_stats)\
-					print(inventory.items[inventory.item - 1].id)
+					# print(inventory.items[inventory.item - 1].id)
 					character_stats_diff = self.character.get_stat_changes(inventory.items[inventory.item - 1], character_stats)
 					character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
 					for key in stats:
@@ -1797,13 +1797,13 @@ class Game():
 							brlb.put(width // 2 + c, start_y + 1 + key_index, attribute[c])
 						length = len(attribute)
 						equipped = inventory.find_equipped_item(inventory.items[index + (inventory.page - 1) * list_height].info["equip"])
-						print(equipped)
+						# print(equipped)
 						if key in list(character_stats_diff.keys()):
 							diff = character_stats_diff[key]
 						else:
 							curr = 0
 							if equipped != None:
-								print("getting stats:", equipped)
+								# print("getting stats:", equipped)
 								curr = inventory.get_item_by_id(equipped).info["stats"][key]
 							if inventory.items[index + (inventory.page - 1) * list_height].equipped:
 								diff = -curr
@@ -1868,7 +1868,7 @@ class Game():
 
 	def end_game(self):
 		self.MOVEMENT_BINDS = {}
-		print(self.character.inventory)
+		# print(self.character.inventory)
 
 
 	def pathfind(self, a, b):
@@ -1953,7 +1953,7 @@ class Inventory(Handler):
 		self.list_height = int(self.height*0.875) - self.start_y - 3
 
 	def get_item_by_id(self, item_id):
-		print("used_ids:", self.used_ids)
+		# print("used_ids:", self.used_ids)
 		if item_id in self.used_ids:
 			for item in self.items:
 				if item.id == item_id:
@@ -1978,7 +1978,7 @@ class Inventory(Handler):
 			while "name" not in list(choices.keys()):
 				choices = choices[random.choice(list(choices.keys()))]
 		except (ValueError, IndexError) as e:
-			print('WTF!!!!', choices, hierarchy, e)
+			# print('WTF!!!!', choices, hierarchy, e)
 		return choices
 
 	def roll_stat(self, base, level, material_tier):
@@ -2002,7 +2002,7 @@ class Inventory(Handler):
 					item_info["mat_tier"] = 3.5
 					item_info["colour"] = int(item_info["colour"], 16)
 		except (ValueError, IndexError) as e:
-			print('WTF!!!!', item_info, e)
+			# print('WTF!!!!', item_info, e)
 		item_info["name"] += " [" + str(level) + "]"
 		item_info["level"] = level
 		for stat in list(item_info["stats"].keys()):
@@ -2012,7 +2012,7 @@ class Inventory(Handler):
 				item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
 		item_info["location"] = location
 		item = Item(self.get_id(), item_info)
-		print(self.get_id())
+		# print(self.get_id())
 		self.items.append(item)
 		return item
 
@@ -2066,9 +2066,9 @@ class Character():
 		self.equipment_keys = ["head", "body", "lhand", "rhand"]
 		self.current_equipment = 0
 		self.show_equipment = False
-		print('xp:', (sum(list(self.stats.values()))/33 + self.level)/3)
+		# print('xp:', (sum(list(self.stats.values()))/33 + self.level)/3)
 		self.xp_worth = ceiling((sum(list(self.stats.values()))/33 + self.level)/3, -2)
-		print('xp rounded:', self.xp_worth)
+		# print('xp rounded:', self.xp_worth)
 		self.xp = 0
 		self.next_level = self.xp_for_level(self.level)
 		self.memory = None
@@ -2177,12 +2177,12 @@ class Character():
 		if target.invincible:
 			return 0
 		basedamage = 30
-		print(target.name, 'def:', target.get_stat('def'))
-		print(self.name, 'str:', self.get_stat('str'))
+		# print(target.name, 'def:', target.get_stat('def'))
+		# print(self.name, 'str:', self.get_stat('str'))
 		damage = ceiling(((2*self.level + 10)* self.get_stat('str')*basedamage/(250*target.get_stat('def')) + 2) * random.uniform(0.85, 1))
 		damage_no_items = ceiling(((2*self.level + 10)* self.stats['str']*basedamage/(250*target.stats['def']) + 2) * random.uniform(0.85, 1))
-		print('Items:', damage)
-		print('No items:', damage_no_items, '\n')
+		# print('Items:', damage)
+		# print('No items:', damage_no_items, '\n')
 		target.hp -= damage
 		return damage
 
@@ -2334,13 +2334,13 @@ class God(Handler):
 			point = random.choice(list(room.tiles))
 			if not self.dungeon.map_list[point[1]][point[0]].visible:
 				level = (randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1))) + randint(int(round_up(self.dungeon.level*0.9)),int(round_up(self.dungeon.level*1.1))))/2
-				print(level)
+				# print(level)
 				level = int(round_up(level, 0))
 				enemy_type = random.choice(list(self.enemy_types.keys()))
 				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), *point)
 				self.characters.append(enemy)
-				print(enemy.stats)
-				print(enemy.type)
+				# print(enemy.stats)
+				# print(enemy.type)
 				# print(enemy.level, '\n')
 				self.dungeon.map_list[point[1]][point[0]].occupant = enemy
 			else:
@@ -2433,5 +2433,3 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 
 def main():
 	Game(tutorial=True)
-
-main()
