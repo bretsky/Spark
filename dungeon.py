@@ -1413,6 +1413,7 @@ class Game():
 					if self.dungeon.map_list[side_pos[1]][side_pos[0]].type in WALKABLE_TILES:
 						sides.append(side_pos)
 					else:
+						pass
 						# print("type:", self.dungeon.map_list[side_pos[1]][side_pos[0]].type)
 				else:
 					sides.append(side_pos)
@@ -1978,7 +1979,7 @@ class Inventory(Handler):
 			while "name" not in list(choices.keys()):
 				choices = choices[random.choice(list(choices.keys()))]
 		except (ValueError, IndexError) as e:
-			# print('WTF!!!!', choices, hierarchy, e)
+			print('WTF!!!!', choices, hierarchy, e)
 		return choices
 
 	def roll_stat(self, base, level, material_tier):
@@ -2002,7 +2003,7 @@ class Inventory(Handler):
 					item_info["mat_tier"] = 3.5
 					item_info["colour"] = int(item_info["colour"], 16)
 		except (ValueError, IndexError) as e:
-			# print('WTF!!!!', item_info, e)
+			print('WTF!!!!', item_info, e)
 		item_info["name"] += " [" + str(level) + "]"
 		item_info["level"] = level
 		for stat in list(item_info["stats"].keys()):
