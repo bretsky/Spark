@@ -1260,6 +1260,8 @@ class Game():
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
 			enemy = self.dungeon.map_list[y][x].occupant
+			# print(enemy)
+			# print(self.god.get_char_by_id(enemy.id))
 			damage = self.character.attack(enemy)
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
@@ -1281,6 +1283,8 @@ class Game():
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
 			enemy = self.dungeon.map_list[y][x].occupant
+			# print(enemy)
+			# print(self.god.get_char_by_id(enemy.id))
 			damage = self.character.attack(enemy)
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
@@ -1302,6 +1306,8 @@ class Game():
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
 			enemy = self.dungeon.map_list[y][x].occupant
+			# print(enemy)
+			# print(self.god.get_char_by_id(enemy.id))
 			damage = self.character.attack(enemy)
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
@@ -1323,6 +1329,8 @@ class Game():
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
 			enemy = self.dungeon.map_list[y][x].occupant
+			# print(enemy)
+			# print(self.god.get_char_by_id(enemy.id))
 			damage = self.character.attack(enemy)
 			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
 			if enemy.hp <= 0:
@@ -1337,6 +1345,7 @@ class Game():
 		return (x, y)
 
 	def move(self, key):
+		# print(self.character.pos)
 		return self.MOVEMENTS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1])
 
 	def translate_to_screen(self, x, y):
@@ -1584,12 +1593,16 @@ class Game():
 								if sides[i] not in character.history:
 									if character.map_direction == "up":
 										if side_values[i] > current_value or side_values[i] == max(side_values):
+											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 											character.move((sides[i][0], sides[i][1]))
+											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
 											moved = True
 											break
 									if character.map_direction == "down":
 										if side_values[i] < current_value or side_values[i] == min(side_values):
+											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 											character.move((sides[i][0], sides[i][1]))
+											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
 											moved = True
 											break
 						elif not moved:
@@ -1841,6 +1854,7 @@ class Game():
 					for i in range(6):
 						brlb.put(menu_x + 1 + i, menu_y + 2, 9472)
 					brlb.put(menu_x + 7, menu_y + 2, 9496)
+					# print("choose_equip:", inventory.choose_equip)
 					if inventory.choose_equip:
 						brlb.printf(menu_x, menu_y + 4, '(LEFT) ' + inventory.equip_names[inventory.equip_choices[0]] + ' | (RIGHT) ' + inventory.equip_names[inventory.equip_choices[1]])
 					brlb.color(4294950481)
@@ -2217,7 +2231,7 @@ class Character():
 	# 	return max(0.1, round(damage, 1))
 
 	def __str__(self):
-		objdict = {'ID': hex(self.id), 'type': str(self.type), 'level': self.level, 'location': self.pos, 'name': self.name}
+		objdict = {'ID': hex(self.id), 'type': str(self.type), 'level': self.level, 'location': self.pos, 'name': self.name, 'HP': self.hp}
 		return ', '.join([key + ': ' + str(self.stats[key]) for key in list(self.stats.keys())] + [key + ': ' + str(objdict[key]) for key in list(objdict.keys())])
 
 	def turn(self):
@@ -2356,7 +2370,9 @@ class God(Handler):
 	def kill(self, char_id):
 		character = self.get_char_by_id(char_id)
 		if character:
+			# print("Killing", character.name)
 			self.killed_ids.add(character)
+			# print("Removing enemy from", character.pos)
 			self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 			self.characters.remove(character)
 
@@ -2384,14 +2400,16 @@ class Log():
 	def update(self):
 		self.new_info = 0	
 
-	def log(self, info):
+	def log(self, info, newline=False):
+		# if not newline:
+		# 	print(info)
 		self.new_info += 1
 		if len(info) > 40:
 			split = info.rfind(' ', 0, 40)
 			overflow = info[split:]
 			info = info[:split]
 			self.history.append(info)
-			self.log(overflow)
+			self.log(overflow, newline=True)
 		else:
 			self.history.append(info)
 		if len(self.history) > 7:
@@ -2434,3 +2452,5 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 
 def main():
 	Game(tutorial=True)
+
+main()
