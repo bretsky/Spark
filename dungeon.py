@@ -1324,7 +1324,7 @@ class Game():
 
 	def attack(self, attacker, victim):
 		damage = attacker.attack(victim)
-		if attacker == self.character or victim == self.character or True:
+		if attacker == self.character or victim == self.character:
 			self.log.log(attacker.name.capitalize() + ' attacked ' + victim.name + ', dealing ' + str(damage) + ' damage')
 		if victim.hp <= 0:
 			self.kill(attacker, victim)
@@ -1510,11 +1510,12 @@ class Game():
 			for character in self.god.characters:
 				while character.xp > character.next_level:
 					character.level += 1
-					self.log.log(character.name + ' is now level ' + str(character.level))
+					if character == self.character:
+						self.log.log(character.name + ' is now level ' + str(character.level))
 					character.level_up()
 					character.next_level = character.xp_for_level(character.level)
 				character_turn = character.turn()
-				if character_turn:
+				if character_turn and character == self.character:
 					self.log.log(character.name + character_turn)
 				if len(character.history) > 0:
 					if random.randrange(5) == 0:
@@ -1614,7 +1615,6 @@ class Game():
 								# print(character.type, "switching from down to up (history)")
 								character.map_direction = "up"
 			if self.character.hp <= 0:
-				self.dead = True
 				self.log.log(self.character.name.capitalize() + ' died')
 				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
 				self.end_game() 
