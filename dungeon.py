@@ -949,21 +949,22 @@ class Heatmap():
 		return 255
 
 class Game():
-	def __init__(self, tutorial=False):
-		
-
+	def __init__(self, tutorial=False, debug=False):
 		self.log = Log()	
 		self.dungeons = []
 		self.gods = []
 		self.inventories = []
 		self.descend(game_start=True)
 		self.initialise_screen()
+		self.UNIMPLEMENTED_STATS = ["mob", "skl", "wgt", "pen", "spd"]
+		self.CONTROL_NAMES = ['WASD', 'the arrow keys', 'the numpad']
 		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
 		self.ARROW_BINDS = {brlb.TK_UP: "up", brlb.TK_DOWN: "down", brlb.TK_LEFT: "left", brlb.TK_RIGHT: "right", brlb.TK_SPACE: "stay"}		
 		self.WASD_BINDS = {brlb.TK_W: "up", brlb.TK_S: "down", brlb.TK_A: "left", brlb.TK_D: "right", brlb.TK_SPACE: "stay"}
 		self.MOVEMENTS = {"up": self.up, "down": self.down, "left": self.left, "right": self.right, "stay": self.stay}
 		self.MOVEMENT_BINDS = {0: self.WASD_BINDS, 1: self.ARROW_BINDS, 2: self.KEYPAD_BINDS}
 		run = True
+		self.choose_controls()
 		if tutorial:
 			run = self.tutorial()
 		if not run:
@@ -977,14 +978,25 @@ class Game():
 		self.modifiers = []
 		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
 		self.visibility = False
+		if debug:
+			self.toggle_debug_mode()
 		# print('finished setup')
 		self.run()
 
+	def toggle_debug_mode(self):
+		self.character.invincible = True
+		self.visibility = True
+
 	def descend(self, game_start=False):
+		brlb.clear()
 		self.log.update()
+		brlb.refresh()
 		if game_start:
 			new_floor = True
 		else:
+			self.log.log("Descending...")
+			self.log.show(self.screen_x - 40, 0)
+			brlb.refresh()
 			new_floor = self.dungeons.index(self.dungeon) == len(self.dungeons) - 1
 		if not game_start and new_floor:
 			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon.name))
@@ -994,6 +1006,7 @@ class Game():
 		else:
 			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=False))
 			self.dungeon = self.dungeons[-1]
+		self.log.update()
 		self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
 		if not game_start and new_floor:
 			self.gods.append(God(self.dungeon, self.character))
@@ -1029,8 +1042,7 @@ class Game():
 		else:
 			self.log.log('You are already on the top floor')
 
-	def tutorial(self):
-		control_names = ['WASD', 'the arrow keys', 'the numpad']
+	def choose_controls(self):
 		title = "Choose controls:"
 		a_choice = 4*' ' + "1) WASD"
 		b_choice = 4*' ' + "2) Arrow keys"
@@ -1068,6 +1080,8 @@ class Game():
 					brlb.printf(start_x, start_y + i + 1, choices[i])
 				brlb.refresh()
 		self.MOVEMENT_BINDS = self.MOVEMENT_BINDS[self.controls]
+
+	def tutorial(self):	
 		brlb.clear()
 		brlb.color(4294967295)
 		intro = "This is you"
@@ -1096,7 +1110,7 @@ class Game():
 			still = "Press 5 to stand still for a turn."
 		elif self.controls < 2:
 			still = "Press space to stand still for a turn."
-		intro = "Use " + control_names[self.controls] + ' to move. ' + still
+		intro = "Use " + self.CONTROL_NAMES[self.controls] + ' to move. ' + still
 		continue_prompt = "press escape to continue"
 		intro_running = True
 		pos = [self.screen_x//2, self.screen_y//2]
@@ -1192,8 +1206,8 @@ class Game():
 		self.closed = False
 		self.update_light()
 		self.draw(self.visibility)
-		self.kill = False
-		while self.closed == False and not self.kill:
+		self.dead = False
+		while self.closed == False and not self.dead:
 			# brlb.refresh()
 			if brlb.has_input():
 				self.closed = self.on_move_events()
@@ -1259,17 +1273,7 @@ class Game():
 		self.player_action = True
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
-			enemy = self.dungeon.map_list[y][x].occupant
-			# print(enemy)
-			# print(self.god.get_char_by_id(enemy.id))
-			damage = self.character.attack(enemy)
-			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
-			if enemy.hp <= 0:
-				self.log.log(enemy.name + ' died')
-				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
-				self.character.xp += enemy.xp_worth
-				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
-				self.god.kill(enemy.id)
+			self.attack(self.character, self.dungeon.map_list[y][x].occupant)
 			return (x, y + 1)
 		self.dungeon.map_list[y][x].occupant = self.character
 		self.dungeon.map_list[y + 1][x].occupant = False
@@ -1282,17 +1286,7 @@ class Game():
 		self.player_action = True
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
-			enemy = self.dungeon.map_list[y][x].occupant
-			# print(enemy)
-			# print(self.god.get_char_by_id(enemy.id))
-			damage = self.character.attack(enemy)
-			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
-			if enemy.hp <= 0:
-				self.log.log(enemy.name + ' died')
-				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
-				self.character.xp += enemy.xp_worth
-				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
-				self.god.kill(enemy.id)			
+			self.attack(self.character, self.dungeon.map_list[y][x].occupant)		
 			return (x, y - 1)
 		self.dungeon.map_list[y][x].occupant = self.character
 		self.dungeon.map_list[y - 1][x].occupant = False
@@ -1305,17 +1299,7 @@ class Game():
 		self.player_action = True
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
-			enemy = self.dungeon.map_list[y][x].occupant
-			# print(enemy)
-			# print(self.god.get_char_by_id(enemy.id))
-			damage = self.character.attack(enemy)
-			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
-			if enemy.hp <= 0:
-				self.log.log(enemy.name + ' died')
-				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
-				self.character.xp += enemy.xp_worth
-				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
-				self.god.kill(enemy.id)			
+			self.attack(self.character, self.dungeon.map_list[y][x].occupant)		
 			return (x - 1, y)
 		self.dungeon.map_list[y][x].occupant = self.character
 		self.dungeon.map_list[y][x - 1].occupant = False
@@ -1328,17 +1312,7 @@ class Game():
 		self.player_action = True
 		self.log.update()
 		if self.dungeon.map_list[y][x].occupant:
-			enemy = self.dungeon.map_list[y][x].occupant
-			# print(enemy)
-			# print(self.god.get_char_by_id(enemy.id))
-			damage = self.character.attack(enemy)
-			self.log.log(self.character.name.capitalize() + ' attacked ' + enemy.name + ', dealing ' + str(damage) + ' damage')
-			if enemy.hp <= 0:
-				self.log.log(enemy.name + ' died')
-				self.log.log('You gained ' + str(enemy.xp_worth) + ' xp')
-				self.character.xp += enemy.xp_worth
-				self.inventory.drop(self.god.enemy_types[enemy.type]["attributes"]["drops"], enemy.level, enemy.pos)
-				self.god.kill(enemy.id)
+			self.attack(self.character, self.dungeon.map_list[y][x].occupant)
 			return (x + 1, y)
 		self.dungeon.map_list[y][x].occupant = self.character
 		self.dungeon.map_list[y][x + 1].occupant = False
@@ -1347,6 +1321,21 @@ class Game():
 	def move(self, key):
 		# print(self.character.pos)
 		return self.MOVEMENTS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1])
+
+	def attack(self, attacker, victim):
+		damage = attacker.attack(victim)
+		if attacker == self.character or victim == self.character or True:
+			self.log.log(attacker.name.capitalize() + ' attacked ' + victim.name + ', dealing ' + str(damage) + ' damage')
+		if victim.hp <= 0:
+			self.kill(attacker, victim)
+
+	def kill(self, killer, victim):
+		self.log.log(victim.name + ', the ' + victim.type + ', died')
+		if killer == self.character:
+			self.log.log(self.character.name + ' gained ' + str(victim.xp_worth) + ' xp')
+		killer.xp += victim.xp_worth
+		self.inventory.drop(self.god.enemy_types[victim.type]["attributes"]["drops"], victim.level, victim.pos)
+		self.god.kill(victim.id)
 
 	def translate_to_screen(self, x, y):
 		return (x - self.character.pos[0] + self.screen_x//2, y - self.character.pos[1] + self.screen_y//2)
@@ -1516,22 +1505,25 @@ class Game():
 				pass
 				# print(len(self.god.characters))
 				# print('\n'.join([str(character) for character in self.god.characters]))
-			character_turn = self.character.turn()
-			if character_turn:
-				self.log.log(self.character.name + character_turn)
-			while self.character.xp > self.character.next_level:
-				self.character.level += 1
-				self.log.log(self.character.name + ' are now level ' + str(self.character.level))
-				self.character.level_up()
-				self.character.next_level = self.character.xp_for_level(self.character.level)
 			# print(len(self.god.characters))
 			
 			for character in self.god.characters:
+				while character.xp > character.next_level:
+					character.level += 1
+					self.log.log(character.name + ' is now level ' + str(character.level))
+					character.level_up()
+					character.next_level = character.xp_for_level(character.level)
+				character_turn = character.turn()
+				if character_turn:
+					self.log.log(character.name + character_turn)
 				if len(character.history) > 0:
 					if random.randrange(5) == 0:
 						character.history.pop()
 				if character.hp <= 0:
-					self.log.log(character.name + ' died')
+					if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible:
+						self.log.log(character.name + ', the ' + character.type + ' died')
+					else:
+						self.log.log('A ' + character.type + ' dies in the distance')	
 					self.god.kill(character.id)
 				# elif self.distance(character.pos, self.character.pos) <= 10 and self.distance(character.pos, self.character.pos) > 1:
 				elif character.id != 0:
@@ -1545,9 +1537,10 @@ class Game():
 							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
 							character.move(trail[1])
 							self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+						else:
+							self.attack(character, self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant)
 					elif self.distance(character.pos, self.character.pos) == 1:
-						damage = character.attack(self.character)
-						self.log.log(character.name + ' attacked ' + self.character.name + ', dealing ' + str(damage) + ' damage')
+						self.attack(character, self.character)
 					elif character.memory != None:
 						# print('moving')
 						# print(character.pos)
@@ -1561,6 +1554,8 @@ class Game():
 							if len(character.memory_trail) == 0:
 								character.memory_trail = None
 								character.memory = None
+						else:
+							self.attack(character, self.dungeon.map_list[character.memory_trail[0][1]][character.memory_trail[0][0]].occupant)
 					elif character.goals != []:
 						moved = False
 						side_values = []
@@ -1593,18 +1588,24 @@ class Game():
 								if sides[i] not in character.history:
 									if character.map_direction == "up":
 										if side_values[i] > current_value or side_values[i] == max(side_values):
-											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
-											character.move((sides[i][0], sides[i][1]))
-											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
-											moved = True
-											break
+											if not self.dungeon.map_list[sides[i][1]][sides[i][0]].occupant:
+												self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+												character.move((sides[i][0], sides[i][1]))
+												self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+												moved = True
+												break
+											else:
+												self.attack(character, self.dungeon.map_list[sides[i][1]][sides[i][0]].occupant)
 									if character.map_direction == "down":
 										if side_values[i] < current_value or side_values[i] == min(side_values):
-											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
-											character.move((sides[i][0], sides[i][1]))
-											self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
-											moved = True
-											break
+											if not self.dungeon.map_list[sides[i][1]][sides[i][0]].occupant:
+												self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = False
+												character.move((sides[i][0], sides[i][1]))
+												self.dungeon.map_list[character.pos[1]][character.pos[0]].occupant = character
+												moved = True
+												break
+											else:
+												self.attack(character, self.dungeon.map_list[sides[i][1]][sides[i][0]].occupant)
 						elif not moved:
 							if character.map_direction == "up":
 								# print(character.type, "switching from up to down (history)")
@@ -1613,6 +1614,7 @@ class Game():
 								# print(character.type, "switching from down to up (history)")
 								character.map_direction = "up"
 			if self.character.hp <= 0:
+				self.dead = True
 				self.log.log(self.character.name.capitalize() + ' died')
 				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
 				self.end_game() 
@@ -1710,27 +1712,35 @@ class Game():
 		for character in self.god.characters[1:]:
 			if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible or visibility:
 				pos = self.translate_to_screen(*character.pos)
-				# brlb.clear_area(pos[0], pos[1], 1, 1)
-				brlb.layer(1)
-				brlb.clear_area(pos[0], pos[1], 1, 1)
-				brlb.layer(2)
-				if visibility:
-					brlb.color(brlb.color_from_argb(255, 255, 0, 0))
-				else:
-					brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
-				brlb.put(pos[0], pos[1], character.attributes['key'])	
+				if self.on_screen(*pos):
+					# brlb.clear_area(pos[0], pos[1], 1, 1)
+					brlb.layer(1)
+					brlb.clear_area(pos[0], pos[1], 1, 1)
+					brlb.layer(2)
+					if visibility:
+						brlb.color(brlb.color_from_argb(255, 255, 0, 0))
+					else:
+						brlb.color(brlb.color_from_argb(self.dungeon.map_list[character.pos[1]][character.pos[0]].light_level()*51, 255, 0, 0))
+					brlb.put(pos[0], pos[1], character.attributes['key'])	
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 		brlb.put(self.screen_x//2, self.screen_y//2, '@')
-		brlb.layer(1)
+		brlb.layer(2)
 		brlb.clear_area(0, 0, len(str(self.character.hp)), 1)
 		brlb.printf(0, 0, 'HP: ' + str(int(self.character.hp)))
 		brlb.printf(0, 1, 'LV: ' + str(int(self.character.level)))
 		brlb.printf(0, 2, 'NL: ' + str(int(self.character.next_level - self.character.xp)))
+		brlb.printf(0, 3, 'DEF: ' + str(int(self.character.get_stat("def"))))
+		brlb.printf(0, 4, 'STR: ' + str(int(self.character.get_stat("str"))))
 		# brlb.clear_area(self.screen_x//2, self.screen_y//2, 1, 1)
 		if self.state == "console":
 			self.show_console()
 		brlb.refresh()
 		return 0
+
+	def on_screen(self, x, y):
+		if x < 0 or x > self.screen_x or y < 0 or y > self.screen_y:
+			return False
+		return True
 
 	def show_console(self):
 		start_x = int(self.screen_x*0.125)
@@ -1799,39 +1809,29 @@ class Game():
 						brlb.composition(brlb.TK_OFF)
 					key_index = len(inventory.key_order)
 					stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
-					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys())]
-					# print(character_stats)\
-					# print(inventory.items[inventory.item - 1].id)
+					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys()) and stat not in self.UNIMPLEMENTED_STATS]
 					character_stats_diff = self.character.get_stat_changes(inventory.items[inventory.item - 1], character_stats)
 					character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
-					for key in stats:
+					for key in character_stats:
 						brlb.color(4294967295)
 						attribute = key + ': ' + str(inventory.items[index + (inventory.page - 1) * list_height].info["stats"][key])
 						for c in range(len(attribute)):
 							brlb.put(width // 2 + c, start_y + 1 + key_index, attribute[c])
 						length = len(attribute)
 						equipped = inventory.find_equipped_item(inventory.items[index + (inventory.page - 1) * list_height].info["equip"])
-						# print(equipped)
-						if key in list(character_stats_diff.keys()):
-							diff = character_stats_diff[key]
-						else:
-							curr = 0
-							if equipped != None:
-								# print("getting stats:", equipped)
-								curr = inventory.get_item_by_id(equipped).info["stats"][key]
-							if inventory.items[index + (inventory.page - 1) * list_height].equipped:
-								diff = -curr
+						diff = character_stats_diff[key]
+						diff_text = ''
+						for d in diff:
+							d = round(d, 3)
+							if d < 0:
+								diff_text += str(d)
+							elif d > 0:
+								diff_text += '+' + str(d)
 							else:
-								diff = inventory.items[index + (inventory.page - 1) * list_height].info["stats"][key] - curr
-						diff = round(diff, 3)
-						if diff < 0:
-							diff = str(diff)
-						elif diff > 0:
-							diff = '+' + str(diff)
-						else:
-							diff = '=='
-						for c in range(len(diff)):
-							brlb.put(width // 2 + length + c + 1, start_y + 1 + key_index, diff[c])
+								diff_text += '=='
+							diff_text += '|'
+						for c in range(len(diff_text) - 1):
+							brlb.put(width // 2 + length + c + 1, start_y + 1 + key_index, diff_text[c])
 						key_index += 1
 					menu_x = width // 2
 					menu_y = start_y + 1 + key_index
@@ -2082,7 +2082,7 @@ class Character():
 		self.current_equipment = 0
 		self.show_equipment = False
 		# print('xp:', (sum(list(self.stats.values()))/33 + self.level)/3)
-		self.xp_worth = ceiling((sum(list(self.stats.values()))/33 + self.level)/3, -2)
+		self.xp_worth = ceiling((sum(list(self.stats.values()))/29 + self.level)/3, -2)
 		# print('xp rounded:', self.xp_worth)
 		self.xp = 0
 		self.next_level = self.xp_for_level(self.level)
@@ -2097,68 +2097,85 @@ class Character():
 		self.history.insert(0, pos)
 
 	def unequip(self, item):
+		location = []
 		for equipment in self.equipment_keys:
 			if self.equipment[equipment] == item:
 				self.equipment[equipment] = False
+				location.append(equipment)
 		item.equipped = False
+		if len(location) == 1:
+			return (item, location[0])
+		else:
+			return (item, False)
+		
 
 	def get_stat_changes(self, new_item, stats):
+		if new_item.info["equip"] == "1hand":
+			return self.one_hand_stat_changes(new_item, stats)
 		stats_curr = [self.get_stat(stat) for stat in stats]
 		old_items = self.equip(new_item)
-		# print(old_items)
 		diff = [self.get_stat(stats[i]) - stats_curr[i] for i in range(len(stats_curr))]
 		self.unequip(new_item)
 		if old_items:
 			for item in old_items:
 				if item:
-					self.equip(item)
-		return diff
+					self.equip(item[0], item[1])
+		return [diff]
 
-
+	def one_hand_stat_changes(self, new_item, stats):
+		left_stats_curr = [self.get_stat(stat) for stat in stats]
+		left_old_items = self.equip(new_item, "lhand")
+		left_diff = [self.get_stat(stats[i]) - left_stats_curr[i] for i in range(len(left_stats_curr))]
+		self.unequip(new_item)
+		if left_old_items:
+			for item in left_old_items:
+				if item:
+					self.equip(item[0], item[1])
+		right_stats_curr = [self.get_stat(stat) for stat in stats]
+		right_old_items = self.equip(new_item, "rhand")
+		right_diff = [self.get_stat(stats[i]) - right_stats_curr[i] for i in range(len(right_stats_curr))]
+		self.unequip(new_item)
+		if right_old_items:
+			for item in right_old_items:
+				if item:
+					self.equip(item[0], item[1])
+		return list(zip(*[left_diff, right_diff]))
 
 	def equip(self, item, location=False):
 		if item.equipped:
-			self.unequip(item)
-			return [item]
+			return [self.unequip(item)]
 		equipped = []
-		if location:		
-			if self.equipment[location].info["equip"] == "2hand":
-				self.equipment["lhand"].equipped = False
-				self.equipment["rhand"].equipped = False
-				equipped.append(self.equipment["lhand"])
-				equipped.append(self.equipment["rhand"])
-				self.equipment["lhand"] = False
-				self.equipment["rhand"] = False
-			else:
-				equipped.append(self.equipment[location])
-				self.equipment[location].equipped = False
+		if location:
+			if self.equipment[location]:
+				if self.equipment[location].info["equip"] == "2hand":
+					self.equipment["lhand"].equipped = False
+					self.equipment["rhand"].equipped = False
+					equipped.append((self.equipment["lhand"], False))
+					self.equipment["lhand"] = False
+					self.equipment["rhand"] = False
+				else:
+					equipped.append((self.equipment[location], location))
+					self.equipment[location].equipped = False
 			self.equipment[location] = item
 			item.equipped = True
 			return equipped
 		elif item.info["equip"] == "2hand":
 			if self.equipment["lhand"]:
-				equipped.append(self.equipment["lhand"])
-				self.equipment["lhand"].equipped = False
+				equipped.append((self.equipment["lhand"], "lhand"))
+				self.unequip(self.equipment["lhand"])
 			if self.equipment["rhand"]:
-				equipped.append(self.equipment["rhand"])
-				self.equipment["rhand"].equipped = False
+				equipped.append((self.equipment["rhand"], "rhand"))
+				self.unequip(self.equipment["rhand"])
 			self.equipment["lhand"] = item
 			self.equipment["rhand"] = item
 			item.equipped = True
 			return equipped
 		elif item.info["equip"] == "1hand":
-			if not self.equipment["rhand"]:
-				self.equipment["rhand"] = item
-				item.equipped = True
-			elif not self.equipment["lhand"]:
-				self.equipment["lhand"] = item
-				item.equipped = True
-			else:
-				self.inventory.choose_equip = True
-				self.inventory.equip_choices = ["lhand", "rhand"]
+			self.inventory.choose_equip = True
+			self.inventory.equip_choices = ["lhand", "rhand"]
 		else:
 			if self.equipment[item.info["equip"]]:
-				equipped.append(self.equipment[item.info["equip"]])
+				equipped.append((self.equipment[item.info["equip"]], item.info["equip"]))
 				self.equipment[item.info["equip"]].equipped = False
 			self.equipment[item.info["equip"]] = item
 			item.equipped = True
@@ -2176,12 +2193,12 @@ class Character():
 
 	def xp_for_level(self, level):
 		if level == 1:
-			return 7
+			return 1
 		xp = 0
 		x = 0
 		for i in range(level):
-			x += i**1.05*5.4 - i**0.5 + 3
-		return int(7 + x)
+			x += i**1.05*5.4 - i**0.5 + 2
+		return int(1 + x)
 
 	def level_up(self):
 		for stat in list(self.stats.keys()):
@@ -2240,7 +2257,7 @@ class Character():
 		self.hp += roll/100
 		self.hp = min(self.stats['hp'], self.hp)
 		if oldhp != self.hp and self.hp == self.stats['hp']:
-			return ' have returned to normal health'
+			return ' has returned to normal health'
 		return False
 
 class Player(Character):
@@ -2362,7 +2379,7 @@ class God(Handler):
 				return self.spawn()
 		else:
 			point = self.dungeon.start
-			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'you', *point)
+			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'george', *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
 			self.dungeon.map_list[point[1]][point[0]].occupant = player
