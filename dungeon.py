@@ -1334,7 +1334,8 @@ class Game():
 		if killer == self.character:
 			self.log.log(self.character.name + ' gained ' + str(victim.xp_worth) + ' xp')
 		killer.xp += victim.xp_worth
-		self.inventory.drop(self.god.enemy_types[victim.type]["attributes"]["drops"], victim.level, victim.pos)
+		if victim != self.character:
+			self.inventory.drop(self.god.enemy_types[victim.type]["attributes"]["drops"], victim.level, victim.pos)
 		self.god.kill(victim.id)
 
 	def translate_to_screen(self, x, y):
