@@ -32,7 +32,7 @@ def explode(l):
 	return val
 
 def contrast(n):
-	n = hex(n)[2:]
+	n = hex(n)[2:].zfill(6)
 	if int(n[:2], 16) + int(n[2:4], 16) + int(n[4:6], 16) > 381:
 		return 0
 	else:
@@ -2469,3 +2469,5 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 
 def main():
 	Game(tutorial=True)
+
+game = Game(tutorial=False, debug=True)
