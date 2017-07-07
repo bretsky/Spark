@@ -5,6 +5,7 @@ bank
 barrow
 barrows
 basin
+battlegrounds
 bay
 beach
 bluff
