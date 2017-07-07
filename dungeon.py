@@ -1943,7 +1943,7 @@ class Handler():
 
 
 class Inventory(Handler):
-	def __init__(self, width=False, height=False):
+	def __init__(self, width=False, height=False, drop_constant=1):
 		super().__init__()
 		self.item_source = json.load(open('items.json', encoding='utf-8'))
 		self.materials = json.load(open('materials.json', encoding='utf-8'))
@@ -1961,7 +1961,8 @@ class Inventory(Handler):
 		self.menu_x = 0
 		self.menu_y = 0
 		self.page = 1
-		self.item = 1	
+		self.item = 1
+		self.drop_constant = drop_constant
 
 	def set_dims(self, w, h):
 		self.width = w
@@ -2039,7 +2040,7 @@ class Inventory(Handler):
 		drops = []
 		for drop in drop_table:
 			# print(drop)
-			chance = drop["chance"]
+			chance = drop["chance"] * self.drop_constant
 			# chance *= 4
 			if chance >= 100:
 				drops.append(self.item_smith(self.choose(drop["type"]), level, location))
