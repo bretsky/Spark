@@ -1427,8 +1427,9 @@ class Game():
 			return True
 		if self.state == "game":
 			if key in list(self.MOVEMENT_BINDS.keys()):
+				old_pos = self.character.pos
 				self.character.pos = self.move(key)
-				if self.MOVEMENT_BINDS[key] != "stay":
+				if old_pos != self.character.pos:
 					self.update_light()
 			elif self.character.pos == self.dungeon.destination:
 				if brlb.state(brlb.TK_SHIFT):
@@ -1453,12 +1454,14 @@ class Game():
 					page = self.character.inventory.page
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
 					if page != self.character.inventory.page:
-						self.character.inventory.item = 1
+						self.character.inventory.item -= self.character.inventory.list_height
 				elif self.MOVEMENT_BINDS[key] == "right":
 					page = self.character.inventory.page
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
 					if page != self.character.inventory.page:
-						self.character.inventory.item = self.character.inventory.list_height * (self.character.inventory.page - 1) + 1
+						self.character.inventory.item += self.character.inventory.list_height
+						if self.character.inventory.item - 1 > len(self.character.inventory.items):
+							self.character.inventory.item = len(self.character.inventory.items) - 1
 					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
