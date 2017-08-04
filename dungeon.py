@@ -954,6 +954,10 @@ class Game():
 		self.dungeons = []
 		self.gods = []
 		self.inventories = []
+		if debug:
+			self.drop_constant = 4
+		else:
+			self.drop_constant = 1
 		self.descend(game_start=True)
 		self.initialise_screen()
 		self.UNIMPLEMENTED_STATS = ["mob", "skl", "wgt", "pen", "spd"]
@@ -1020,7 +1024,7 @@ class Game():
 			self.god = self.gods[-1]
 			self.character = self.god.get_char_by_id(0)
 		if new_floor:
-			self.inventories.append(Inventory())
+			self.inventories.append(Inventory(drop_constant=self.drop_constant))
 			self.inventory = self.inventories[-1]
 		else:
 			self.inventory = self.inventories[self.inventories.index(self.inventory)]
@@ -1451,23 +1455,26 @@ class Game():
 			elif key in list(self.MOVEMENT_BINDS.keys()):
 				self.character.inventory.select_menu = False
 				if self.MOVEMENT_BINDS[key] == "left":
-					page = self.character.inventory.page
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
-					if page != self.character.inventory.page:
-						self.character.inventory.item -= self.character.inventory.list_height
 				elif self.MOVEMENT_BINDS[key] == "right":
+					print(self.character.inventory.item)
 					page = self.character.inventory.page
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
+					print(page, self.character.inventory.page)
 					if page != self.character.inventory.page:
-						self.character.inventory.item += self.character.inventory.list_height
-						if self.character.inventory.item - 1 > len(self.character.inventory.items):
-							self.character.inventory.item = len(self.character.inventory.items) - 1
+						if self.character.inventory.item - 1 > len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height:
+							self.character.inventory.item = len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height
+							print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
+					print(self.character.inventory.item)
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
+					print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "down":
+					print(self.character.inventory.item)
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
+					print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 			elif len(self.character.inventory.items) > 0:
 				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
@@ -1814,7 +1821,8 @@ class Game():
 					key_index = len(inventory.key_order)
 					stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
 					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys()) and stat not in self.UNIMPLEMENTED_STATS]
-					character_stats_diff = self.character.get_stat_changes(inventory.items[inventory.item - 1], character_stats)
+					# print(inventory.items[index + (inventory.page - 1) * list_height])
+					character_stats_diff = self.character.get_stat_changes(inventory.items[index + (inventory.page - 1) * list_height], character_stats)
 					character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
 					for key in character_stats:
 						brlb.color(4294967295)
@@ -2150,11 +2158,12 @@ class Character():
 		if item.equipped:
 			return [self.unequip(item)]
 		equipped = []
-		if location:
+		if location and item.info["equip"] != "2hand":
 			if self.equipment[location]:
 				if self.equipment[location].info["equip"] == "2hand":
 					self.equipment["lhand"].equipped = False
-					self.equipment["rhand"].equipped = False
+					if self.equipment["rhand"]:
+						self.equipment["rhand"].equipped = False
 					equipped.append((self.equipment["lhand"], False))
 					self.equipment["lhand"] = False
 					self.equipment["rhand"] = False
