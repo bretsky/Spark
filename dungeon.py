@@ -1027,7 +1027,7 @@ class Game():
 			self.inventories.append(Inventory(drop_constant=self.drop_constant))
 			self.inventory = self.inventories[-1]
 		else:
-			self.inventory = self.inventories[self.inventories.index(self.inventory)]
+			self.inventory = self.inventories[self.inventories.index(self.inventory) + 1]
 		self.circle = False
 		self.current_room = False
 		self.update_light()
@@ -1462,7 +1462,8 @@ class Game():
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
 					print(page, self.character.inventory.page)
 					if page != self.character.inventory.page:
-						if self.character.inventory.item - 1 > len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height:
+						print("new page")
+						if self.character.inventory.item > len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height:
 							self.character.inventory.item = len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height
 							print(self.character.inventory.item)
 					# print(self.character.inventory.item)
@@ -2079,9 +2080,10 @@ class Inventory(Handler):
 		return ',\n'.join([str(item) for item in self.items])
 
 class Character():
-	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
+	def __init__(self, char_id, level, char_type, stats, attributes, name, floor, x, y):
 		self.invincible = False
 		self.id = char_id
+		self.floor = floor
 		self.pos = (x, y)
 		self.stats = stats
 		self.attributes = attributes
@@ -2220,6 +2222,7 @@ class Character():
 		self.hp += 2
 
 	def attack(self, target):
+		print(target)
 		if target.invincible:
 			return 0
 		basedamage = 30
@@ -2262,7 +2265,7 @@ class Character():
 	# 	return max(0.1, round(damage, 1))
 
 	def __str__(self):
-		objdict = {'ID': hex(self.id), 'type': str(self.type), 'level': self.level, 'location': self.pos, 'name': self.name, 'HP': self.hp}
+		objdict = {'ID': hex(self.id), 'type': str(self.type), 'level': self.level, 'location': self.pos, 'name': self.name, 'HP': self.hp, 'floor': self.floor}
 		return ', '.join([key + ': ' + str(self.stats[key]) for key in list(self.stats.keys())] + [key + ': ' + str(objdict[key]) for key in list(objdict.keys())])
 
 	def turn(self):
@@ -2275,8 +2278,8 @@ class Character():
 		return False
 
 class Player(Character):
-	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
-		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
+	def __init__(self, char_id, level, char_type, stats, attributes, name, floor, x, y):
+		super().__init__(char_id, level, char_type, stats, attributes, name, floor, x, y)
 
 
 	def set_dims(self, w, h):
@@ -2323,8 +2326,8 @@ class Player(Character):
 				brlb.put(self.width // 2 + c, self.start_y + 4, self.equipment["rhand"].info["name"][c])
 
 class Enemy(Character):
-	def __init__(self, char_id, level, char_type, stats, attributes, name, x, y):
-		super().__init__(char_id, level, char_type, stats, attributes, name, x, y)
+	def __init__(self, char_id, level, char_type, stats, attributes, name, floor, x, y):
+		super().__init__(char_id, level, char_type, stats, attributes, name, floor, x, y)
 
 class God(Handler):
 	def __init__(self, dungeon, character=False):
@@ -2342,6 +2345,8 @@ class God(Handler):
 			self.spawn(user=True)
 		else:
 			self.characters.append(character)
+			self.used_ids.add(0)
+			self.last_id = 0
 			self.dungeon.map_list[self.dungeon.start[1]][self.dungeon.start[0]].occupant = character
 			character.pos = self.dungeon.start
 			del self.enemy_types['player'] 
@@ -2383,7 +2388,7 @@ class God(Handler):
 				# print(level)
 				level = int(round_up(level, 0))
 				enemy_type = random.choice(list(self.enemy_types.keys()))
-				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), *point)
+				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), self.dungeon.level, *point)
 				self.characters.append(enemy)
 				# print(enemy.stats)
 				# print(enemy.type)
@@ -2393,7 +2398,7 @@ class God(Handler):
 				return self.spawn()
 		else:
 			point = self.dungeon.start
-			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'george', *point)
+			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'george', 1, *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
 			self.dungeon.map_list[point[1]][point[0]].occupant = player
