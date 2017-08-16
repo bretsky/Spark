@@ -8,6 +8,7 @@ from time import perf_counter as get_time
 from copy import deepcopy
 import json
 import time
+import name
 
 def signed_pow(i, n):
 	return abs(i)/i * abs(i)**n
@@ -165,11 +166,7 @@ class Dungeon():
 	def __init__(self, level, animate=False, name=False):
 		self.animate = animate
 		self.level = level
-		self.import_files()
-		if name:
-			self.name = name
-		else:
-			self.name = self.random_dungeon_name()
+		self.name = name
 		self.map_list = [[Tile(BG_TILE, False) for y in range(64)] for x in range(64)]
 		for y in range(len(self.map_list)):
 			for x in range(len(self.map_list)):
@@ -204,17 +201,6 @@ class Dungeon():
 		self.tile_rooms()
 		self.maps = {"doors": Map(self.map_list, self.doors)}
 
-	def import_files(self):
-		geo_file = open('data/dungeon/geographical_features.txt')
-		dungeon_attr_file = open('data/dungeon/dungeon_attributes.txt')
-		dungeon_adj_file = open('data/dungeon/dungeon_adjectives.txt')
-		dungeon_word_file = open('data/dungeon/dungeon_words.txt')
-		self.geo_list = geo_file.read().splitlines()
-		self.dungeon_attr_list = dungeon_attr_file.read().splitlines()
-		self.dungeon_adj_list = dungeon_adj_file.read().splitlines()
-		self.dungeon_word_list = dungeon_word_file.read().splitlines()
-		# print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
-
 	def darken(self, room):
 		for wall in room.walls:
 			self.map_list[wall[1]][wall[0]].visible = False
@@ -222,20 +208,6 @@ class Dungeon():
 		for tile in room.tiles:
 			self.map_list[tile[1]][tile[0]].visible = False
 			self.map_list[tile[1]][tile[0]].light = 0
-
-	def random_dungeon_name(self):
-		num = random.randrange(0,5)
-		if num == 0:
-			dungeon_name = ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_word_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
-		elif num == 1:
-			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
-		elif num == 2:
-			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
-		elif num == 3:
-			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
-		elif num == 4:
-			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
-		return dungeon_name
 
 	def make_corridors(self):
 		self.corridors = []
@@ -954,12 +926,32 @@ class Game():
 		self.dungeons = []
 		self.gods = []
 		self.inventories = []
+		self.import_files()
+		self.dungeon_name = self.random_dungeon_name()
+		self.initialise_screen()
+		name_length = 0
 		if debug:
 			self.drop_constant = 4
+			self.gamer = "Brett"
 		else:
 			self.drop_constant = 1
-		self.descend(game_start=True)
-		self.initialise_screen()
+			while name_length == 0:
+				name_length = self.get_name()
+				if name_length == -1:
+					warning = "Are you sure you want to close the window? (Hit escape to cancel, enter to confirm)"
+					brlb.printf(self.screen_x//2 - len(warning)//2, self.screen_y//2 + 1, warning)
+					brlb.refresh()
+					while True:
+						if brlb.has_input():
+							key = brlb.read()
+							if key == brlb.TK_CLOSE or key == brlb.TK_ENTER:
+								break 
+							elif key == brlb.TK_ESCAPE:
+								name_length = 0
+								break
+		if name_length == -1:
+			brlb.close()
+			return
 		self.UNIMPLEMENTED_STATS = ["mob", "skl", "wgt", "pen", "spd"]
 		self.CONTROL_NAMES = ['WASD', 'the arrow keys', 'the numpad']
 		self.KEYPAD_BINDS = {brlb.TK_KP_8: "up", brlb.TK_KP_2: "down", brlb.TK_KP_4: "left", brlb.TK_KP_6: "right", brlb.TK_KP_5: "stay"}
@@ -967,12 +959,13 @@ class Game():
 		self.WASD_BINDS = {brlb.TK_W: "up", brlb.TK_S: "down", brlb.TK_A: "left", brlb.TK_D: "right", brlb.TK_SPACE: "stay"}
 		self.MOVEMENTS = {"up": self.up, "down": self.down, "left": self.left, "right": self.right, "stay": self.stay}
 		self.MOVEMENT_BINDS = {0: self.WASD_BINDS, 1: self.ARROW_BINDS, 2: self.KEYPAD_BINDS}
-		run = True
-		self.choose_controls()
-		if tutorial:
+		run = self.choose_controls()
+		if tutorial and run:
 			run = self.tutorial()
 		if not run:
+			brlb.close()
 			return
+		self.descend(game_start=True)
 		# print(self.character)
 		# for i in range(25):
 		# 	print(self.character.xp_for_level(i+1))
@@ -991,12 +984,40 @@ class Game():
 		self.character.invincible = True
 		self.visibility = True
 
+	def import_files(self):
+		geo_file = open('data/dungeon/geographical_features.txt')
+		dungeon_attr_file = open('data/dungeon/dungeon_attributes.txt')
+		dungeon_adj_file = open('data/dungeon/dungeon_adjectives.txt')
+		dungeon_word_file = open('data/dungeon/dungeon_words.txt')
+		self.geo_list = geo_file.read().splitlines()
+		self.dungeon_attr_list = dungeon_attr_file.read().splitlines()
+		self.dungeon_adj_list = dungeon_adj_file.read().splitlines()
+		self.dungeon_word_list = dungeon_word_file.read().splitlines()
+		# print("Possible names: ", len(self.dungeon_word_list)*len(self.geo_list) + len(self.dungeon_adj_list)*len(self.geo_list) + len(self.geo_list)*len(self.dungeon_attr_list) + len(self.dungeon_adj_list)*len(self.geo_list)*len(self.dungeon_attr_list) + len(self.geo_list)*len(self.dungeon_adj_list)*len(self.dungeon_attr_list))
+
+	def random_dungeon_name(self):
+		num = random.randrange(0,5)
+		if num == 0:
+			dungeon_name = ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_word_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
+		elif num == 1:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split())
+		elif num == 2:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		elif num == 3:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		elif num == 4:
+			dungeon_name = 'The ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.geo_list).split()) + ' of ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_adj_list).split()) + ' ' + ' '.join(word[0].upper() + word[1:] for word in random.choice(self.dungeon_attr_list).split())
+		return dungeon_name
+
 	def descend(self, game_start=False):
 		brlb.clear()
 		self.log.update()
 		brlb.refresh()
 		if game_start:
 			new_floor = True
+			self.log.log("You feel like you're falling...")
+			self.log.show(self.screen_x - 40, 0)
+			brlb.refresh()
 		else:
 			self.log.log("Descending...")
 			self.log.show(self.screen_x - 40, 0)
@@ -1008,7 +1029,7 @@ class Game():
 		elif not game_start:
 			self.dungeon = self.dungeons[self.dungeons.index(self.dungeon) + 1]
 		else:
-			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=False))
+			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon_name))
 			self.dungeon = self.dungeons[-1]
 		self.log.update()
 		self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
@@ -1020,7 +1041,7 @@ class Game():
 			self.character.pos = self.dungeon.start
 			self.god.characters[0] = self.character
 		else:
-			self.gods.append(God(self.dungeon))
+			self.gods.append(God(self.dungeon, player_name=self.gamer))
 			self.god = self.gods[-1]
 			self.character = self.god.get_char_by_id(0)
 		if new_floor:
@@ -1046,7 +1067,26 @@ class Game():
 		else:
 			self.log.log('You are already on the top floor')
 
+	def get_name(self):
+		brlb.clear()
+		brlb.layer(1)
+		self.gamer = name.random_name()
+		start_x = self.screen_x//2 - 12
+		start_y = self.screen_y//2
+		brlb.color(brlb.color_from_argb(255, 25, 25, 25))
+		brlb.refresh()
+		for i in range(24):
+			brlb.put(start_x + i, start_y, 9608)
+		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
+		brlb.layer(2)
+		user_input = brlb.read_str(start_x, start_y, self.gamer, 24)
+		# print(user_input)
+		return user_input[0]
+		# brlb.refresh()
+
+
 	def choose_controls(self):
+		brlb.clear()
 		title = "Choose controls:"
 		a_choice = 4*' ' + "1) WASD"
 		b_choice = 4*' ' + "2) Arrow keys"
@@ -1065,6 +1105,7 @@ class Game():
 			if brlb.has_input():
 				key = brlb.read()
 				if key == brlb.TK_CLOSE:
+					brlb.close()
 					return False 
 				elif key == brlb.TK_1:
 					self.controls = 0
@@ -1084,6 +1125,7 @@ class Game():
 					brlb.printf(start_x, start_y + i + 1, choices[i])
 				brlb.refresh()
 		self.MOVEMENT_BINDS = self.MOVEMENT_BINDS[self.controls]
+		return True
 
 	def tutorial(self):	
 		brlb.clear()
@@ -1144,7 +1186,7 @@ class Game():
 				brlb.put(pos[0], pos[1], '@')
 				brlb.refresh()
 		brlb.clear()
-		intro = "You are trapped in {d}. You must fight to stay alive. Survive as long as you can and try to escape.".format(d=self.dungeon.name)
+		intro = "You are trapped in {d}. You must fight to stay alive. Survive as long as you can and try to escape.".format(d=self.dungeon_name)
 		intro_lines = []
 		length = int(self.screen_x*0.61803398875)
 		while len(intro) > length:
@@ -1200,7 +1242,7 @@ class Game():
 		self.screen_x = int(monitor.width*0.61803398875//8)
 		# print('calculated screen size')		
 		# print(self.screen_x, self.screen_y)
-		brlb.set('window.title="{d}"; font: unifont-8.0.01.ttf, size=12; window.size={w}x{h};'.format(d=self.dungeon.name, w=self.screen_x, h=self.screen_y))
+		brlb.set('window.title="{d}"; font: unifont-8.0.01.ttf, size=12; window.size={w}x{h};'.format(d=self.dungeon_name, w=self.screen_x, h=self.screen_y))
 		# print('configured')
 		brlb.composition(brlb.TK_OFF)
 		# brlb.refresh()
@@ -1334,9 +1376,13 @@ class Game():
 			self.kill(attacker, victim)
 
 	def kill(self, killer, victim):
-		self.log.log(victim.name + ', the ' + victim.type + ', died')
+		if victim.seen:
+			self.log.log(victim.name + ', the ' + victim.type + ', died')
+		else:
+			self.log.log('A ' + victim.type + ' died in the distance')
 		if killer == self.character:
 			self.log.log(self.character.name + ' gained ' + str(victim.xp_worth) + ' xp')
+			self.character.kills += 1
 		killer.xp += victim.xp_worth
 		if victim != self.character:
 			self.inventory.drop(self.god.enemy_types[victim.type]["attributes"]["drops"], victim.level, victim.pos)
@@ -1457,25 +1503,18 @@ class Game():
 				if self.MOVEMENT_BINDS[key] == "left":
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
 				elif self.MOVEMENT_BINDS[key] == "right":
-					print(self.character.inventory.item)
 					page = self.character.inventory.page
 					self.character.inventory.page = min(self.character.inventory.pages, self.character.inventory.page + 1)
-					print(page, self.character.inventory.page)
+					# print(page, self.character.inventory.page)
 					if page != self.character.inventory.page:
-						print("new page")
 						if self.character.inventory.item > len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height:
 							self.character.inventory.item = len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height
-							print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "up":
-					print(self.character.inventory.item)
 					self.character.inventory.item = max(1, self.character.inventory.item - 1)
-					print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 				elif self.MOVEMENT_BINDS[key] == "down":
-					print(self.character.inventory.item)
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
-					print(self.character.inventory.item)
 					# print(self.character.inventory.item)
 			elif len(self.character.inventory.items) > 0:
 				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
@@ -1541,6 +1580,7 @@ class Game():
 				# elif self.distance(character.pos, self.character.pos) <= 10 and self.distance(character.pos, self.character.pos) > 1:
 				elif character.id != 0:
 					if self.dungeon.map_list[character.pos[1]][character.pos[0]].visible and self.distance(character.pos, self.character.pos) > 1:
+						character.seen = True
 						trail = self.pathfind(character.pos, self.character.pos)
 						character.memory = self.character.pos
 						character.memory_trail = trail[2:]
@@ -1553,6 +1593,7 @@ class Game():
 						else:
 							self.attack(character, self.dungeon.map_list[trail[1][1]][trail[1][0]].occupant)
 					elif self.distance(character.pos, self.character.pos) == 1:
+						character.seen = True
 						self.attack(character, self.character)
 					elif character.memory != None:
 						# print('moving')
@@ -1628,7 +1669,7 @@ class Game():
 								character.map_direction = "up"
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
-				self.log.log(self.character.name.capitalize() + ' killed ' + str(sum([len(god.killed_ids) for god in self.gods])) + ' enemies')
+				self.log.log(self.character.name.capitalize() + ' killed ' + str(self.kills) + ' enemies')
 				self.end_game() 
 			moved_ids = []
 			for item in self.inventory.items:
@@ -2098,6 +2139,7 @@ class Character():
 		self.show_equipment = False
 		# print('xp:', (sum(list(self.stats.values()))/33 + self.level)/3)
 		self.xp_worth = ceiling((sum(list(self.stats.values()))/29 + self.level)/3, -2)
+		self.kills = 0
 		# print('xp rounded:', self.xp_worth)
 		self.xp = 0
 		self.next_level = self.xp_for_level(self.level)
@@ -2106,6 +2148,7 @@ class Character():
 		self.history = [self.pos]
 		self.map_direction = "up"
 		self.goals = {"doors":1}
+		self.seen = False
 
 	def move(self, pos):
 		self.pos = pos
@@ -2222,7 +2265,6 @@ class Character():
 		self.hp += 2
 
 	def attack(self, target):
-		print(target)
 		if target.invincible:
 			return 0
 		basedamage = 30
@@ -2330,8 +2372,9 @@ class Enemy(Character):
 		super().__init__(char_id, level, char_type, stats, attributes, name, floor, x, y)
 
 class God(Handler):
-	def __init__(self, dungeon, character=False):
+	def __init__(self, dungeon, character=False, player_name=False):
 		super().__init__()
+		self.player_name = player_name
 		self.killed_ids = set()
 		self.dungeon = dungeon
 		self.keys = {'e': 'enders', 'v': 'vowels', 'c': 'consonants', 'o': 'connectors'}
@@ -2398,7 +2441,7 @@ class God(Handler):
 				return self.spawn()
 		else:
 			point = self.dungeon.start
-			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], 'george', 1, *point)
+			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], self.player_name, 1, *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
 			self.dungeon.map_list[point[1]][point[0]].occupant = player
@@ -2489,4 +2532,4 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 def main():
 	Game(tutorial=True)
 
-game = Game(tutorial=False, debug=True)
+# game = Game(tutorial=True, debug=False)
