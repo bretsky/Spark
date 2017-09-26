@@ -2046,7 +2046,7 @@ class Inventory(Handler):
 		# 		choices = choices[random.choice(list(choices.keys()))]
 		try:
 			while "name" not in list(choices.keys()):
-				choices = choices[random.choice(list(choices.keys()))]
+				choices = choices[random.choice(list(choices.keys()))] 
 		except (ValueError, IndexError) as e:
 			print('WTF!!!!', choices, hierarchy, e)
 		return choices
@@ -2532,4 +2532,4 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 def main():
 	Game(tutorial=True)
 
-# game = Game(tutorial=True, debug=False)
+game = Game(tutorial=True, debug=False)
