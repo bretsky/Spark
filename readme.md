@@ -11,6 +11,7 @@ Installation
 ============
 
 -   Download [latest release](https://github.com/bretsky/Spark/releases)
+-   Extract all
 -   Run dungeon.exe
 
 Instructions
