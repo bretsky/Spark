@@ -936,7 +936,8 @@ class Game():
 		else:
 			self.drop_constant = 1
 			while name_length == 0:
-				name_length = self.get_name()
+				name = self.get_name()
+				name_length = name[0]
 				if name_length == -1:
 					warning = "Are you sure you want to close the window? (Hit escape to cancel, enter to confirm)"
 					brlb.printf(self.screen_x//2 - len(warning)//2, self.screen_y//2 + 1, warning)
@@ -949,6 +950,9 @@ class Game():
 							elif key == brlb.TK_ESCAPE:
 								name_length = 0
 								break
+				else:
+					self.gamer = name[1]
+					print(self.gamer)
 		if name_length == -1:
 			brlb.close()
 			return
@@ -1029,7 +1033,7 @@ class Game():
 		elif not game_start:
 			self.dungeon = self.dungeons[self.dungeons.index(self.dungeon) + 1]
 		else:
-			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon_name))
+			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon_name, animate=False))
 			self.dungeon = self.dungeons[-1]
 		self.log.update()
 		self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
@@ -1080,8 +1084,8 @@ class Game():
 		brlb.color(brlb.color_from_argb(255, 255, 255, 255))
 		brlb.layer(2)
 		user_input = brlb.read_str(start_x, start_y, self.gamer, 24)
-		# print(user_input)
-		return user_input[0]
+		print(user_input)
+		return user_input
 		# brlb.refresh()
 
 
@@ -1669,7 +1673,7 @@ class Game():
 								character.map_direction = "up"
 			if self.character.hp <= 0:
 				self.log.log(self.character.name.capitalize() + ' died')
-				self.log.log(self.character.name.capitalize() + ' killed ' + str(self.kills) + ' enemies')
+				self.log.log(self.character.name.capitalize() + ' killed ' + str(self.character.kills) + ' enemies')
 				self.end_game() 
 			moved_ids = []
 			for item in self.inventory.items:
@@ -2532,4 +2536,4 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 def main():
 	Game(tutorial=True)
 
-# game = Game(tutorial=True, debug=False)
+game = Game(tutorial=True, debug=False)
