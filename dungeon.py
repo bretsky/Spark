@@ -2050,7 +2050,7 @@ class Inventory(Handler):
 		# 		choices = choices[random.choice(list(choices.keys()))]
 		try:
 			while "name" not in list(choices.keys()):
-				choices = choices[random.choice(list(choices.keys()))]
+				choices = choices[random.choice(list(choices.keys()))] 
 		except (ValueError, IndexError) as e:
 			print('WTF!!!!', choices, hierarchy, e)
 		return choices

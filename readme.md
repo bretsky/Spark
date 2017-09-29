@@ -10,9 +10,9 @@ Programmed in Python using Pybearlib terminal.
 Installation
 ============
 
--   Run Spark\_x.x.x.exe (where x.x.x is the version number)
--   Go to the folder where you installed Spark
--   Double click Spark.launch.py
+-   Download [latest release](https://github.com/bretsky/Spark/releases)
+-   Extract all
+-   Run dungeon.exe
 
 Instructions
 ============
