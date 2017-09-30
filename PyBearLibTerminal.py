@@ -36,7 +36,7 @@ _possible_library_names = [
 	'BearLibTerminal.so'          # System Linux SO w/o prefix 
 ]
 
-ctypes.windll.kernel32.SetDllDirectoryW("D:/Files/Documents/Projects/Spark")
+ctypes.windll.kernel32.SetDllDirectoryW(".")
 
 for name in _possible_library_names:
 	try:
