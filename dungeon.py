@@ -1,11 +1,12 @@
 import random
-import PyBearLibTerminal as brlb
+from bearlibterminal import terminal as brlb
 from screeninfo import screeninfo
 # from pycallgraph import PyCallGraph
 # from pycallgraph.output import GraphvizOutput
 import decimal 
 from time import perf_counter as get_time
 from copy import deepcopy
+import argparse
 import json
 import time
 import name
@@ -582,9 +583,11 @@ class Dungeon():
 			brlb.put(room.midpoint[0], room.midpoint[1], 9673)
 		brlb.refresh()
 		closed = False
-		while closed != brlb.TK_CLOSE:
+		while closed != brlb.TK_CLOSE and closed != brlb.TK_ESCAPE:
 			if brlb.has_input():		
 				closed = brlb.read()
+				if closed == brlb.TK_CLOSE or closed == brlb.TK_ESCAPE:
+					brlb.close()
 
 	def debug_refresh(self):
 		for y in range(len(self.map_list)):
@@ -921,7 +924,8 @@ class Heatmap():
 		return 255
 
 class Game():
-	def __init__(self, tutorial=False, debug=False):
+	def __init__(self, tutorial=False, debug=False, animate=False):
+		self.animate = animate
 		self.log = Log()	
 		self.dungeons = []
 		self.gods = []
@@ -1033,7 +1037,9 @@ class Game():
 		elif not game_start:
 			self.dungeon = self.dungeons[self.dungeons.index(self.dungeon) + 1]
 		else:
-			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon_name, animate=False))
+			self.dungeons.append(Dungeon(len(self.dungeons) + 1, name=self.dungeon_name, animate=self.animate))
+			if self.animate:
+				self.initialise_screen()
 			self.dungeon = self.dungeons[-1]
 		self.log.update()
 		self.log.log('Welcome to level {l} of '.format(l=self.dungeon.level) + self.dungeon.name)
@@ -2536,4 +2542,10 @@ LUMINOSITY = [16777215, 872415231, 1728053247, 2583691263, 3439329279, 429496729
 def main():
 	Game(tutorial=True)
 
-game = Game(tutorial=True, debug=False)
+parser = argparse.ArgumentParser(description="Python Roguelike game")
+parser.add_argument('--tutorial', help="Runs tutorial at beginning of game", action="store_true")
+parser.add_argument('--debug', help="Enables debug mode", action="store_true")
+parser.add_argument('--animate', help="Animates dungeon generation", action="store_true")
+args = parser.parse_args()
+
+game = Game(tutorial=args.tutorial, debug=args.debug, animate=args.animate)
