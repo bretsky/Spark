@@ -481,7 +481,7 @@ class Dungeon():
 			self.map_list[y][x] = Tile(3, False)
 
 	def random_room_count(self):
-		return 2*int(sum([explode([1,1,1,1,1,1,2,2,3,4,5,6,7,8,9,10,10,10,10,10,10,10]) for i in range(4)]) + 4)
+		return 2*int(sum([explode([1,1,1,1,1,1,2,2,3,4,5,6,7,8,9,10,10,10,10,10,10,10]) for i in range(4)]) + 3)
 
 	def place(self, room):
 		if self.rooms:
@@ -926,6 +926,9 @@ class Heatmap():
 class Game():
 	def __init__(self, tutorial=False, debug=False, animate=False):
 		self.animate = animate
+		self.visibility = False
+		self.state = "game"
+		self.modifiers = []
 		self.log = Log()	
 		self.dungeons = []
 		self.gods = []
@@ -934,6 +937,7 @@ class Game():
 		self.dungeon_name = self.random_dungeon_name()
 		self.initialise_screen()
 		name_length = 0
+		self.debug = debug
 		if debug:
 			self.drop_constant = 4
 			self.gamer = "Brett"
@@ -979,10 +983,7 @@ class Game():
 		# 	print(self.character.xp_for_level(i+1))
 		self.character.inventory.set_dims(self.screen_x, self.screen_y)
 		self.character.set_dims(self.screen_x, self.screen_y)
-		self.state = "game"
-		self.modifiers = []
 		self.doors_heatmap = Heatmap(self.dungeon.maps["doors"].min, self.dungeon.maps["doors"].max)
-		self.visibility = False
 		if debug:
 			self.toggle_debug_mode()
 		# print('finished setup')
@@ -1062,6 +1063,7 @@ class Game():
 		self.circle = False
 		self.current_room = False
 		self.update_light()
+		self.draw(self.visibility)
 
 	def ascend(self):
 		self.log.update()
@@ -1388,7 +1390,7 @@ class Game():
 	def kill(self, killer, victim):
 		if victim.seen:
 			self.log.log(victim.name + ', the ' + victim.type + ', died')
-		else:
+		elif victim != self.character:
 			self.log.log('A ' + victim.type + ' died in the distance')
 		if killer == self.character:
 			self.log.log(self.character.name + ' gained ' + str(victim.xp_worth) + ' xp')
@@ -1480,15 +1482,20 @@ class Game():
 
 	def on_move_events(self):
 		# brlb.refresh()
-		self.draw(self.visibility)
+		# self.draw(self.visibility)
 		self.player_action = False
+		changed_state = False
 		key = brlb.read()
+		if self.debug:
+			print(key)
 		if key == brlb.TK_CLOSE:
 			return True
 		if self.state == "game":
 			if key in list(self.MOVEMENT_BINDS.keys()):
 				old_pos = self.character.pos
 				self.character.pos = self.move(key)
+				if self.debug:
+					print("Moving from", old_pos, "to", self.character.pos)
 				if old_pos != self.character.pos:
 					self.update_light()
 			elif self.character.pos == self.dungeon.destination:
@@ -1502,6 +1509,7 @@ class Game():
 		if self.state == "inventory":
 			if self.character.inventory.choose_equip:
 				if key in list(self.MOVEMENT_BINDS.keys()):
+					changed_state = True
 					if self.MOVEMENT_BINDS[key] == "left":
 						self.character.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height], location=self.character.inventory.equip_choices[0])
 						self.character.inventory.choose_equip = False
@@ -1509,6 +1517,7 @@ class Game():
 						self.character.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height], location=self.character.inventory.equip_choices[1])
 						self.character.inventory.choose_equip = False
 			elif key in list(self.MOVEMENT_BINDS.keys()):
+				changed_state = True
 				self.character.inventory.select_menu = False
 				if self.MOVEMENT_BINDS[key] == "left":
 					self.character.inventory.page = max(1, self.character.inventory.page - 1)
@@ -1527,30 +1536,35 @@ class Game():
 					self.character.inventory.item = min(min(self.character.inventory.list_height, len(self.character.inventory.items) - (self.character.inventory.page - 1) * self.character.inventory.list_height), self.character.inventory.item + 1)
 					# print(self.character.inventory.item)
 			elif len(self.character.inventory.items) > 0:
-				if key == brlb.TK_ENTER and not self.character.inventory.select_menu:
-					self.character.inventory.select_menu = not self.character.inventory.select_menu
-					# self.character.inventory.menu_x, self.character.inventory.menu_y = brlb.state(brlb.TK_MOUSE_X), brlb.state(brlb.TK_MOUSE_Y)
-				elif key == brlb.TK_ENTER and self.character.inventory.select_menu:
-					self.character.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height])
-					self.character.inventory.select_menu = not self.character.inventory.select_menu
+				if key == brlb.TK_ENTER:
+					changed_state = True
+					if not self.character.inventory.select_menu:
+						self.character.inventory.select_menu = not self.character.inventory.select_menu
+						# self.character.inventory.menu_x, self.character.inventory.menu_y = brlb.state(brlb.TK_MOUSE_X), brlb.state(brlb.TK_MOUSE_Y)
+					elif self.character.inventory.select_menu:
+						self.character.equip(self.character.inventory.items[self.character.inventory.item - 1 + (self.character.inventory.page - 1) * self.character.inventory.list_height])
+						self.character.inventory.select_menu = not self.character.inventory.select_menu
 		if key == brlb.TK_I:
-			if self.state == "game":
+			changed_state = True
+			if self.state != "inventory":
 				self.state = "inventory"
 			else:
 				self.state = "game"
 		elif key == brlb.TK_E:
-			if self.state == "game":
+			changed_state = True
+			if self.state != "equipment":
 				self.state = "equipment"
 			else:
 				self.state = "game"
 		elif key == brlb.TK_ESCAPE:
-			self.state = "game"
+			if self.state != "game":
+				self.state = "game"
+				changed_state = True
 		elif key == brlb.TK_GRAVE:
 			if brlb.state(brlb.TK_SHIFT):
 				if self.state == "game":
 					self.state = "console"
-				else:
-					self.state = "game" 
+					changed_state = True
 
 			# print(self.character.inventory.show)
 		# for x, y in circle:
@@ -1692,6 +1706,8 @@ class Game():
 			for item_id in moved_ids:
 				self.inventory.remove(item_id)
 			# print("\n")
+		if self.player_action or changed_state:
+			self.draw(self.visibility)
 		return False
 
 	def draw(self, visibility=False):
@@ -2021,8 +2037,10 @@ class Inventory(Handler):
 		self.menu_x = 0
 		self.menu_y = 0
 		self.page = 1
+		self.pages = 1
 		self.item = 1
 		self.drop_constant = drop_constant
+		self.set_dims(0, 0)
 
 	def set_dims(self, w, h):
 		self.width = w
@@ -2030,7 +2048,7 @@ class Inventory(Handler):
 		self.start_x = int(self.width*0.125)
 		self.start_y = int(self.height*0.125)
 		self.menu_x = self.width // 2
-		self.list_height = int(self.height*0.875) - self.start_y - 3
+		self.list_height = max(int(self.height*0.875) - self.start_y - 3, 0)
 
 	def get_item_by_id(self, item_id):
 		# print("used_ids:", self.used_ids)
@@ -2094,6 +2112,9 @@ class Inventory(Handler):
 		item = Item(self.get_id(), item_info)
 		# print(self.get_id())
 		self.items.append(item)
+		if self.list_height != 0:
+			if len(self.items) - self.pages * self.list_height > 0:
+				self.pages += 1
 		return item
 
 	def drop(self, drop_table, level, location):
