@@ -1,5 +1,8 @@
 import random
-from bearlibterminal import terminal as brlb
+try:
+	from bearlibterminal import terminal as brlb
+except ImportError:
+	import PyBearLibTerminal as brlb
 from screeninfo import screeninfo
 # from pycallgraph import PyCallGraph
 # from pycallgraph.output import GraphvizOutput
