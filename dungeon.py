@@ -1398,7 +1398,7 @@ class Game():
 			self.character.kills += 1
 		killer.xp += victim.xp_worth
 		if victim != self.character:
-			self.inventory.drop(self.god.enemy_types[victim.type]["attributes"]["drops"], victim.level, victim.pos)
+			self.inventory.drop(self.god.enemy_types[victim.type]["drops"], victim.level, victim.pos)
 		self.god.kill(victim.id)
 
 	def translate_to_screen(self, x, y):
@@ -1483,7 +1483,7 @@ class Game():
 
 	def on_move_events(self):
 		# brlb.refresh()
-		self.draw(self.visibility)
+		# self.draw(self.visibility)
 		self.player_action = False
 		key = brlb.read()
 		if key == brlb.TK_CLOSE:
@@ -1695,6 +1695,7 @@ class Game():
 			for item_id in moved_ids:
 				self.inventory.remove(item_id)
 			# print("\n")
+		self.draw(self.visibility)
 		return False
 
 	def draw(self, visibility=False):
@@ -2432,7 +2433,10 @@ class God(Handler):
 	def generate_stats(self, enemy_type, level):
 		stats = {}
 		for stat in self.stats:
-			stats[stat] = self.roll_stat(self.enemy_types[enemy_type][stat] , level)
+			stats[stat] = self.roll_stat(self.enemy_types[enemy_type]["dna"][stat] , level)
+		if "stats" in self.enemy_types[enemy_type]:
+			for stat in self.enemy_types[enemy_type]["stats"]:
+				stats[stat] = self.enemy_types[enemy_type]["stats"][stat]
 		return stats
 
 	def spawn(self, user=False):
@@ -2444,7 +2448,7 @@ class God(Handler):
 				# print(level)
 				level = int(round_up(level, 0))
 				enemy_type = random.choice(list(self.enemy_types.keys()))
-				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type]["attributes"], self.random_name(), self.dungeon.level, *point)
+				enemy = Enemy(self.get_id(), level, enemy_type, self.generate_stats(enemy_type, level), self.enemy_types[enemy_type], self.random_name(), self.dungeon.level, *point)
 				self.characters.append(enemy)
 				# print(enemy.stats)
 				# print(enemy.type)
@@ -2454,7 +2458,7 @@ class God(Handler):
 				return self.spawn()
 		else:
 			point = self.dungeon.start
-			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player']['attributes'], self.player_name, 1, *point)
+			player = Player(self.get_id(), 1, 'player', self.generate_stats('player', 1), self.enemy_types['player'], self.player_name, 1, *point)
 			del self.enemy_types['player']
 			self.characters.append(player)
 			self.dungeon.map_list[point[1]][point[0]].occupant = player

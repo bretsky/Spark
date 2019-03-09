@@ -279,9 +279,9 @@
                 "type": "droppable"
             }
         ],
-        "key": "💰",
+        "key": "$",
         "stats": {
-            "hp": 0
+            "hp": 0.1
         }
     },
     "vampire": {
