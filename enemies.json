@@ -143,16 +143,16 @@
     },
     "player": {
         "dna": {
-            "def": 5,
-            "dex": 5,
-            "end": 5,
-            "eva": 5,
-            "hp": 5,
-            "int": 5,
-            "mag": 5,
-            "spd": 5,
-            "str": 5,
-            "wis": 5
+            "def": 0,
+            "dex": 0,
+            "end": 0,
+            "eva": 0,
+            "hp": 0,
+            "int": 0,
+            "mag": 0,
+            "spd": 0,
+            "str": 0,
+            "wis": 0
         },
         "key": "@"
     },
@@ -247,42 +247,6 @@
             }
         ],
         "key": "Σ"
-    },
-    "treasure chest": {
-        "dna": {
-            "def": 0,
-            "dex": 0,
-            "end": 0,
-            "eva": 0,
-            "hp": 0,
-            "int": 0,
-            "mag": 0,
-            "spd": 0,
-            "str": 0,
-            "wis": 0
-        },
-        "drops": [
-            {
-                "chance": 60,
-                "type": "droppable"
-            },
-            {
-                "chance": 60,
-                "type": "droppable"
-            },
-            {
-                "chance": 60,
-                "type": "droppable"
-            },
-            {
-                "chance": 60,
-                "type": "droppable"
-            }
-        ],
-        "key": "$",
-        "stats": {
-            "hp": 0.1
-        }
     },
     "vampire": {
         "dna": {
