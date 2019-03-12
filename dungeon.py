@@ -1664,6 +1664,8 @@ class Game():
 					self.action = "move"
 					interacted = self.interact(self.DIRECTIONS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1]))
 					self.player_action = interacted
+					if self.player_action:
+						self.log.update()
 				else:
 					old_pos = self.character.pos
 					self.character.pos = self.move(key)
@@ -2665,7 +2667,7 @@ class Log():
 			self.log(overflow, newline=True)
 		else:
 			self.history.append(info)
-		if len(self.history) > 7:
+		if len(self.history) > 10:
 			self.history.pop(0)
 		
 
