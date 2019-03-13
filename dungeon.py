@@ -2087,6 +2087,11 @@ class Item():
 	def __repr__(self):
 		return self.__str__()
 
+class Key(Item):
+	def __init__(self, item_id, item_info):
+		super().__init__(item_id, item_info)
+		
+
 class Handler():
 	def __init__(self, collection):
 		self.used_ids = set()
