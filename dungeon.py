@@ -1662,10 +1662,8 @@ class Game():
 			if key in list(self.MOVEMENT_BINDS.keys()):
 				if self.action == "use":
 					self.action = "move"
-					interacted = self.interact(self.DIRECTIONS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1]))
-					self.player_action = interacted
-					if self.player_action:
-						self.log.update()
+					self.log.update()
+					self.player_action = self.interact(self.DIRECTIONS[self.MOVEMENT_BINDS[key]](self.character.pos[0], self.character.pos[1]))
 				else:
 					old_pos = self.character.pos
 					self.character.pos = self.move(key)
@@ -2087,10 +2085,27 @@ class Item():
 	def __repr__(self):
 		return self.__str__()
 
-class Key(Item):
-	def __init__(self, item_id, item_info):
-		super().__init__(item_id, item_info)
-		
+class Factory():
+	def __init__(self, sources={}):
+		self.sources = sources
+		self.sources["key"] = "keys.json"
+
+	def make_param(self, param):
+		if param["type"] == "int":
+			return random.randint(param["bounds"]["min"], param["bounds"]["max"])
+		elif param["type"] == "float":
+			return random.uniform(param["bounds"]["min"], param["bounds"]["max"])
+		elif param["type"] == "array":
+			return [self.make_param(param["values"]) for i in range(param["length"])]
+
+	def build(self, type, item_id, **kwargs):
+		template = json.load(self.sources[type])
+		item = Item(item_id, {})
+		item.item_info["name"] = template["name"]
+		for param_key in template["parameters"]:
+			param = template["parameters"][param_key]
+			item.item_info[param_key] = self.make_param(param)
+			
 
 class Handler():
 	def __init__(self, collection):
@@ -2548,7 +2563,7 @@ class Feature():
 		self.disabled = False
 
 	def disable(self):
-		self.disable = True
+		self.disabled = True
 		self.colour = int(COLOURS["disabled"], 16)
 
 	def __str__(self):

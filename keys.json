@@ -1,6 +1,8 @@
 {
+	"name": "key",
 	"parameters": {
 		"length": {
+			"type": "float",
 			"continuous": true,
 			"range": 3,
 			"bounds": {
@@ -23,6 +25,7 @@
 			}
 		},
 		"width": {
+			"type": "float",
 			"continuous": true,
 			"range": 0.3,
 			"bounds": {
@@ -45,6 +48,7 @@
 			}
 		},
 		"height": {
+			"type": "float",
 			"continuous": true,
 			"range": 0.75,
 			"bounds": {
@@ -67,53 +71,51 @@
 			}
 		},
 		"shape": {
+			"type": "int",
 			"continuous": false,
 			"range": 7,
 			"bounds": {
-				"min": 0,
+				"min": 1,
 				"max": 8
 			},
 			"names": {
 				"round": {
-					"min": 1,
-					"max": 1
+					"value": 1
 				},
 				"flat": {
-					"min": 2,
-					"max": 2
+					"value": 2
 				},
 				"triangular": {
-					"min": 3,
-					"max": 3
+					"value": 3
 				},
 				"square": {
-					"min": 4,
-					"max": 4
+					"value": 4
 				},
 				"pentagonal": {
-					"min": 5,
-					"max": 5
+					"value": 5
 				},
 				"hexagonal": {
-					"min": 6,
-					"max": 6
+					"value": 6
 				},
 				"heptagonal": {
-					"min": 7,
-					"max": 7
+					"value": 7
 				},
 				"octagonal": {
-					"min": 8,
-					"max": 8
+					"value": 8
 				}
 			}
 		},
 		"teeth": {
-			"continuous": false,
-			"range": 65536,
-			"bounds": {
-				"min": 0,
-				"max": 65536
+			"type": "array",
+			"length": 8,
+			"values": {
+				"type": "int",
+				"continuous": false,
+				"range": 3,
+				"bounds": {
+					"min": 0,
+					"max": 3
+				}
 			}
 		}
 	}
