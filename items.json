@@ -445,7 +445,7 @@
                     "swords": {
                         "katana": {
                             "equip": "2hand",
-                            "key": "Ϯ",
+                            "key": "ƒ",
                             "mat": "m",
                             "name": "katana",
                             "stats": {
@@ -469,7 +469,7 @@
                         },
                         "scimitar": {
                             "equip": "1hand",
-                            "key": "Ϯ",
+                            "key": "ƒ",
                             "mat": "m",
                             "name": "scimitar",
                             "stats": {
