@@ -1,0 +1,57 @@
+{
+	"katana": {
+		"mat": "m",
+		"key": "Ϯ",
+		"equip": "2hand",
+		"parameters": {
+			"pen": {
+				"type": "float",
+				"continuous": true,
+				"distribution": "normal",
+				"mean": 2,
+				"sigma": 1,
+				"range": 10,
+				"bounds": {
+					"min": 0.1,
+					"max": 10
+				}
+			},
+			"skl": {
+				"type": "float",
+				"continuous": false,
+				"distribution": "normal",
+				"mean": 4,
+				"sigma": 1,
+				"range": 10,
+				"bounds": {
+					"min": 1,
+					"max": 10
+				}
+			},
+			"spd": {
+				"type": "float",
+				"continuous": true,
+				"distribution": "normal",
+				"mean": 7,
+				"sigma": 1,
+				"range": 10,
+				"bounds": {
+					"min": 0.1,
+					"max": 10
+				}
+			},
+			"str": {
+				"type": "float",
+				"continuous": true,
+				"distribution": "normal",
+				"mean": 7,
+				"sigma": 1,
+				"range": 10,
+				"bounds": {
+					"min": 0.1,
+					"max": 10
+				}
+			}
+		}
+	}
+}

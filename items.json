@@ -494,6 +494,15 @@
                     }
                 }
             }
+        },
+        "tools": {
+            "keys": {
+                "key": {
+                    "mat": "m",
+                    "name": "key",
+                    "file": "keys.json"
+                }
+            }
         }
     },
     "undroppable": {

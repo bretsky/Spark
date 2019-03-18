@@ -1,120 +1,123 @@
 {
-	"name": "key",
-	"parameters": {
-		"length": {
-			"type": "float",
-			"continuous": true,
-			"range": 3,
-			"bounds": {
-				"min": 1,
-				"max": 4
-			},
-			"names":{
-				"short": {
-					"min": 1,
-					"max": 2
-				},
-				"medium": {
-					"min": 2,
-					"max": 3
-				},
-				"long": {
-					"min": 3,
-					"max": 4
-				}
-			}
-		},
-		"width": {
-			"type": "float",
-			"continuous": true,
-			"range": 0.3,
-			"bounds": {
-				"min": 0.1,
-				"max": 0.4
-			},
-			"names": {
-				"thin": {
-					"min": 0.1,
-					"max": 0.2
-				},
-				"medium": {
-					"min": 0.2,
-					"max": 0.3
-				},
-				"wide": {
-					"min": 0.3,
-					"max": 0.4
-				}
-			}
-		},
-		"height": {
-			"type": "float",
-			"continuous": true,
-			"range": 0.75,
-			"bounds": {
-				"min": 0.25,
-				"max": 1
-			},
-			"names": {
-				"short": {
-					"min": 0.25,
-					"max": 0.5
-				},
-				"medium": {
-					"min": 0.5,
-					"max": 0.75
-				},
-				"tall": {
-					"min": 0.75,
-					"max": 1
-				}
-			}
-		},
-		"shape": {
-			"type": "int",
-			"continuous": false,
-			"range": 7,
-			"bounds": {
-				"min": 1,
-				"max": 8
-			},
-			"names": {
-				"round": {
-					"value": 1
-				},
-				"flat": {
-					"value": 2
-				},
-				"triangular": {
-					"value": 3
-				},
-				"square": {
-					"value": 4
-				},
-				"pentagonal": {
-					"value": 5
-				},
-				"hexagonal": {
-					"value": 6
-				},
-				"heptagonal": {
-					"value": 7
-				},
-				"octagonal": {
-					"value": 8
-				}
-			}
-		},
-		"teeth": {
-			"type": "array",
-			"length": 8,
-			"values": {
-				"type": "int",
-				"continuous": false,
+	"key": {
+		"mat": "m",
+		"key": "🔑"
+		"parameters": {
+			"length": {
+				"type": "float",
+				"continuous": true,
 				"range": 3,
 				"bounds": {
-					"min": 0,
-					"max": 3
+					"min": 1,
+					"max": 4
+				},
+				"names":{
+					"short": {
+						"min": 1,
+						"max": 2
+					},
+					"medium": {
+						"min": 2,
+						"max": 3
+					},
+					"long": {
+						"min": 3,
+						"max": 4
+					}
+				}
+			},
+			"width": {
+				"type": "float",
+				"continuous": true,
+				"range": 0.3,
+				"bounds": {
+					"min": 0.1,
+					"max": 0.4
+				},
+				"names": {
+					"thin": {
+						"min": 0.1,
+						"max": 0.2
+					},
+					"medium": {
+						"min": 0.2,
+						"max": 0.3
+					},
+					"wide": {
+						"min": 0.3,
+						"max": 0.4
+					}
+				}
+			},
+			"height": {
+				"type": "float",
+				"continuous": true,
+				"range": 0.75,
+				"bounds": {
+					"min": 0.25,
+					"max": 1
+				},
+				"names": {
+					"short": {
+						"min": 0.25,
+						"max": 0.5
+					},
+					"medium": {
+						"min": 0.5,
+						"max": 0.75
+					},
+					"tall": {
+						"min": 0.75,
+						"max": 1
+					}
+				}
+			},
+			"shape": {
+				"type": "int",
+				"continuous": false,
+				"range": 7,
+				"bounds": {
+					"min": 1,
+					"max": 8
+				},
+				"names": {
+					"round": {
+						"value": 1
+					},
+					"flat": {
+						"value": 2
+					},
+					"triangular": {
+						"value": 3
+					},
+					"square": {
+						"value": 4
+					},
+					"pentagonal": {
+						"value": 5
+					},
+					"hexagonal": {
+						"value": 6
+					},
+					"heptagonal": {
+						"value": 7
+					},
+					"octagonal": {
+						"value": 8
+					}
+				}
+			},
+			"teeth": {
+				"type": "array",
+				"length": 8,
+				"values": {
+					"type": "int",
+					"continuous": false,
+					"range": 3,
+					"bounds": {
+						"min": 0,
+						"max": 3
+					}
 				}
 			}
 		}
