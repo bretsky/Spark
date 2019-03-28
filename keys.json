@@ -1,7 +1,8 @@
 {
 	"key": {
 		"mat": "m",
-		"key": "🔑"
+		"key": "⚷",
+		"name": "key",
 		"parameters": {
 			"length": {
 				"type": "float",

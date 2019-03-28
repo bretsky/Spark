@@ -444,52 +444,20 @@
                     },
                     "swords": {
                         "katana": {
-                            "equip": "2hand",
-                            "key": "ƒ",
-                            "mat": "m",
                             "name": "katana",
-                            "stats": {
-                                "pen": 2,
-                                "skl": 4,
-                                "spd": 7,
-                                "str": 7
-                            }
+                            "file": "swords.json"
                         },
                         "longsword": {
-                            "equip": "2hand",
-                            "key": "Ϯ",
-                            "mat": "m",
                             "name": "longsword",
-                            "stats": {
-                                "pen": 4,
-                                "skl": 2,
-                                "spd": 3,
-                                "str": 7
-                            }
+                            "file": "swords.json"
                         },
                         "scimitar": {
-                            "equip": "1hand",
-                            "key": "ƒ",
-                            "mat": "m",
                             "name": "scimitar",
-                            "stats": {
-                                "pen": 4,
-                                "skl": 4,
-                                "spd": 4,
-                                "str": 7
-                            }
+                            "file": "swords.json"
                         },
                         "sword": {
-                            "equip": "2hand",
-                            "key": "Ϯ",
-                            "mat": "m",
                             "name": "sword",
-                            "stats": {
-                                "pen": 3,
-                                "skl": 2,
-                                "spd": 5,
-                                "str": 5
-                            }
+                            "file": "swords.json"
                         }
                     }
                 }
@@ -498,7 +466,6 @@
         "tools": {
             "keys": {
                 "key": {
-                    "mat": "m",
                     "name": "key",
                     "file": "keys.json"
                 }

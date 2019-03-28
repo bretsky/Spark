@@ -1010,6 +1010,9 @@ class Game():
 		self.character.invincible = True
 		self.visibility = True
 		self.modifiers.append("map")
+		self.drop_constant = 6
+		for inventory in self.inventories:
+			inventory.drop_constant = 6
 
 	def import_files(self):
 		geo_file = open('data/dungeon/geographical_features.txt')
@@ -1966,32 +1969,33 @@ class Game():
 							brlb.put(width // 2 + key_length + c, start_y + 1 + key_index, attribute[c])
 						brlb.composition(brlb.TK_OFF)
 					key_index = len(inventory.key_order)
-					stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
-					character_stats = [stat for stat in stats if stat in list(self.character.stats.keys()) and stat not in self.UNIMPLEMENTED_STATS]
-					# print(inventory.items[index + (inventory.page - 1) * list_height])
-					character_stats_diff = self.character.get_stat_changes(inventory.items[index + (inventory.page - 1) * list_height], character_stats)
-					character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
-					for key in character_stats:
-						brlb.color(4294967295)
-						attribute = key + ': ' + str(inventory.items[index + (inventory.page - 1) * list_height].info["stats"][key])
-						for c in range(len(attribute)):
-							brlb.put(width // 2 + c, start_y + 1 + key_index, attribute[c])
-						length = len(attribute)
-						equipped = inventory.find_equipped_item(inventory.items[index + (inventory.page - 1) * list_height].info["equip"])
-						diff = character_stats_diff[key]
-						diff_text = ''
-						for d in diff:
-							d = round(d, 3)
-							if d < 0:
-								diff_text += str(d)
-							elif d > 0:
-								diff_text += '+' + str(d)
-							else:
-								diff_text += '=='
-							diff_text += '|'
-						for c in range(len(diff_text) - 1):
-							brlb.put(width // 2 + length + c + 1, start_y + 1 + key_index, diff_text[c])
-						key_index += 1
+					if "equipment" in inventory.items[index + (inventory.page - 1) * list_height].info["hierarchy"]:
+						stats = sorted(list(inventory.items[index + (inventory.page - 1) * list_height].info["stats"].keys()))
+						character_stats = [stat for stat in stats if stat in list(self.character.stats.keys()) and stat not in self.UNIMPLEMENTED_STATS]
+						# print(inventory.items[index + (inventory.page - 1) * list_height])
+						character_stats_diff = self.character.get_stat_changes(inventory.items[index + (inventory.page - 1) * list_height], character_stats)
+						character_stats_diff = {character_stats[i]:character_stats_diff[i] for i in range(len(character_stats))}
+						for key in character_stats:
+							brlb.color(4294967295)
+							attribute = key + ': ' + str(round(inventory.items[index + (inventory.page - 1) * list_height].info["stats"][key], 2))
+							for c in range(len(attribute)):
+								brlb.put(width // 2 + c, start_y + 1 + key_index, attribute[c])
+							length = len(attribute)
+							equipped = inventory.find_equipped_item(inventory.items[index + (inventory.page - 1) * list_height].info["equip"])
+							diff = character_stats_diff[key]
+							diff_text = ''
+							for d in diff:
+								d = round(d, 3)
+								if d < 0:
+									diff_text += str(d)
+								elif d > 0:
+									diff_text += '+' + str(d)
+								else:
+									diff_text += '=='
+								diff_text += '|'
+							for c in range(len(diff_text) - 1):
+								brlb.put(width // 2 + length + c + 1, start_y + 1 + key_index, diff_text[c])
+							key_index += 1
 					menu_x = width // 2
 					menu_y = start_y + 1 + key_index
 					brlb.color(4294967295)
@@ -2086,25 +2090,64 @@ class Item():
 		return self.__str__()
 
 class Factory():
-	def __init__(self, sources={}):
+
+	def __init__(self, materials, sources={}):
 		self.sources = sources
-		self.sources["key"] = "keys.json"
+		self.materials = materials
+		self.mat_abbr = {'m': 'metallic', 'w':'wooden', 'f': 'flexible', 'p':'precious'}
+
+	def material_roll(self):
+		if random.random() > 0.25:
+			return round_rand((random.random()*5 + 1 + random.random()*5 + 1)/2)
+		else:
+			return random.randint(1, 6)
+
+	def get_material(self, mat_type, item_info):
+		print(item_info)
+		roll = self.material_roll()
+		material = random.choice(list(self.materials[self.mat_abbr[mat_type]][str(roll)].keys()))
+		item_info["mat"] = material
+		
+		item_info["name"] = material + " " + item_info["name"]
+		print(item_info)
+		item_info["mat_tier"] = roll
+
+		item_info["colour"] = int(self.materials[self.mat_abbr[mat_type]][str(roll)][material], 16)
+		return item_info
 
 	def make_param(self, param):
 		if param["type"] == "int":
 			return random.randint(param["bounds"]["min"], param["bounds"]["max"])
 		elif param["type"] == "float":
+			if param.get("distribution", False):
+				return max(min(random.gauss(param['mean'], param["sigma"]), param['bounds']['max']), param['bounds']['min'])
 			return random.uniform(param["bounds"]["min"], param["bounds"]["max"])
 		elif param["type"] == "array":
 			return [self.make_param(param["values"]) for i in range(param["length"])]
 
-	def build(self, type, item_id, **kwargs):
-		template = json.load(self.sources[type])
+	def build(self, source, item_id, base_type, level):
+		if base_type not in self.sources:
+			templates = json.load(open(source, 'r'))
+			self.sources.update(templates)
+		template = self.sources[base_type]
 		item = Item(item_id, {})
-		item.item_info["name"] = template["name"]
+		for key in template:
+			if key != "parameters":
+				item.info[key] = template[key]
+		if template["mat"]:
+			item.info = self.get_material(template["mat"], item.info)
+		else:
+			item.info["mat_tier"] = 3.5
+			item.info["colour"] = int(template["colour"], 16)
+		scale_factor = level * item.info["mat_tier"] / 6
+		item.info["stats"] = {}
 		for param_key in template["parameters"]:
 			param = template["parameters"][param_key]
-			item.item_info[param_key] = self.make_param(param)
+			item.info["stats"][param_key] = self.make_param(param)
+			if template["parameters"][param_key].get('scaling', False):
+				item.info["stats"][param_key] *= level * scale_factor
+		print(item.info)
+		return item
 			
 
 class Handler():
@@ -2156,6 +2199,7 @@ class Inventory(Handler):
 		self.item = 1
 		self.drop_constant = drop_constant
 		self.set_dims(0, 0)
+		self.factory = Factory(materials)
 
 	def set_dims(self, w, h):
 		self.width = w
@@ -2181,43 +2225,47 @@ class Inventory(Handler):
 		# 		choices = choices[random.choice(list(choices.keys()))]
 		try:
 			while "name" not in list(choices.keys()):
-				choices = choices[random.choice(list(choices.keys()))] 
+				key_choice = random.choice(list(choices.keys()))
+				choices = choices[key_choice]
+				hierarchy.append(key_choice)
 		except (ValueError, IndexError) as e:
 			print('WTF!!!!', choices, hierarchy, e)
-		return choices
+		return choices, hierarchy
 
 	def roll_stat(self, base, level, material_tier):
 		roll = random.uniform((level / 2), (level * 1.5))
 		return max(0, round(roll + (base + level * (material_tier - 3.5)), 2))
 
-	def item_smith(self, item_info, level, location):
-		
-		try:
-			if "mat" in list(item_info.keys()):
-				if item_info["mat"]:
-					# print(item_info)
-					material_tier = self.material_roll()
-					mat_type = item_info["mat"]
-					material = random.choice(list(self.materials[self.mat_abbr[mat_type]][str(material_tier)].keys()))
-					item_info["mat"] = material
-					item_info["name"] = material + " " + item_info["name"]
-					item_info["mat_tier"] = material_tier
-					item_info["colour"] = int(self.materials[self.mat_abbr[mat_type]][str(material_tier)][material], 16)
-				else:
-					item_info["mat_tier"] = 3.5
-					item_info["colour"] = int(item_info["colour"], 16)
-		except (ValueError, IndexError) as e:
-			print('WTF!!!!', item_info, e)
-		item_info["name"] += " [" + str(level) + "]"
-		item_info["level"] = level
-		for stat in list(item_info["stats"].keys()):
-			if stat in ["skl", "wgt"]:
-				item_info["stats"][stat] = ceiling(random.uniform(0.75*item_info["stats"][stat], 1.25*item_info["stats"][stat]))
+	def item_smith(self, choice_info, level, location):
+		item_info, hierarchy = choice_info
+		level = max(1, round_rand(random.gauss(level, 1)))
+		if "file" in item_info:
+			item = self.factory.build(item_info["file"], self.get_id(), item_info["name"], level)
+			
+		else:
+			if item_info["mat"]:
+				# print(item_info)
+				material_tier = self.material_roll()
+				mat_type = item_info["mat"]
+				material = random.choice(list(self.materials[self.mat_abbr[mat_type]][str(material_tier)].keys()))
+				item_info["mat"] = material
+				item_info["name"] = material + " " + item_info["name"]
+				item_info["mat_tier"] = material_tier
+				item_info["colour"] = int(self.materials[self.mat_abbr[mat_type]][str(material_tier)][material], 16)
 			else:
-				item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
-		item_info["location"] = location
-		item = Item(self.get_id(), item_info)
+				item_info["mat_tier"] = 3.5
+				item_info["colour"] = int(item_info["colour"], 16)
+			for stat in list(item_info["stats"].keys()):
+				if stat in ["skl", "wgt"]:
+					item_info["stats"][stat] = ceiling(random.uniform(0.75*item_info["stats"][stat], 1.25*item_info["stats"][stat]))
+				else:
+					item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
+			item = Item(self.get_id(), item_info)
 		# print(self.get_id())
+		item.info["hierarchy"] = hierarchy
+		item.info["name"] = item.info["name"] + " [" + str(level) + "]"
+		item.info["level"] = level
+		item.info["location"] = location
 		self.items.append(item)
 		if self.list_height != 0:
 			if len(self.items) - self.pages * self.list_height > 0:
