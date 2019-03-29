@@ -2,55 +2,173 @@
 	"treasure chest": {
 		"interact": [
 			{
-				"type": "drop",
-				"rate": 1,
-				"drops": [
+				"action": "open",
+				"using": false,
+				"result": [
 					{
-						"chance": 50,
-						"type": "droppable"
+						"type": "drop",
+						"rate": 1,
+						"drops": [
+							{
+								"chance": 50,
+								"type": "droppable"
+							},
+							{
+								"chance": 75,
+								"type": "droppable"
+							},
+							{
+								"chance": 100,
+								"type": "droppable"
+							}
+						]
 					},
 					{
-						"chance": 75,
-						"type": "droppable"
-					},
-					{
-						"chance": 100,
-						"type": "droppable"
+						"type": "disable",
+						"rate": 1
 					}
 				]
 			},
 			{
-				"type": "disable",
-				"rate": 1
+				"action": "hit",
+				"using": "weapons",
+				"result": [
+					{
+						"type": "if",
+						"rate": 1,
+						"chance": 1,
+						"condition": {
+							"type": "random",
+							"chance": 0.5
+						},
+						"then": [
+							{
+								"type": "drop",
+								"rate": 1,
+								"chance": 0.25,
+								"drops": [
+									{
+										"chance": 50,
+										"type": "droppable"
+									},
+									{
+										"chance": 75,
+										"type": "droppable"
+									},
+									{
+										"chance": 100,
+										"type": "droppable"
+									}
+								]
+							}
+						],
+						"else": [
+							{
+								"type": "disable",
+								"rate": 1,
+								"chance": 0.25
+							}
+						]
+					}
+				]
 			}
+			
 		],
         "key": "$",
+        "colour": "ffcc00",
+        "rate": 0.75
+    },
+    "locked treasure chest": {
+		"interact": [
+			{
+				"action": "unlock",
+				"using": "keys",
+				"result": [
+					{
+						"type": "transform",
+						"rate": 1,
+						"into": "treasure chest"
+					}
+				]
+			},
+			{
+				"action": "hit",
+				"using": "weapons",
+				"result": [
+					{
+						"type": "if",
+						"rate": 1,
+						"chance": 1,
+						"condition": {
+							"type": "random",
+							"chance": 0.5
+						},
+						"then": [
+							{
+								"type": "drop",
+								"rate": 1,
+								"chance": 0.25,
+								"drops": [
+									{
+										"chance": 50,
+										"type": "droppable"
+									},
+									{
+										"chance": 75,
+										"type": "droppable"
+									},
+									{
+										"chance": 100,
+										"type": "droppable"
+									}
+								]
+							}
+						],
+						"else": [
+							{
+								"type": "disable",
+								"rate": 1,
+								"chance": 0.25
+							}
+						]
+					}
+				]
+			}
+		],
+        "key": "🔒",
         "colour": "ffcc00",
         "rate": 0.75
     },
     "shrine": {
     	"interact": [
     		{
-    			"type": "w_choice",
-	    		"interactions": [
-	    			{
-	    				"type": "heal",
-	    				"rate": 0.9,
-	    				"power": 2.5
-	    			},
-	    			{
-	    				"type": "damage",
-	    				"rate": 0.1,
-	    				"power": 2.5
-	    			}
-	    		],
-	    		"rate": 1
-    		},
-    		{
-    			"type": "disable",
-    			"rate": 1,
-    			"chance": 0.5
-    		}
+				"action": "pray",
+				"using": false,
+				"result": [
+					{
+		    			"type": "w_choice",
+			    		"interactions": [
+			    			{
+			    				"type": "heal",
+			    				"rate": 0.9,
+			    				"power": 2.5
+			    			},
+			    			{
+			    				"type": "damage",
+			    				"rate": 0.1,
+			    				"power": 2.5
+			    			}
+			    		],
+			    		"rate": 1
+		    		},
+		    		{
+		    			"type": "disable",
+		    			"rate": 1,
+		    			"chance": 0.5
+		    		}
+				]
+			},
+    		
     	],
     	"key": "Π",
     	"colour": "E34234",

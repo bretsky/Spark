@@ -1375,18 +1375,19 @@ class Game():
 		return new_pos
 
 
-	def interact(self, pos):
+	def interact(self, pos, using=None):
 		if pos in self.dungeon.features.feature_locations:
 			feature = list(filter(lambda x: x.location == pos, self.dungeon.features.features))[0]
 			if not feature.disabled:
 				for interaction in feature.interactions:
 					if random.random() < interaction.get("chance", 1):
-						self.INTERACTIONS[interaction["type"]](interaction, feature)
+						self.INTERACTIONS[interaction["type"]](interaction, feature, using)
 				return True
 		return False
 
 
-	def i_drop(self, interaction, feature):
+	def i_drop(self, interaction, feature, using):
+		if usin
 		level = random.randrange(int(self.dungeon.level * 0.75 - 1), int(self.dungeon.level * 1.5 + 1)) + random.randrange(int(self.dungeon.level * 0.75 - 1), int(self.dungeon.level * 1.5 + 1))
 		level /= 2
 		print(level)
@@ -2262,6 +2263,7 @@ class Inventory(Handler):
 					item_info["stats"][stat] = self.roll_stat(item_info["stats"][stat], level, item_info["mat_tier"])
 			item = Item(self.get_id(), item_info)
 		# print(self.get_id())
+		item.info["base_type"] = item_info["name"]
 		item.info["hierarchy"] = hierarchy
 		item.info["name"] = item.info["name"] + " [" + str(level) + "]"
 		item.info["level"] = level
@@ -2592,13 +2594,25 @@ class Features(Handler):
 		possible_interactions = self.feature_types[feature_type]["interact"]
 		interactions = []
 		for interaction in possible_interactions:
-			if random.random() < interaction["rate"]:
-				if interaction["type"] == "w_choice":
-					interactions.append(p_choice_list(interaction["interactions"], p_func=lambda x: x["rate"]))
-				else:
-					interactions.append(interaction)
+			#Build interaction object, move all the old interaction event logic into dict based on the action, item used
+
+
+			# if random.random() < interaction["rate"]:
+			# 	if interaction["type"] == "w_choice":
+			# 		interactions.append(p_choice_list(interaction["interactions"], p_func=lambda x: x["rate"]))
+			# 	else:
+			# 		interactions.append(interaction)
 
 		return Feature(feature_type, interactions, self.feature_types[feature_type]["key"], location, int(self.feature_types[feature_type]["colour"], 16), self.get_id())
+
+	def make_result(self, result_template):
+		#TODO: move old "interaction" generation logic to here
+
+class Interaction():
+	def __init__(self, action, using, results):
+		self.action = action
+		self.using = using
+		self.results = results
 
 class Feature():
 	def __init__(self, name, interactions, key, location, colour, feature_id):
