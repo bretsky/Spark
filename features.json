@@ -36,7 +36,6 @@
 					{
 						"type": "if",
 						"rate": 1,
-						"chance": 1,
 						"condition": {
 							"type": "random",
 							"chance": 0.5

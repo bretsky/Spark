@@ -2607,6 +2607,15 @@ class Features(Handler):
 
 	def make_result(self, result_template):
 		#TODO: move old "interaction" generation logic to here
+		for key in result_template:
+			possible_result = result_template[key]
+			if random.random() < possible_result['rate']:
+				if possible_result["type"] == "if":
+					if possible_result["condition"] == "random":
+						then_result = self.make_result(possible_result["then"])
+						else_result = self.make_result(possible_result["else"])
+						return lambda using: then_result(using) if random.random() < possible_result["condition"]["chance"] else else_result(using)
+
 
 class Interaction():
 	def __init__(self, action, using, results):
